@@ -1,0 +1,83 @@
+<?php namespace scr\model;
+
+use mysqli;
+use scr\model\Contato;
+use scr\dao\PessoaJuridicaDAO;
+
+class PessoaJuridica
+{
+    private $id;
+    private $razaoSocial;
+    private $nomeFantasia;
+    private $cnpj;
+    private $contato;
+
+    public function __construct(int $id, string $razaoSocial, string $nomeFantasia, string $cnpj, Contato $contato)
+    {
+        $this->id = $id;
+        $this->razaoSocial = $razaoSocial;
+        $this->nomeFantasia = $nomeFantasia;
+        $this->cnpj = $cnpj;
+        $this->contato = $contato;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getRazaoSocial(): string
+    {
+        return $this->razaoSocial;
+    }
+
+    public function getNomeFantasia(): string
+    {
+        return $this->nomeFantasia;
+    }
+
+    public function getCnpj(): string
+    {
+        return $this->cnpj;
+    }
+
+    public function getContato(): Contato
+    {
+        return $this->contato;
+    }
+
+    public static function getById(mysqli $conn, int $id) : ?PessoaJuridica
+    {
+        return $id > 0 ? PessoaJuridicaDAO::getById($conn, $id) : null;
+    }
+
+    public static function verifyCnpj(mysqli $conn, string $cnpj) : bool
+    {
+        return strlen(trim($cnpj)) > 0 && PessoaJuridicaDAO::countCnpj($conn, $cnpj) > 0;
+    }
+
+    public function insert(mysqli $conn) : int
+    {
+        if ($this->id != 0 || strlen(trim($this->razaoSocial)) <= 0 || strlen(trim($this->nomeFantasia)) <= 0 || strlen(trim($this->cnpj)) < 18 || $this->contato == null) return -5;
+
+        return PessoaJuridicaDAO::insert($conn, $this->razaoSocial, $this->nomeFantasia, $this->cnpj, $this->contato->getId());
+    }
+
+    public function update(mysqli $conn) : int
+    {
+        if ($this->id <= 0 || strlen(trim($this->razaoSocial)) <= 0 || strlen(trim($this->nomeFantasia)) <= 0 || strlen(trim($this->cnpj)) < 18 || $this->contato == null) return -5;
+
+        return PessoaJuridicaDAO::update($conn, $this->id, $this->razaoSocial, $this->nomeFantasia, $this->cnpj, $this->contato->getId());
+    }
+
+    public static function delete(mysqli $conn, int $id) : int
+    {
+        return $id > 0 ? PessoaJuridicaDAO::delete($conn, $id) : -5;
+    }
+
+    public function jsonSerialize()
+    {
+        $this->contato = $this->contato->jsonSerialize();
+        return get_object_vars($this);
+    }
+}
