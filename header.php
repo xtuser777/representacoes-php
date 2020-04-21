@@ -20,6 +20,7 @@ require ROOT . '/src/model/Nivel.php';
 require ROOT . '/src/model/Usuario.php';
 require ROOT . '/src/model/Parametrizacao.php';
 require ROOT . '/src/model/Cliente.php';
+require ROOT . '/src/model/Representacao.php';
 
 require ROOT . '/src/util/Singleton.php';
 require ROOT . '/src/util/Banco.php';
@@ -35,6 +36,7 @@ require ROOT . '/src/dao/NivelDAO.php';
 require ROOT . '/src/dao/UsuarioDAO.php';
 require ROOT . '/src/dao/ParametrizacaoDAO.php';
 require ROOT . '/src/dao/ClienteDAO.php';
+require ROOT . '/src/dao/RepresentacaoDAO.php';
 
 require ROOT . '/src/control/CidadeControl.php';
 require ROOT . '/src/control/EstadoControl.php';
@@ -48,3 +50,7 @@ require ROOT . '/src/control/ConfiguracoesDadosControl.php';
 require ROOT . '/src/control/ClienteControl.php';
 require ROOT . '/src/control/ClienteNovoControl.php';
 require ROOT . '/src/control/ClienteDetalhesControl.php';
+require ROOT . '/src/control/RepresentacaoControl.php';
+require ROOT . '/src/control/RepresentacaoNovoControl.php';
+require ROOT . '/src/control/RepresentacaoDetalhesControl.php';
+require ROOT . '/src/control/RepresentacaoAddUnidadeControl.php';

@@ -1,7 +1,7 @@
 <?php namespace scr\dao;
 
 use mysqli;
-use scr\dao\Banco;
+use scr\util\Banco;
 use scr\model\Cidade;
 use scr\model\Contato;
 use scr\model\Endereco;
@@ -11,15 +11,17 @@ use scr\model\Representacao;
 
 class RepresentacaoDAO
 {
-    public static function insert(mysqli $conn, string $cadastro, string $unidade, int $pessoa): int
+    public static function insert(string $cadastro, string $unidade, int $pessoa): int
     {
+        if (Banco::getInstance()->getConnection() == null) return -10;
+
         $sql = '
             insert into representacao(rep_cadastro, rep_unidade, pj_id)
             values(?,?,?);
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
@@ -31,21 +33,41 @@ class RepresentacaoDAO
         return $id;
     }
 
-    public static function update(): int
+    public static function update(int $id, string $unidade): int
     {
-        
+        if (Banco::getInstance()->getConnection() == null) return -10;
+
+        $sql = '
+            update representacao
+            set rep_unidade = ? 
+            where rep_id = ?;
+        ';
+
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt)
+        {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $stmt->bind_param('si', $unidade, $id);
+        $stmt->execute();
+
+        return $stmt->affected_rows;
     }
     
-    public static function delete(mysqli $conn, int $id): int
+    public static function delete(int $id): int
     {
+        if (Banco::getInstance()->getConnection() == null) return -10;
+
         $sql = '
             delete
             from representacao
             where rep_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
@@ -57,8 +79,10 @@ class RepresentacaoDAO
         return $res;
     }
 
-    public static function getById(mysqli $conn, int $id): ?Representacao
+    public static function getById(int $id): ?Representacao
     {
+        if (Banco::getInstance()->getConnection() == null) return null;
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
@@ -74,9 +98,9 @@ class RepresentacaoDAO
             inner join estado e on c.est_id = e.est_id
             where r.rep_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
 
@@ -111,8 +135,10 @@ class RepresentacaoDAO
         return $rep;
     }
 
-    public static function getByKey(mysqli $conn, string $key): array
+    public static function getByKey(string $key): array
     {
+        if (Banco::getInstance()->getConnection() == null) return array();
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
@@ -128,13 +154,13 @@ class RepresentacaoDAO
             inner join estado e on c.est_id = e.est_id
             where p.pj_nome_fantasia like ? or ct.ctt_email like ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
 
-        $pkey = '%' + $key + '%';
+        $pkey = '%' . $key . '%';
         $statement->bind_param('ss', $pkey, $pkey);
         $statement->execute();
 
@@ -169,8 +195,10 @@ class RepresentacaoDAO
         return $representacoes;
     }
 
-    public static function getByCad(mysqli $conn, string $cad): array
+    public static function getByCad(string $cad): array
     {
+        if (Banco::getInstance()->getConnection() == null) return array();
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
@@ -186,9 +214,9 @@ class RepresentacaoDAO
             inner join estado e on c.est_id = e.est_id
             where r.rep_cadastro = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
 
@@ -226,8 +254,10 @@ class RepresentacaoDAO
         return $representacoes;
     }
 
-    public static function getByKeyCad(mysqli $conn, string $key, string $cad): array
+    public static function getByKeyCad(string $key, string $cad): array
     {
+        if (Banco::getInstance()->getConnection() == null) return array();
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
@@ -244,9 +274,9 @@ class RepresentacaoDAO
             where (p.pj_nome_fantasia like ? or ct.ctt_email like ?)
             and r.rep_cadastro = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
 
@@ -285,8 +315,10 @@ class RepresentacaoDAO
         return $representacoes;
     }
 
-    public static function getAll(mysqli $conn): array
+    public static function getAll(): array
     {
+        if (Banco::getInstance()->getConnection() == null) return array();
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
@@ -301,9 +333,9 @@ class RepresentacaoDAO
             inner join cidade c on en.cid_id = c.cid_id
             inner join estado e on c.est_id = e.est_id;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
 

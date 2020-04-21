@@ -13,7 +13,7 @@ class Banco extends Singleton
      */
     protected function __construct() { }
 
-    public function open(): void
+    public function open(): bool
     {
         if (($this->conn != null && $this->conn->server_info == null) || $this->conn == null)
         {
@@ -23,8 +23,12 @@ class Banco extends Singleton
             if ($this->conn->connect_errno) {
                 echo "Erro ao conectar-se ao banco: " . $this->conn->connect_error;
                 $this->conn = null;
+
+                return false;
             }
         }
+
+        return true;
     }
 
     public function getConnection(): ?mysqli

@@ -64,6 +64,25 @@ class Representacao
         return RepresentacaoDAO::getAll();
     }
 
+    public function insert(): int
+    {
+        if ($this->id != 0 || $this->unidade == null || strlen(trim($this->unidade)) == 0 || $this->cadastro == null || $this->pessoa == null) return -5;
+
+        return RepresentacaoDAO::insert($this->cadastro, $this->unidade, $this->pessoa->getId());
+    }
+
+    public function update(): int
+    {
+        if ($this->id <= 0 || $this->unidade == null || strlen(trim($this->unidade)) == 0 || $this->cadastro == null || $this->pessoa == null) return -5;
+
+        return RepresentacaoDAO::update($this->id, $this->unidade);
+    }
+
+    public static function delete(int $id): int
+    {
+        return $id > 0 ? RepresentacaoDAO::delete($id) : -5;
+    }
+
     public function jsonSerialize()
     {
         $this->pessoa = $this->pessoa->jsonSerialize();
