@@ -1,7 +1,7 @@
 <?php namespace scr\dao;
 
 use mysqli;
-use scr\dao\Banco;
+use scr\util\Banco;
 use scr\model\Estado;
 use scr\model\Cidade;
 use scr\model\Endereco;
@@ -10,70 +10,72 @@ use scr\model\PessoaFisica;
 
 class PessoaFisicaDAO 
 {
-    public static function insert(mysqli $conn, string $nome, string $rg, string $cpf, string $nascimento, int $contato) : int
+    public static function insert(string $nome, string $rg, string $cpf, string $nascimento, int $contato) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             insert into pessoa_fisica(pf_nome,pf_rg,pf_cpf,pf_nascimento,ctt_id) 
             values(?,?,?,?,?);
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
         $statement->bind_param('ssssi', $nome, $rg, $cpf, $nascimento, $contato);
         $statement->execute();
-        
-        $ins_id = $statement->insert_id;
 
-        return $ins_id;
+        return $statement->insert_id;
     }
     
-    public static function update(mysqli $conn, int $id, string $nome, string $rg, string $cpf, string $nascimento, int $contato) : int
+    public static function update(int $id, string $nome, string $rg, string $cpf, string $nascimento, int $contato) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             update pessoa_fisica 
             set pf_nome = ?, pf_rg = ?, pf_cpf = ?, pf_nascimento = ?, ctt_id = ? 
             where pf_id = ?;
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
         $statement->bind_param('ssssii', $nome, $rg, $cpf, $nascimento, $contato, $id);
         $statement->execute();
-        
-        $res = $statement->affected_rows;
 
-        return $res;
+        return $statement->affected_rows;
     }
     
-    public static function delete(mysqli $conn, int $id) : int
+    public static function delete(int $id) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             delete 
             from pessoa_fisica 
             where pf_id = ?;
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
         $statement->bind_param('i', $id);
         $statement->execute();
-        
-        $res = $statement->affected_rows;
-        
-        return $res;
+
+        return $statement->affected_rows;
     }
     
-    public static function getById(mysqli $conn, int $id) : ?PessoaFisica
+    public static function getById(int $id) : ?PessoaFisica
     {
+        if (!Banco::getInstance()->getConnection()) return null;
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome,c.est_id,
@@ -87,9 +89,9 @@ class PessoaFisicaDAO
             inner join estado e on e.est_id = c.est_id
             where pf.pf_id = ?;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
         
@@ -97,10 +99,11 @@ class PessoaFisicaDAO
         $st->execute();
         
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            $conn->error;
+            $st->error;
             return null;
         }
         $row = $st->fetch_assoc();
+
         $pf = new PessoaFisica (
             $row['pf_id'], $row['pf_nome'], $row['pf_rg'], $row['pf_cpf'], $row['pf_nascimento'],
             new Contato (
@@ -120,16 +123,18 @@ class PessoaFisicaDAO
         return $pf;
     }
     
-    public static function countCpf(mysqli $conn, string $cpf) 
+    public static function countCpf(string $cpf): int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             select count(pf_id) as cnt 
             from pessoa_fisica 
             where pf_cpf = ?;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
@@ -137,7 +142,7 @@ class PessoaFisicaDAO
         $st->execute();
         
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $st->error;
             return -10;
         }
         $row = $result->fetch_assoc();

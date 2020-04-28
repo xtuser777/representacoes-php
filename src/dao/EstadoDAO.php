@@ -1,19 +1,21 @@
 <?php namespace scr\dao;
 
 use mysqli;
-use scr\dao\Banco;
+use scr\util\Banco;
 use scr\model\Estado;
 
 class EstadoDAO 
 {
-    public static function getById(mysqli $conn, int $id)
+    public static function getById(int $id)
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             select est_id,est_nome,est_sigla 
             from estado 
             where est_id = ?;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
             return null;
         }
@@ -22,7 +24,7 @@ class EstadoDAO
         $st->execute();
         
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            $st->close();
+            echo $st->error;
             return null;
         }
         $row = $result->fetch_assoc();
@@ -31,25 +33,27 @@ class EstadoDAO
             $row['est_id'], $row['est_nome'], $row['est_sigla']
         );
         
-        $st->close();
-        
         return $e;
     }
     
-    public static function getAll(mysqli $conn) 
+    public static function getAll()
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             SELECT est_id,est_nome,est_sigla 
             FROM estado;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
         
         $st->execute();
 
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
+            echo $st->error;
             return array();
         }
         

@@ -29,7 +29,7 @@ function get(url_i) {
 }
 
 function obterTipos() {
-    var dados = get("/TipoCaminhao/Obter");
+    var dados = get("/gerenciar/tipocaminhao/obter.php");
 
     preencherTabela(dados);
 }
@@ -46,8 +46,8 @@ function filtrarTipos() {
     } else {
         $.ajax({
             type: "POST",
-            url: "/TipoCaminhao/ObterPorFiltro",
-            data: {filtro: filtro},
+            url: "/gerenciar/tipocaminhao/obter-por-chave.php",
+            data: { filtro: filtro },
             async: false,
             success: function (result) {
                 preencherTabela(result);
@@ -69,8 +69,8 @@ function ordenarTipos() {
 
     $.ajax({
         type: "POST",
-        url: "/TipoCaminhao/Ordenar",
-        data: {ord: ord},
+        url: "/gerenciar/tipocaminhao/ordenar.php",
+        data: { col: ord },
         async: false,
         success: function (result) {
             preencherTabela(result);
@@ -89,7 +89,7 @@ function ordenarTipos() {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/TipoCaminhao/Enviar',
+        url: '/gerenciar/tipocaminhao/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);
@@ -125,7 +125,7 @@ function excluir(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/TipoCaminhao/Excluir',
+                    url: '/gerenciar/tipocaminhao/excluir.php',
                     data: { id: id },
                     success: function (result) {
                         if (result === "") {

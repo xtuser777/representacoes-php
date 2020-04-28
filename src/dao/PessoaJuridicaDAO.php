@@ -1,7 +1,7 @@
 <?php namespace scr\dao;
 
 use mysqli;
-use scr\dao\Banco;
+use scr\util\Banco;
 use scr\model\Estado;
 use scr\model\Cidade;
 use scr\model\Endereco;
@@ -10,28 +10,30 @@ use scr\model\PessoaJuridica;
 
 class PessoaJuridicaDAO
 {
-    public static function insert(mysqli $conn, string $razaoSocial, string $nomeFantasia, string $cnpj, int $contato) : int
+    public static function insert(string $razaoSocial, string $nomeFantasia, string $cnpj, int $contato) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = '
             insert into pessoa_juridica(pj_razao_social,pj_nome_fantasia,pj_cnpj,ctt_id) 
             values(?,?,?,?);
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
         $statement->bind_param('sssi', $razaoSocial, $nomeFantasia, $cnpj, $contato);
         $statement->execute();
 
-        $id = $statement->insert_id;
-
-        return $id;
+        return $statement->insert_id;
     }
 
-    public static function update(mysqli $conn, int $id, string $razaoSocial, string $nomeFantasia, string $cnpj, int $contato) : int
+    public static function update(int $id, string $razaoSocial, string $nomeFantasia, string $cnpj, int $contato) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = '
             update pessoa_juridica 
             set pj_razao_social = ?,
@@ -40,43 +42,43 @@ class PessoaJuridicaDAO
                 ctt_id = ?
             where pj_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
         $statement->bind_param('sssii', $razaoSocial, $nomeFantasia, $cnpj, $contato, $id);
         $statement->execute();
 
-        $res = $statement->affected_rows;
-
-        return $res;
+        return $statement->affected_rows;
     }
 
-    public static function delete(mysqli $conn, int $id) : int
+    public static function delete(int $id) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = '
             delete 
             from pessoa_juridica 
             where pj_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
         $statement->bind_param('i', $id);
         $statement->execute();
 
-        $res = $statement->affected_rows;
-
-        return $res;
+        return $statement->affected_rows;
     }
 
-    public static function getById(mysqli $conn, int $id) : ?PessoaJuridica
+    public static function getById(int $id) : ?PessoaJuridica
     {
+        if (!Banco::getInstance()->getConnection()) return null;
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome, c.est_id,
@@ -90,9 +92,9 @@ class PessoaJuridicaDAO
             inner join estado e on e.est_id = c.est_id
             where p.pj_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
 
@@ -100,10 +102,11 @@ class PessoaJuridicaDAO
         $statement->execute();
 
         if (!($result = $statement->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $statement->error;
             return null;
         }
         $row = $result->fetch_assoc();
+
         $pj = new PessoaJuridica (
             $row['pj_id'], $row['pj_razao_social'], $row['pj_nome_fantasia'], $row['pj_cnpj'],
             new Contato (
@@ -123,16 +126,18 @@ class PessoaJuridicaDAO
         return $pj;
     }
 
-    public static function countCnpj(mysqli $conn, string $cnpj) : int
+    public static function countCnpj(string $cnpj) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = '
             select count(pj_id) as cnt 
             from pessoa_juridica 
             where pj_cnpj = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 

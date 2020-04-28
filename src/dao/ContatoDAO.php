@@ -1,7 +1,7 @@
 <?php namespace scr\dao;
 
 use mysqli;
-use scr\dao\Banco;
+use scr\util\Banco;
 use scr\model\Estado;
 use scr\model\Cidade;
 use scr\model\Endereco;
@@ -9,67 +9,69 @@ use scr\model\Contato;
 
 class ContatoDAO 
 {
-    public static function insert(mysqli $conn, string $telefone, string $celular, string $email, int $endereco) : int
+    public static function insert(string $telefone, string $celular, string $email, int $endereco) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             insert into contato(ctt_telefone,ctt_celular,ctt_email,end_id) 
             values(?,?,?,?);
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) return -10;
         
         $statement->bind_param('sssi', $telefone, $celular, $email, $endereco);
         $statement->execute();
-        
-        $ins_id = $statement->insert_id;
-        
-        return $ins_id;
+
+        return $statement->insert_id;
     }
     
-    public static function update(mysqli $conn, int $id, string $telefone, string $celular, string $email, int $endereco) : int
+    public static function update(int $id, string $telefone, string $celular, string $email, int $endereco) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             update contato 
             set ctt_telefone = ?, ctt_celular = ?, ctt_email = ?, end_id = ? 
             where ctt_id = ?;
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
         $statement->bind_param('sssii', $telefone, $celular, $email, $endereco, $id);
         $statement->execute();
-        
-        $res = $statement->affected_rows;
-        
-        return $res;
+
+        return $statement->affected_rows;
     }
     
-    public static function delete(mysqli $conn, int $id) : int
+    public static function delete(int $id) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             delete 
             from contato 
             where ctt_id = ?;
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
         $statement->bind_param('i', $id);
         $statement->execute();
-        
-        $res = $statement->affected_rows;
-        
-        return $res;
+
+        return $statement->affected_rows;
     }
     
-    public static function getById(mysqli $conn, int $id) : ?Contato
+    public static function getById(int $id) : ?Contato
     {
+        if (!Banco::getInstance()->getConnection()) return null;
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome,
@@ -81,9 +83,9 @@ class ContatoDAO
             inner join estado e on e.est_id = c.est_id
             where ct.ctt_id = ?;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
         
@@ -91,10 +93,11 @@ class ContatoDAO
         $st->execute();
 
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $st->error;
             return null;
         }
         $row = $result->fetch_assoc();
+
         $ct = new Contato(
             $row['ctt_id'], $row['ctt_telefone'], $row['ctt_celular'], $row['ctt_email'],
             new Endereco(

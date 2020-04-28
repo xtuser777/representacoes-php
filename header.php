@@ -21,6 +21,8 @@ require ROOT . '/src/model/Usuario.php';
 require ROOT . '/src/model/Parametrizacao.php';
 require ROOT . '/src/model/Cliente.php';
 require ROOT . '/src/model/Representacao.php';
+require ROOT . "/src/model/TipoCaminhao.php";
+require ROOT . "/src/model/Produto.php";
 
 require ROOT . '/src/util/Singleton.php';
 require ROOT . '/src/util/Banco.php';
@@ -37,6 +39,8 @@ require ROOT . '/src/dao/UsuarioDAO.php';
 require ROOT . '/src/dao/ParametrizacaoDAO.php';
 require ROOT . '/src/dao/ClienteDAO.php';
 require ROOT . '/src/dao/RepresentacaoDAO.php';
+require ROOT . "/src/dao/TipoCaminhaoDAO.php";
+require ROOT . "/src/dao/ProdutoDAO.php";
 
 require ROOT . '/src/control/CidadeControl.php';
 require ROOT . '/src/control/EstadoControl.php';
@@ -54,3 +58,7 @@ require ROOT . '/src/control/RepresentacaoControl.php';
 require ROOT . '/src/control/RepresentacaoNovoControl.php';
 require ROOT . '/src/control/RepresentacaoDetalhesControl.php';
 require ROOT . '/src/control/RepresentacaoAddUnidadeControl.php';
+require ROOT . "/src/control/TipoCaminhaoControl.php";
+require ROOT . "/src/control/TipoCaminhaoNovoControl.php";
+require ROOT . "/src/control/TipoCaminhaoDetalhesControl.php";
+require ROOT . "/src/control/ProdutoControl.php";

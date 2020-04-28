@@ -34,7 +34,7 @@ function gravar() {
 
         $.ajax({
             type: "POST",
-            url: "/TipoCaminhao/Gravar",
+            url: "/gerenciar/tipocaminhao/novo/gravar.php",
             data: form,
             contentType: false,
             processData: false,

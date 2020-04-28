@@ -2,19 +2,22 @@
 
 use mysqli;
 use scr\model\Nivel;
+use scr\util\Banco;
 
 class NivelDAO
 {
-    public static function getById(mysqli $conn, int $id) : ?Nivel
+    public static function getById(int $id) : ?Nivel
     {
+        if (!Banco::getInstance()->getConnection()) return null;
+
         $sql = "
             select niv_id,niv_descricao
             from nivel 
             where niv_id = ?;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
         
@@ -22,30 +25,34 @@ class NivelDAO
         $st->execute();
         
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
+            echo $st->error;
             return null;
         }
         $row = $result->fetch_assoc();
+
         $n = new Nivel($row['niv_id'], $row['niv_descricao']);
         
         return $n;
     }
     
-    public static function getAll(mysqli $conn) : array
+    public static function getAll() : array
     {
+        if (!Banco::getInstance()->getConnection()) return array();
+
         $sql = "
             select niv_id,niv_descricao 
             from nivel;
          ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
         
         $st->execute();
         
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $st->error;
             return array();
         }
         $niveis = [];

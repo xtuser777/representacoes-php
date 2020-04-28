@@ -24,14 +24,14 @@ class Nivel
         return $this->descricao;
     }
     
-    public static function getById(mysqli $conn, int $id) : ?Nivel
+    public static function getById(int $id) : ?Nivel
     {
-        return $id > 0 ? NivelDAO::getById($conn, $id) : null;
+        return $id > 0 ? NivelDAO::getById($id) : null;
     }
     
-    public static function getAll(mysqli $conn) : array
+    public static function getAll() : array
     {
-        return NivelDAO::getAll($conn);
+        return NivelDAO::getAll();
     }
 
     public function jsonSerialize() 

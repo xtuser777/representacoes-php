@@ -15,7 +15,7 @@ function get(url_i) {
 }
 
 $(document).ready(function (event) {
-    var dados = get("/TipoCaminhao/ObterDetalhes");
+    var dados = get("/gerenciar/tipocaminhao/detalhes/obter.php");
     if (dados !== "") {
         _tipo = dados.id;
         $("#desc").val(dados.descricao);
@@ -61,7 +61,7 @@ function gravar() {
 
         $.ajax({
             type: "POST",
-            url: "/TipoCaminhao/Alterar",
+            url: "/gerenciar/tipocaminhao/detalhes/alterar.php",
             data: form,
             contentType: false,
             processData: false,

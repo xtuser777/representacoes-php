@@ -7,18 +7,20 @@ class LoginControl
 {
     public function autenticar(string $login, string $senha) 
     {
-        $db = Banco::getInstance();
-        $db->open();
-        /** @var Usuario $u */
-        $u = Usuario::autenticar($db->getConnection(), $login, $senha);
-        $db->getConnection()->close();
+        $user = null;
+        if (Banco::getInstance()->open())
+        {
+            $u = Usuario::autenticar($login, $senha);
+            Banco::getInstance()->getConnection()->close();
+            if (!$u) return json_encode(null);
 
-        if ($u == null) { return json_encode(null); }
+            $_SESSION['USER_ID'] = ''.$u->getId();
+            $_SESSION['USER_LOGIN'] = $login;
+            $_SESSION['USER_LEVEL'] = ''.$u->getNivel()->getId();
+
+            $user = $u->jsonSerialize();
+        }
         
-        $_SESSION['USER_ID'] = ''.$u->getId();
-        $_SESSION['USER_LOGIN'] = $login;
-        $_SESSION['USER_LEVEL'] = ''.$u->getNivel()->getId();
-        
-        return json_encode($u->jsonSerialize());
+        return json_encode($user);
     }
 }

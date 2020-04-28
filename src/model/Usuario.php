@@ -24,32 +24,32 @@ class Usuario
         $this->nivel = $nivel;
     }
     
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getLogin() : string
+    public function getLogin(): string
     {
         return $this->login;
     }
 
-    public function getSenha() : string
+    public function getSenha(): string
     {
         return $this->senha;
     }
 
-    public function getAtivo() : bool
+    public function getAtivo(): bool
     {
         return $this->ativo;
     }
 
-    public function getFuncionario() : Funcionario
+    public function getFuncionario(): Funcionario
     {
         return $this->funcionario;
     }
 
-    public function getNivel() : Nivel
+    public function getNivel(): Nivel
     {
         return $this->nivel;
     }
@@ -61,62 +61,62 @@ class Usuario
         return get_object_vars($this);
     }
 
-    public static function autenticar(mysqli $conn, string $login, string $senha)
+    public static function autenticar(string $login, string $senha): ?Usuario
     {
-        return strlen(trim($login)) > 0 && strlen(trim($senha)) > 0 ? UsuarioDAO::autenticar($conn, $login, $senha) : null;
+        return strlen(trim($login)) > 0 && strlen(trim($senha)) > 0 ? UsuarioDAO::autenticar($login, $senha) : null;
     }
     
-    public static function getById(mysqli $conn, int $id)
+    public static function getById(int $id)
     {
-        return $id > 0 ? UsuarioDAO::getById($conn, $id) : null;
+        return $id > 0 ? UsuarioDAO::getById($id) : null;
     }
     
-    public static function getAll(mysqli $conn) : array
+    public static function getAll() : array
     {
-        return UsuarioDAO::getAll($conn);
+        return UsuarioDAO::getAll();
     }
     
-    public static function getByKey(mysqli $conn, string $key) : array
+    public static function getByKey(string $key) : array
     {
-        return strlen(trim($key)) > 0 ? UsuarioDAO::getByKey($conn, $key) : array();
+        return strlen(trim($key)) > 0 ? UsuarioDAO::getByKey($key) : array();
     }
     
-    public static function getByAdm(mysqli $conn, string $adm) : array
+    public static function getByAdm(string $adm) : array
     {
-        return strlen(trim($adm)) > 0 ? UsuarioDAO::getByAdm($conn, $adm) : array();
+        return strlen(trim($adm)) > 0 ? UsuarioDAO::getByAdm($adm) : array();
     }
     
-    public static function getByKeyAdm(mysqli $conn, string $key, string $adm) : array
+    public static function getByKeyAdm(string $key, string $adm) : array
     {
-        return strlen(trim($key)) > 0 && strlen(trim($adm)) > 0 ? UsuarioDAO::getByKeyAdm($conn, $key, $adm) : array();
+        return strlen(trim($key)) > 0 && strlen(trim($adm)) > 0 ? UsuarioDAO::getByKeyAdm($key, $adm) : array();
     }
     
-    public static function verificarLogin(mysqli $conn, string $login) : bool
+    public static function verificarLogin(string $login) : bool
     {
-        return strlen(trim($login)) > 0 && UsuarioDAO::loginCount($conn, $login) > 0;
+        return strlen(trim($login)) > 0 && UsuarioDAO::loginCount($login) > 0;
     }
     
-    public static function isLastAdmin(mysqli $conn) : bool
+    public static function isLastAdmin() : bool
     {
-        return UsuarioDAO::adminCount($conn) == 1;
+        return UsuarioDAO::adminCount() == 1;
     }
     
-    public function insert(mysqli $conn) : int
+    public function insert() : int
     {
         if ($this->id != 0 || strlen(trim($this->login)) <= 0 || strlen(trim($this->senha)) < 6 || $this->funcionario == null || $this->nivel == null) { return -5; }
         
-        return UsuarioDAO::insert($conn, $this->login, $this->senha, $this->ativo, $this->funcionario->getId(), $this->nivel->getId());
+        return UsuarioDAO::insert($this->login, $this->senha, $this->ativo, $this->funcionario->getId(), $this->nivel->getId());
     }
     
-    public function update(mysqli $conn) : int
+    public function update() : int
     {
         if ($this->id <= 0 || strlen(trim($this->login)) <= 0 || strlen(trim($this->senha)) < 6 || $this->funcionario == null || $this->nivel == null) { return -5; }
         
-        return UsuarioDAO::update($conn, $this->id, $this->login, $this->senha, $this->ativo, $this->funcionario->getId(), $this->nivel->getId());
+        return UsuarioDAO::update($this->id, $this->login, $this->senha, $this->ativo, $this->funcionario->getId(), $this->nivel->getId());
     }
     
-    public static function delete(mysqli $conn, int $id) : int
+    public static function delete(int $id) : int
     {
-        return $id > 0 ? UsuarioDAO::delete($conn, $id) : -5;
+        return $id > 0 ? UsuarioDAO::delete($id) : -5;
     }
 }

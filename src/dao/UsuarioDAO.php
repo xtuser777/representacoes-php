@@ -1,7 +1,7 @@
 <?php namespace scr\dao;
 
 use mysqli;
-use scr\dao\Banco;
+use scr\util\Banco;
 use scr\model\Estado;
 use scr\model\Cidade;
 use scr\model\Endereco;
@@ -13,70 +13,72 @@ use scr\model\Usuario;
 
 class UsuarioDAO 
 {
-    public static function insert(mysqli $conn, string $login, string $senha, bool $ativo, int $funcionario, int $nivel) : int
+    public static function insert(string $login, string $senha, bool $ativo, int $funcionario, int $nivel) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             insert into usuario(usu_login,usu_senha,usu_ativo,fun_id,niv_id) 
             values(?,?,?,?,?);
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
         $statement->bind_param('ssiii', $login, $senha, $ativo, $funcionario, $nivel);
         $statement->execute();
-        
-        $ins_id = $statement->insert_id;
-        
-        return $ins_id;
+
+        return $statement->insert_id;
     }
     
-    public static function update(mysqli $conn, int $id, string $login, string $senha, bool $ativo, int $funcionario, int $nivel) : int
+    public static function update(int $id, string $login, string $senha, bool $ativo, int $funcionario, int $nivel) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             update usuario 
             set usu_login = ?,usu_senha = ?,usu_ativo = ?,fun_id = ?,niv_id = ? 
             where usu_id = ?;
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
         $statement->bind_param('ssiiii', $login, $senha, $ativo, $funcionario, $nivel, $id);
         $statement->execute();
-        
-        $res = $statement->affected_rows;
-        
-        return $res;
+
+        return $statement->affected_rows;
     }
     
-    public static function delete(mysqli $conn, int $id) : int
+    public static function delete(int $id) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             delete 
             from usuario 
             where usu_id = ?;
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
         $statement->bind_param('i', $id);
         $statement->execute();
-        
-        $res = $statement->affected_rows;
-        
-        return $res;
+
+        return $statement->affected_rows;
     }
     
-    public static function getById(mysqli $conn, int $id)
+    public static function getById(int $id): ?Usuario
     {
+        if (!Banco::getInstance()->getConnection()) return null;
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome,
@@ -96,9 +98,9 @@ class UsuarioDAO
             inner join estado e on e.est_id = c.est_id
             where u.usu_id = ?;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
         
@@ -106,10 +108,11 @@ class UsuarioDAO
         $st->execute();
         
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $st->error;
             return null;
         }
         $row = $result->fetch_assoc();
+
         $cl = new Usuario(
             $row['usu_id'], $row['usu_login'], $row['usu_senha'], $row['usu_ativo'],
             new Funcionario(
@@ -138,8 +141,10 @@ class UsuarioDAO
         return $cl;
     }
     
-    public static function autenticar(mysqli $conn, string $login, string $senha)
+    public static function autenticar(string $login, string $senha): ?Usuario
     {
+        if (!Banco::getInstance()->getConnection()) return null;
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome,
@@ -161,9 +166,9 @@ class UsuarioDAO
             and u.usu_senha = ? 
             and u.usu_ativo = true;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if ($st === null) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
         
@@ -171,7 +176,7 @@ class UsuarioDAO
         $st->execute();
 
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $st->error;
             return null;
         }
         $row = $result->fetch_assoc();
@@ -204,8 +209,10 @@ class UsuarioDAO
         return $u;
     }
     
-    public static function getAll(mysqli $conn) : array
+    public static function getAll() : array
     {
+        if (!Banco::getInstance()->getConnection()) return array();
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome,
@@ -224,17 +231,17 @@ class UsuarioDAO
             inner join cidade c on c.cid_id = en.cid_id
             inner join estado e on e.est_id = c.est_id;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
         
         $st->execute();
 
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
-            return null;
+            echo $st->error;
+            return array();
         }
 
         $usuarios = array();
@@ -269,8 +276,10 @@ class UsuarioDAO
         return $usuarios;
     }
     
-    public static function getByKey(mysqli $conn, string $key) : array
+    public static function getByKey(string $key) : array
     {
+        if (!Banco::getInstance()->getConnection()) return array();
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome,
@@ -292,9 +301,9 @@ class UsuarioDAO
             or pf.pf_nome like ? 
             or ct.ctt_id like ?;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
         
@@ -303,9 +312,10 @@ class UsuarioDAO
         $st->execute();
         
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $st->error;
             return array();
         }
+
         $usuarios = array();
         for ($i = 0; $i < $result->num_rows; $i++) {
             $row = $result->fetch_assoc();
@@ -338,8 +348,10 @@ class UsuarioDAO
         return $usuarios;
     }
     
-    public static function getByAdm(mysqli $conn, string $adm) : array
+    public static function getByAdm(string $adm) : array
     {
+        if (!Banco::getInstance()->getConnection()) return array();
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome,
@@ -359,9 +371,9 @@ class UsuarioDAO
             inner join estado e on e.est_id = c.est_id
             where  date(f.fun_admissao) = date(?);
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
         
@@ -369,9 +381,10 @@ class UsuarioDAO
         $st->execute();
 
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $st->error;
             return array();
         }
+
         $usuarios = array();
         for ($i = 0; $i < $result->num_rows; $i++) {
             $row = $result->fetch_assoc();
@@ -404,8 +417,10 @@ class UsuarioDAO
         return $usuarios;
     }
     
-    public static function getByKeyAdm(mysqli $conn, string $key, string $adm) : array
+    public static function getByKeyAdm(string $key, string $adm) : array
     {
+        if (!Banco::getInstance()->getConnection()) return array();
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome,
@@ -426,9 +441,9 @@ class UsuarioDAO
             where (u.usu_login like ? or pf.pf_nome like ? or ct.ctt_id like ?) 
             and date(f.fun_admissao) = date(?);
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
         
@@ -437,9 +452,10 @@ class UsuarioDAO
         $st->execute();
 
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $st->error;
             return array();
         }
+
         $usuarios = array();
         for ($i = 0; $i < $result->num_rows; $i++) {
             $row = $result->fetch_assoc();
@@ -472,8 +488,10 @@ class UsuarioDAO
         return $usuarios;
     }
     
-    public static function adminCount(mysqli $conn) : int
+    public static function adminCount() : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             select count(usuario.usu_id) as admins 
             from usuario 
@@ -482,9 +500,9 @@ class UsuarioDAO
             where usuario.niv_id = 1 
             and funcionario.fun_demissao is null;
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
@@ -494,24 +512,26 @@ class UsuarioDAO
         $statement->bind_result($admins);
         
         if (!$statement->fetch()) {
-            echo $conn->error;
+            echo $statement->error;
             return -10;
         }
         
         return $admins;
     }
     
-    public static function loginCount(mysqli $conn, string $login) : int
+    public static function loginCount(string $login) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             select count(usu_id) as logins 
             from usuario 
             where usu_login = ?;
         ";
         
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
@@ -522,7 +542,7 @@ class UsuarioDAO
         $statement->bind_result($logins);
         
         if (!$statement->fetch()) {
-            echo $conn->error;
+            echo $statement->error;
             return -10;
         }
         

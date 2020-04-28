@@ -12,44 +12,40 @@ class ClienteNovoControl
 {
     public function verificar_cpf(string $cpf)
     {
-        $db = Banco::getInstance();
-        $db-open();
-        $res = PessoaFisica::verifyCpf($db->getConnection(), $cpf);
-        $db->getConnection()->close();
+        if (!Banco::getInstance()->open()) return json_encode(true);
+        $res = PessoaFisica::verifyCpf($cpf);
+        Banco::getInstance()->getConnection()->close();
         
         return json_encode($res);
     }
 
     public function verificar_cnpj(string $cnpj)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $res = PessoaJuridica::verifyCnpj($db->getConnection(), $cnpj);
-        $db->getConnection()->close();
+        if (!Banco::getInstance()->open()) return json_encode(true);
+        $res = PessoaJuridica::verifyCnpj($cnpj);
+        Banco::getInstance()->getConnection()->close();
         
         return json_encode($res);
     }
 
     public function gravar(int $tipo, string $nome, string $rg, string $cpf, string $nasc, string $rs, string $nf, string $cnpj, string $tel, string $cel, string $email, string $rua, string $num, string $bairro, string $comp, string $cep, int $cid)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        if ($db->getConnection() == null) return json_encode ('Erro ao conectar-se ao banco de dados.');
+        if (!Banco::getInstance()->open()) return json_encode ('Erro ao conectar-se ao banco de dados.');
         
-        $cidade = Cidade::getById($db->getConnection(), $cid);
+        $cidade = Cidade::getById($cid);
         
-        $db->getConnection()->begin_transaction();
+        Banco::getInstance()->getConnection()->begin_transaction();
 
         $endereco = new Endereco(
             0, $rua, $num, $bairro, $comp, $cep, $cidade
         );
-        $res_end = $endereco->insert($db->getConnection());
+        $res_end = $endereco->insert();
         if ($res_end == -10) {
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Ocorreu um problema ao gravar o endereço.');
         }
         if ($res_end == -5) {
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos no endereço.');
         }
 
@@ -59,15 +55,15 @@ class ClienteNovoControl
                 $res_end, $rua, $num, $bairro, $comp, $cep, $cidade
             )
         );
-        $res_ctt = $contato->insert($db->getConnection());
+        $res_ctt = $contato->insert();
         if ($res_ctt == -10) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Ocorreu um problema ao gravar o contato.');
         }
         if ($res_ctt == -5) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos no contato.');
         }
 
@@ -82,15 +78,15 @@ class ClienteNovoControl
                     )
                 )
             );
-            $res_pes = $pessoa->insert($db->getConnection());
+            $res_pes = $pessoa->insert();
             if ($res_pes == -10) {
-                $db->getConnection()->rollback();
-                $db->getConnection()->close();
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getConnection()->close();
                 return json_encode('Ocorreu um problema ao gravar a pessoa.');
             }
             if ($res_pes == -5) {
-                $db->getConnection()->rollback();
-                $db->getConnection()->close();
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getConnection()->close();
                 return json_encode('Um ou mais campos inválidos na pessoa.');
             }
         } else {
@@ -103,15 +99,15 @@ class ClienteNovoControl
                     )
                 )
             );
-            $res_pes = $pessoa->insert($db->getConnection());
+            $res_pes = $pessoa->insert();
             if ($res_pes == -10) {
-                $db->getConnection()->rollback();
-                $db->getConnection()->close();
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getConnection()->close();
                 return json_encode('Ocorreu um problema ao gravar a pessoa.');
             }
             if ($res_pes == -5) {
-                $db->getConnection()->rollback();
-                $db->getConnection()->close();
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getConnection()->close();
                 return json_encode('Um ou mais campos inválidos na pessoa.');
             }
         }
@@ -137,20 +133,20 @@ class ClienteNovoControl
                 )
             )
         );
-        $res = $cliente->insert($db->getConnection());
+        $res = $cliente->insert();
         if ($res == -10) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Ocorreu um problema ao gravar o cliente.');
         }
         if ($res == -5) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos no cliente.');
         }
 
-        $db->getConnection()->commit();
-        $db->getConnection()->close();
+        Banco::getInstance()->getConnection()->commit();
+        Banco::getInstance()->getConnection()->close();
 
         return json_encode('');
     }

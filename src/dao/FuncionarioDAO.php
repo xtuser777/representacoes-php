@@ -1,7 +1,7 @@
 <?php namespace scr\dao;
 
 use mysqli;
-use scr\dao\Banco;
+use scr\util\Banco;
 use scr\model\Estado;
 use scr\model\Cidade;
 use scr\model\Endereco;
@@ -11,79 +11,81 @@ use scr\model\Funcionario;
 
 class FuncionarioDAO
 {
-    public static function insert(mysqli $conn, int $tipo, string $admissao, string $demissao, int $pessoa) : int
+    public static function insert(int $tipo, string $admissao, string $demissao, int $pessoa) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             insert into funcionario(fun_tipo,fun_admissao,pf_id) 
             values(?,?,?);
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
         $statement->bind_param('isi', $tipo,$admissao,$pessoa);
         $statement->execute();
-        
-        $ins_id = $statement->insert_id;
-        
-        return $ins_id;
+
+        return $statement->insert_id;
     }
     
-    public static function update(mysqli $conn, int $id, int $tipo, string $admissao, string $demissao, int $pessoa) : int
+    public static function update(int $id, int $tipo, string $admissao, string $demissao, int $pessoa) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             update funcionario 
             set fun_tipo = ?, fun_admissao = ?, pf_id = ? 
             where fun_id = ?;
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
         $statement->bind_param('isii', $tipo, $admissao, $pessoa, $id);
         $statement->execute();
-        
-        $res = $statement->affected_rows;
-        
-        return $res;
+
+        return $statement->affected_rows;
     }
     
-    public static function delete(mysqli $conn, int $id) : int
+    public static function delete(int $id) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = "
             delete 
             from funcionario 
             where fun_id = ?;
         ";
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
         $statement->bind_param('i', $id);
         $statement->execute();
-        
-        $res = $statement->affected_rows;
-        
-        return $res;
+
+        return $statement->affected_rows;
     }
     
-    public static function desativar(mysqli $conn, int $id) : int
+    public static function desativar(int $id) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = '
             update usuario u 
             inner join funcionario f on f.fun_id = u.fun_id 
             set u.usu_ativo = false, f.fun_demissao = now() 
             where u.usu_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
@@ -95,17 +97,19 @@ class FuncionarioDAO
         return $res;
     }
     
-    public static function reativar(mysqli $conn, int $id) : int
+    public static function reativar(int $id) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = '
             update usuario u 
             inner join funcionario f on f.fun_id = u.fun_id 
             set u.usu_ativo = true, f.fun_demissao = null 
             where u.usu_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
         
@@ -117,8 +121,10 @@ class FuncionarioDAO
         return $res;
     }
 
-    public static function getById(mysqli $conn, int $id) : Funcionario
+    public static function getById(int $id) : ?Funcionario
     {
+        if (!Banco::getInstance()->getConnection()) return null;
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome,
@@ -134,9 +140,9 @@ class FuncionarioDAO
             inner join estado e on e.est_id = c.est_id
             where f.fun_id = ?;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
         
@@ -144,10 +150,11 @@ class FuncionarioDAO
         $st->execute();
         
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $st->error;
             return null;
         }
         $row = $result->fetch_assoc();
+
         $f = new Funcionario(
             $row['fun_id'], $row['fun_tipo'], $row['fun_admissao'], $row['fun_demissao'] != null ? $row['fun_demissao'] : "",
             new PessoaFisica(

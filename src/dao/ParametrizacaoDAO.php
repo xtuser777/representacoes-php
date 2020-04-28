@@ -1,6 +1,6 @@
 <?php namespace scr\dao;
 
-use scr\dao\Banco;
+use scr\util\Banco;
 use mysqli;
 use scr\model\Estado;
 use scr\model\Cidade;
@@ -11,49 +11,51 @@ use scr\model\PessoaJuridica;
 
 class ParametrizacaoDAO
 {
-    public static function insert(mysqli $conn, string $logotipo, int $pessoa) : int
+    public static function insert(string $logotipo, int $pessoa) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = '
             insert into parametrizacao(par_id, par_logotipo, pj_id)
             values(1,?,?);
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
         $statement->bind_param('si', $logotipo, $pessoa);
         $statement->execute();
 
-        $id = $statement->insert_id;
-
-        return $id;
+        return $statement->insert_id;
     }
 
-    public static function update(mysqli $conn, string $logotipo, int $pessoa) : int
+    public static function update(string $logotipo, int $pessoa) : int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = '
             update parametrizacao 
             set par_logotipo = ?, pj_id = ?
             where par_id = 1;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
         $statement->bind_param('si', $logotipo, $pessoa);
         $statement->execute();
 
-        $res = $statement->affected_rows;
-
-        return $res;
+        return $statement->affected_rows;
     }
 
-    public static function get(mysqli $conn) : ?Parametrizacao
+    public static function get() : ?Parametrizacao
     {
+        if (!Banco::getInstance()->getConnection()) return null;
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome, c.est_id,
@@ -69,9 +71,9 @@ class ParametrizacaoDAO
             inner join estado e on e.est_id = c.est_id
             where p.par_id = 1;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
 
@@ -82,6 +84,7 @@ class ParametrizacaoDAO
             return null;
         }
         $row = $result->fetch_assoc();
+
         $p = new Parametrizacao(
             $row['par_id'], $row['par_logotipo'],
             new PessoaJuridica (

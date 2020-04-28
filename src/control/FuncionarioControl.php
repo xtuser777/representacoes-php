@@ -11,10 +11,9 @@ class FuncionarioControl
 {
     public function getAll()
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $list = Usuario::getAll($db->getConnection());
-        $db->getConnection()->close();
+        if (!Banco::getInstance()->open()) return json_encode([]);
+        $list = Usuario::getAll();
+        Banco::getInstance()->getConnection()->close();
         
         $jarray = array();
         for ($i = 0; $i < count($list); $i++) {
@@ -28,10 +27,9 @@ class FuncionarioControl
     
     public function getByKey(string $key)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $array = Usuario::getByKey($db->getConnection(), $key);
-        $db->getConnection()->close();
+        if (!Banco::getInstance()->open()) return json_encode([]);
+        $array = Usuario::getByKey($key);
+        Banco::getInstance()->getConnection()->close();
         
         $jarray = array();
         for ($i = 0; $i < count($array); $i++) {
@@ -45,10 +43,9 @@ class FuncionarioControl
     
     public function getByAdm(string $adm)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $array = Usuario::getByAdm($db->getConnection(), $adm);
-        $db->getConnection()->close();
+        if (!Banco::getInstance()->open()) return json_encode([]);
+        $array = Usuario::getByAdm($adm);
+        Banco::getInstance()->getConnection()->close();
         
         $jarray = array();
         for ($i = 0; $i < count($array); $i++) {
@@ -62,10 +59,9 @@ class FuncionarioControl
     
     public function getByKeyAdm(string $key, string $adm)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $array = Usuario::getByKeyAdm($db->getConnection(), $key, $adm);
-        $db->getConnection()->close();
+        if (!Banco::getInstance()->open()) return json_encode([]);
+        $array = Usuario::getByKeyAdm($key, $adm);
+        Banco::getInstance()->getConnection()->close();
 
         $jarray = array();
         for ($i = 0; $i < count($array); $i++) {
@@ -79,10 +75,9 @@ class FuncionarioControl
     
     public function sort(string $col)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $array = Usuario::getAll($db->getConnection());
-        $db->getConnection()->close();
+        if (!Banco::getInstance()->open()) return json_encode([]);
+        $array = Usuario::getAll();
+        Banco::getInstance()->getConnection()->close();
         
         switch ($col) {
             case '1':
@@ -206,81 +201,75 @@ class FuncionarioControl
     
     public function isLastAdmin()
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $res = Usuario::isLastAdmin($db->getConnection());
-        $db->getConnection()->close();
+        if (!Banco::getInstance()->open()) return json_encode([]);
+        $res = Usuario::isLastAdmin();
+        Banco::getInstance()->getConnection()->close();
 
         return json_encode($res);
     }
     
     public function delete(int $id)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        if ($db->getConnection() == null) return json_encode('Erro ao conectar-se ao banco de dados.');
+        if (!Banco::getInstance()->open()) return json_encode('Erro ao conectar-se ao banco de dados.');
 
-        $db->getConnection()->begin_transaction();
+        $usuario = Usuario::getById($id);
+
+        Banco::getInstance()->getConnection()->begin_transaction();
         
-        /** @var Usuario $usuario */
-        $usuario = Usuario::getById($db->getConnection(), $id);
-        
-        $res_usu = Usuario::delete($db->getConnection(), $id);
-        if ($res_usu <= 0) { 
-            $db->getConnection()->close();
+        $res_usu = Usuario::delete($id);
+        if ($res_usu <= 0) {
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Erro ao excluir o usuário.'); 
         }
         
-        $res_fun = Funcionario::delete($db->getConnection(), $id);
+        $res_fun = Funcionario::delete($id);
         if ($res_fun <= 0) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Erro ao excluir o funcionário.');
         }
         
-        $res_pes = PessoaFisica::delete($db->getConnection(), $usuario->getFuncionario()->getPessoa()->getId());
+        $res_pes = PessoaFisica::delete($usuario->getFuncionario()->getPessoa()->getId());
         if ($res_pes <= 0) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Erro ao excluir a pessoa.');
         }
         
-        $res_ctt = Contato::delete($db->getConnection(), $usuario->getFuncionario()->getPessoa()->getContato()->getId());
+        $res_ctt = Contato::delete($usuario->getFuncionario()->getPessoa()->getContato()->getId());
         if ($res_ctt <= 0) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Erro ao excluir o contato.');
         }
         
-        $res_end = Endereco::delete($db->getConnection(), $usuario->getFuncionario()->getPessoa()->getContato()->getEndereco()->getId());
+        $res_end = Endereco::delete($usuario->getFuncionario()->getPessoa()->getContato()->getEndereco()->getId());
         if ($res_end <= 0) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Erro ao excluir o endereço.');
         }
 
-        $db->getConnection()->commit();
-        $db->getConnection()->close();
+        Banco::getInstance()->getConnection()->commit();
+        Banco::getInstance()->getConnection()->close();
         
         return json_encode('');
     }
     
     public function desativar(int $id) 
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $res = Funcionario::desativar($db->getConnection(), $id);
-        $db->getconnection()->close();
+        if (!Banco::getInstance()->open()) return json_encode('Erro ao conectar-se ao banco de dados.');
+        $res = Funcionario::desativar($id);
+        Banco::getInstance()->getconnection()->close();
 
         return $res <= 0 ? json_encode('Erro ao desativar o funcionário.') : json_encode('');
     }
     
     public function reativar(int $id) 
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $res = Funcionario::reativar($db->getConnection(), $id);
-        $db->getconnection()->close();
+        if (!Banco::getInstance()->open()) return json_encode('Erro ao conectar-se ao banco de dados.');
+        $res = Funcionario::reativar($id);
+        Banco::getInstance()->getconnection()->close();
         
         return $res <= 0 ? json_encode('Erro ao reativar o funcionário.') : json_encode('');
     }

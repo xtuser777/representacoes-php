@@ -7,31 +7,33 @@ class EstadoControl
 {
     public function getById(int $id)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        if ($db->getConnection() == null) return json_encode(null);
-        $estado = Estado::getById($db->getConnection(), $id)->jsonSerialize();
-        $db->getConnection()->close();
+        $json = null;
+        if (Banco::getInstance()->open())
+        {
+            $estado = Estado::getById($id);
+            Banco::getInstance()->getConnection()->close();
+            if ($estado) $json = $estado->jsonSerialize();
+        }
 
-        return json_encode($estado, JSON_UNESCAPED_UNICODE);
+        return json_encode($json, JSON_UNESCAPED_UNICODE);
     }
     
     public function getAll()
     {
-        $db = Banco::getInstance();
-        $db->open();
-        if ($db->getConnection() == null) return json_encode(null);
-        $list = Estado::getAll($db->getConnection());
-        $db->getConnection()->close();
-        
-        $jlist = [];
-        for ($i = 0; $i < count($list); $i++)
+        $jarray = array();
+        if (Banco::getInstance()->open())
         {
-            /** @var Estado $e */
-            $e = $list[$i];
-            $jlist[] = $e->jsonSerialize();             
+            $array = Estado::getAll();
+            Banco::getInstance()->getConnection()->close();
+
+            for ($i = 0; $i < count($array); $i++)
+            {
+                /** @var Estado $e */
+                $e = $array[$i];
+                $jarray[] = $e->jsonSerialize();
+            }
         }
-        
-        return json_encode($jlist, JSON_UNESCAPED_UNICODE);
+
+        return json_encode($jarray, JSON_UNESCAPED_UNICODE);
     }
 }

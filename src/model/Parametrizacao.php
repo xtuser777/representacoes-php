@@ -32,23 +32,23 @@ class Parametrizacao
         return $this->pessoa;
     }
 
-    public static function get(mysqli $conn) : ?Parametrizacao
+    public static function get() : ?Parametrizacao
     {
-        return ParametrizacaoDAO::get($conn);
+        return ParametrizacaoDAO::get();
     }
 
-    public function insert(mysqli $conn) : int
+    public function insert() : int
     {
         if ($this->id != 0 || $this->pessoa == null) return -5;
 
-        return ParametrizacaoDAO::insert($conn, $this->logotipo, $this->pessoa->getId());
+        return ParametrizacaoDAO::insert($this->logotipo, $this->pessoa->getId());
     }
 
-    public function update(mysqli $conn) : int
+    public function update() : int
     {
         if ($this->id <= 0 || $this->pessoa == null) return -5;
 
-        return ParametrizacaoDAO::update($conn, $this->logotipo, $this->pessoa->getId());
+        return ParametrizacaoDAO::update($this->logotipo, $this->pessoa->getId());
     }
 
     public function jsonSerialize()

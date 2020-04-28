@@ -17,29 +17,29 @@ class Cidade
         $this->estado = $estado;
     }
 
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getNome() : string
+    public function getNome(): string
     {
         return $this->nome;
     }
 
-    public function getEstado() : Estado
+    public function getEstado(): Estado
     {
         return $this->estado;
     }
     
-    public static function getById(mysqli $conn, int $id)
+    public static function getById(int $id)
     {
-        return $id > 0 ? CidadeDAO::getById($conn, $id) : null;
+        return $id > 0 ? CidadeDAO::getById($id) : null;
     }
     
-    public static function getByEstado(mysqli $conn, int $estado)
+    public static function getByEstado(int $estado)
     {
-        return $estado > 0 ? CidadeDAO::getByEstado($conn, $estado) : null;
+        return $estado > 0 ? CidadeDAO::getByEstado($estado) : null;
     }
 
     public function jsonSerialize() 

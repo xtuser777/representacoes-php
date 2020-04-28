@@ -7,31 +7,33 @@ class CidadeControl
 {
     public function getById(int $id) 
     {
-        $db = Banco::getInstance();
-        $db->open();
-        if ($db->getConnection() == null) return json_encode(null);
-        $cidade = Cidade::getById($db->getConnection(), $id)->jsonSerializer();
-        $db->getConnection()->close();
+        $json = null;
+        if (Banco::getInstance()->open())
+        {
+            $cidade = Cidade::getById($id);
+            Banco::getInstance()->getConnection()->close();
+            if ($cidade) $json = $cidade->jsonSerialize();
+        }
 
-        return json_encode($cidade, JSON_UNESCAPED_UNICODE);
+        return json_encode($json, JSON_UNESCAPED_UNICODE);
     }
     
     public function getByEstado(int $estado)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        if ($db->getConnection() == null) return json_encode(array());
-        $list = Cidade::getByEstado($db->getConnection(), $estado);
-        $db->getConnection()->close();
-        
-        $jlist = [];
-        for ($i = 0; $i < count($list); $i++)
+        $jarray = array();
+        if (Banco::getInstance()->open())
         {
-            /** @var Cidade $c */
-            $c = $list[$i];
-            $jlist[] = $c->jsonSerialize();
+            $array = Cidade::getByEstado($estado);
+            Banco::getInstance()->getConnection()->close();
+
+            for ($i = 0; $i < count($array); $i++)
+            {
+                /** @var Cidade $c */
+                $c = $array[$i];
+                $jarray[] = $c->jsonSerialize();
+            }
         }
-        
-        return json_encode($jlist, JSON_UNESCAPED_UNICODE);
+
+        return json_encode($jarray, JSON_UNESCAPED_UNICODE);
     }
 }

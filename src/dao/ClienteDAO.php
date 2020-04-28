@@ -7,20 +7,22 @@ use scr\model\Contato;
 use scr\model\PessoaFisica;
 use scr\model\PessoaJuridica;
 use scr\model\Cliente;
-use scr\dao\Banco;
+use scr\util\Banco;
 use mysqli;
 
 class ClienteDAO
 {
-    public static function insert(mysqli $conn, string $cadastro, int $tipo, int $pessoaFisica, int $pessoaJuridica): int
+    public static function insert(string $cadastro, int $tipo, int $pessoaFisica, int $pessoaJuridica): int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = '
             insert into cliente (cli_cadastro, cli_tipo) 
             values (?,?);
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
@@ -29,10 +31,10 @@ class ClienteDAO
 
         $id = $statement->insert_id;
 
-        return self::insert_pessoa($conn, $id, $tipo, $pessoaFisica, $pessoaJuridica);
+        return self::insert_pessoa($id, $tipo, $pessoaFisica, $pessoaJuridica);
     }
 
-    private static function insert_pessoa(mysqli $conn, int $id, int $tipo, int $pessoaFisica, int $pessoaJuridica): int
+    private static function insert_pessoa(int $id, int $tipo, int $pessoaFisica, int $pessoaJuridica): int
     {
         if ($tipo == 1) {
             $sql = '
@@ -46,9 +48,9 @@ class ClienteDAO
             ';
         }
 
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
@@ -61,34 +63,36 @@ class ClienteDAO
         return $res > 0 ? $id : -10;
     }
 
-    public static function update(mysqli $conn, int $id, string $cadastro, int $tipo): int
+    public static function update(int $id, string $cadastro, int $tipo): int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $sql = '
             update cliente 
             set cli_cadastro = ?, cli_tipo = ?
             where cli_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
         $statement->bind_param('sii', $cadastro, $tipo, $id);
         $statement->execute();
 
-        $res = $statement->affected_rows;
-
-        return $res;
+        return $statement->affected_rows;
     }
 
-    public static function delete(mysqli $conn, int $tipo, int $id): int
+    public static function delete(int $tipo, int $id): int
     {
+        if (!Banco::getInstance()->getConnection()) return -10;
+
         $res = 0;
         if ($tipo == 1) {
-            $res = self::deletePessoaFisica($conn, $id);
+            $res = self::deletePessoaFisica($id);
         } else {
-            $res = self::deletePessoaJuridica($conn, $id);
+            $res = self::deletePessoaJuridica($id);
         }
 
         if ($res <= 0) return $res;
@@ -98,64 +102,60 @@ class ClienteDAO
             from cliente
             where cli_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
         $statement->bind_param('i', $id);
         $statement->execute();
 
-        $res = $statement->affected_rows;
-
-        return $res;
+        return $statement->affected_rows;
     }
 
-    public static function deletePessoaFisica(mysqli $conn, int $id)
+    public static function deletePessoaFisica(int $id)
     {
         $sql = '
             delete 
             from cliente_pessoa_fisica
             where cli_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
         $statement->bind_param('i', $id);
         $statement->execute();
 
-        $res = $statement->affected_rows;
-
-        return $res;
+        return $statement->affected_rows;
     }
 
-    public static function deletePessoaJuridica(mysqli $conn, int $id)
+    public static function deletePessoaJuridica(int $id)
     {
         $sql = '
             delete 
             from cliente_pessoa_juridica
             where cli_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
 
         $statement->bind_param('i', $id);
         $statement->execute();
 
-        $res = $statement->affected_rows;
-
-        return $res;
+        return $statement->affected_rows;
     }
 
-    public static function getById(mysqli $conn, int $id): ?Cliente
+    public static function getById(int $id): ?Cliente
     {
+        if (!Banco::getInstance()->getConnection()) return null;
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
@@ -175,9 +175,9 @@ class ClienteDAO
             inner join estado e on c.est_id = e.est_id
             where cl.cli_id = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
 
@@ -189,6 +189,7 @@ class ClienteDAO
             return null;
         }
         $row = $result->fetch_assoc();
+
         $cl = new Cliente(
             $row['cli_id'], $row['cli_cadastro'], $row['cli_tipo'],
             $row['cli_tipo'] == 2 ? null : new PessoaFisica(
@@ -226,8 +227,10 @@ class ClienteDAO
         return $cl;
     }
 
-    public static function getByKey(mysqli $conn, string $key): array
+    public static function getByKey(string $key): array
     {
+        if (!Banco::getInstance()->getConnection()) return array();
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
@@ -249,9 +252,9 @@ class ClienteDAO
             or pj.pj_nome_fantasia like ? 
             or ct.ctt_email like ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
 
@@ -263,6 +266,7 @@ class ClienteDAO
             echo $statement->error;
             return array();
         }
+
         $clientes = array();
         for ($i = 0; $i < $result->num_rows; $i++) {
             $row = $result->fetch_assoc();
@@ -304,8 +308,10 @@ class ClienteDAO
         return $clientes;
     }
 
-    public static function getByCad(mysqli $conn, string $cad): array
+    public static function getByCad(string $cad): array
     {
+        if (!Banco::getInstance()->getConnection()) return array();
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
@@ -325,9 +331,9 @@ class ClienteDAO
             inner join estado e on c.est_id = e.est_id
             where cl.cli_cadastro = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
 
@@ -335,9 +341,10 @@ class ClienteDAO
         $statement->execute();
 
         if (!($result = $statement->get_result()) || $result->num_rows == 0) {
-            echo $conn->error;
+            echo $statement->error;
             return array();
         }
+
         $clientes = array();
         for ($i = 0; $i < $result->num_rows; $i++) {
             $row = $result->fetch_assoc();
@@ -379,8 +386,10 @@ class ClienteDAO
         return $clientes;
     }
 
-    public static function getByKeyCad(mysqli $conn, string $key, string $cad): array
+    public static function getByKeyCad(string $key, string $cad): array
     {
+        if (!Banco::getInstance()->getConnection()) return array();
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
@@ -401,9 +410,9 @@ class ClienteDAO
             where (pf.pf_nome like ? or pj.pj_nome_fantasia like ? or ct.ctt_email like ?)
             and cl.cli_cadastro = ?;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
 
@@ -415,6 +424,7 @@ class ClienteDAO
             echo $statement->error;
             return array();
         }
+
         $clientes = array();
         for ($i = 0; $i < $result->num_rows; $i++) {
             $row = $result->fetch_assoc();
@@ -456,8 +466,10 @@ class ClienteDAO
         return $clientes;
     }
 
-    public static function getAll(mysqli $conn): array
+    public static function getAll(): array
     {
+        if (!Banco::getInstance()->getConnection()) return array();
+
         $sql = '
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
@@ -476,9 +488,9 @@ class ClienteDAO
             inner join cidade c on en.cid_id = c.cid_id
             inner join estado e on c.est_id = e.est_id;
         ';
-        $statement = $conn->prepare($sql);
+        $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
-            echo $conn->error;
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
 
@@ -488,6 +500,7 @@ class ClienteDAO
             echo $statement->error;
             return array();
         }
+
         $clientes = array();
         for ($i = 0; $i < $result->num_rows; $i++) {
             $row = $result->fetch_assoc();

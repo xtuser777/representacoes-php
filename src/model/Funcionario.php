@@ -21,12 +21,12 @@ class Funcionario
         $this->pessoa = $pessoa;
     }
 
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getTipo() : int
+    public function getTipo(): int
     {
         return $this->tipo;
     }
@@ -46,38 +46,38 @@ class Funcionario
         return $this->pessoa;
     }
     
-    public static function getById(mysqli $conn, int $id) : ?Funcionario
+    public static function getById(int $id) : ?Funcionario
     {
-        return $id > 0 ? FuncionarioDAO::getById($conn, $id) : -5;
+        return $id > 0 ? FuncionarioDAO::getById($id) : -5;
     }
     
-    public function insert(mysqli $conn) : int
+    public function insert() : int
     {
         if ($this->id != 0 || $this->tipo <= 0 || $this->admissao == null || $this->pessoa == null) { return -5; }
         
-        return FuncionarioDAO::insert($conn, $this->tipo, $this->admissao, $this->demissao, $this->pessoa->getId());
+        return FuncionarioDAO::insert($this->tipo, $this->admissao, $this->demissao, $this->pessoa->getId());
     }
     
-    public function update(mysqli $conn) : int
+    public function update() : int
     {
         if ($this->id <= 0 || $this->tipo <= 0 || $this->admissao == null || $this->pessoa == null) { return -5; }
         
-        return FuncionarioDAO::update($conn, $this->id, $this->tipo, $this->admissao, $this->demissao, $this->pessoa->getId());
+        return FuncionarioDAO::update($this->id, $this->tipo, $this->admissao, $this->demissao, $this->pessoa->getId());
     }
     
-    public static function delete(mysqli $conn, int $id) : int
+    public static function delete(int $id) : int
     {
-        return $id > 0 ? FuncionarioDAO::delete($conn, $id) : -5;
+        return $id > 0 ? FuncionarioDAO::delete($id) : -5;
     }
     
-    public static function desativar(mysqli $conn, int $id) : int
+    public static function desativar(int $id) : int
     {
-        return $id > 0 ? FuncionarioDAO::desativar($conn, $id) : -5;
+        return $id > 0 ? FuncionarioDAO::desativar($id) : -5;
     }
     
-    public static function reativar(mysqli $conn, int $id) : int
+    public static function reativar(int $id) : int
     {
-        return $id > 0 ? FuncionarioDAO::reativar($conn, $id) : -5;
+        return $id > 0 ? FuncionarioDAO::reativar($id) : -5;
     }
 
     public function jsonSerialize() 

@@ -31,14 +31,14 @@ class Estado
         return $this->sigla;
     }
     
-    public static function getById(mysqli $conn, int $id) : ?Estado
+    public static function getById(int $id) : ?Estado
     {
-        return $id > 0 ? EstadoDAO::getById($conn, $id) : null;
+        return $id > 0 ? EstadoDAO::getById($id) : null;
     }
     
-    public static function getAll(mysqli $conn)
+    public static function getAll()
     {
-        return EstadoDAO::getAll($conn);
+        return EstadoDAO::getAll();
     }
 
     public function jsonSerialize() 

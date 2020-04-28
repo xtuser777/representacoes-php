@@ -60,28 +60,28 @@ class Endereco
         return $this->cidade;
     }
     
-    public static function getById(mysqli $coon, int $id) : ?Endereco
+    public static function getById(int $id) : ?Endereco
     {
-        return $id > 0 ? EnderecoDAO::getById($conn, $id) : null;
+        return $id > 0 ? EnderecoDAO::getById($id) : null;
     }
     
-    public function insert(mysqli $conn) : int
+    public function insert() : int
     {
         if ($this->id != 0 || strlen(trim($this->rua)) <= 0 || strlen(trim($this->numero)) <= 0 || strlen(trim($this->bairro)) <= 0 || strlen(trim($this->cep)) <= 0 || $this->cidade == null) { return -5; }
         
-        return EnderecoDAO::insert($conn, $this->rua, $this->numero, $this->bairro, $this->complemento, $this->cep, $this->cidade->getId());
+        return EnderecoDAO::insert($this->rua, $this->numero, $this->bairro, $this->complemento, $this->cep, $this->cidade->getId());
     }
     
-    public function update(mysqli $conn) : int
+    public function update() : int
     {
         if ($this->id <= 0 || strlen(trim($this->rua)) <= 0 || strlen(trim($this->numero)) <= 0 || strlen(trim($this->bairro)) <= 0 || strlen(trim($this->cep)) <= 0 || $this->cidade == null) { return -5; }
         
-        return EnderecoDAO::update($conn, $this->id, $this->rua, $this->numero, $this->bairro, $this->complemento, $this->cep, $this->cidade->getId());
+        return EnderecoDAO::update($this->id, $this->rua, $this->numero, $this->bairro, $this->complemento, $this->cep, $this->cidade->getId());
     }
     
-    public static function delete(mysqli $conn, int $id) : int
+    public static function delete(int $id) : int
     {
-        return $id > 0 ? EnderecoDAO::delete($conn, $id) : -5;
+        return $id > 0 ? EnderecoDAO::delete($id) : -5;
     }
 
     public function jsonSerialize() 

@@ -3,11 +3,14 @@
 use mysqli;
 use scr\model\Estado;
 use scr\model\Cidade;
+use scr\util\Banco;
 
 class CidadeDAO 
 {
-    public static function getById(mysqli $conn, int $id) : ?Cidade
+    public static function getById(int $id) : ?Cidade
     {
+        if (!Banco::getInstance()->getConnection()) return null;
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome 
@@ -15,8 +18,9 @@ class CidadeDAO
             inner join estado e on e.est_id = c.est_id
             where c.cid_id = ?;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
+            echo Banco::getInstance()->getConnection()->error;
             return null;
         }
         
@@ -24,7 +28,7 @@ class CidadeDAO
         $st->execute();
         
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            $st->close();
+            echo $st->error;
             return null;
         }
 
@@ -35,14 +39,14 @@ class CidadeDAO
                 $row['est_id'],$row['est_nome'],$row['est_sigla']
             )
         );
-
-        $st->close();
         
         return $c;
     }
     
-    public static function getByEstado(mysqli $conn, int $estado) : array
+    public static function getByEstado(int $estado) : array
     {
+        if (!Banco::getInstance()->getConnection()) return array();
+
         $sql = "
             select e.est_id,e.est_nome,e.est_sigla,
                    c.cid_id,c.cid_nome
@@ -50,8 +54,9 @@ class CidadeDAO
             inner join estado e on e.est_id = c.est_id
             where c.est_id = ?;
         ";
-        $st = $conn->prepare($sql);
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$st) {
+            echo Banco::getInstance()->getConnection()->error;
             return array();
         }
         
@@ -59,7 +64,7 @@ class CidadeDAO
         $st->execute();
         
         if (!($result = $st->get_result()) || $result->num_rows == 0) {
-            $st->close();
+            echo $st->error;
             return array();
         }
 
@@ -73,8 +78,6 @@ class CidadeDAO
                 )
             );
         }
-        
-        $st->close();
         
         return $cidades;
     }

@@ -11,12 +11,11 @@ class ClienteControl
 {
     public function obter()
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $array = Cliente::getAll($db->getConnection());
-        $db->getConnection()->close();
-        
         $jarray = array();
+        if (!Banco::getInstance()->open()) return json_encode($jarray);
+        $array = Cliente::getAll();
+        Banco::getInstance()->getConnection()->close();
+
         for ($i = 0; $i < count($array); $i++) {
             /** @var Cliente $cli */
             $cli = $array[$i];
@@ -28,29 +27,20 @@ class ClienteControl
 
     public function obterPorId(int $id)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $array = Cliente::getById($db->getConnection(), $id);
-        $db->getConnection()->close();
-        
-        $jarray = array();
-        for ($i = 0; $i < count($array); $i++) {
-            /** @var Cliente $cli */
-            $cli = $array[$i];
-            $jarray[] = $cli->jsonSerialize();
-        }
+        if (!Banco::getInstance()->open()) return json_encode(null);
+        $array = Cliente::getById($id);
+        Banco::getInstance()->getConnection()->close();
 
-        return json_encode($jarray);
+        return json_encode($array);
     }
 
     public function obterPorChave(string $key)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $array = Cliente::getByKey($db->getConnection(), $key);
-        $db->getConnection()->close();
-        
         $jarray = array();
+        if (!Banco::getInstance()->open()) return json_encode($jarray);
+        $array = Cliente::getByKey($key);
+        Banco::getInstance()->getConnection()->close();
+
         for ($i = 0; $i < count($array); $i++) {
             /** @var Cliente $cli */
             $cli = $array[$i];
@@ -62,12 +52,11 @@ class ClienteControl
 
     public function obterPorCadastro(string $cad)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $array = Cliente::getByCad($db->getConnection(), $cad);
-        $db->getConnection()->close();
-        
         $jarray = array();
+        if (!Banco::getInstance()->open()) return json_encode($jarray);
+        $array = Cliente::getByCad($cad);
+        Banco::getInstance()->getConnection()->close();
+
         for ($i = 0; $i < count($array); $i++) {
             /** @var Cliente $cli */
             $cli = $array[$i];
@@ -79,12 +68,11 @@ class ClienteControl
 
     public function obterPorChaveCadastro(string $key, string $cad)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $array = Cliente::getByKeyCad($db->getConnection(), $key, $cad);
-        $db->getConnection()->close();
-        
         $jarray = array();
+        if (!Banco::getInstance()->open()) return json_encode($jarray);
+        $array = Cliente::getByKeyCad($key, $cad);
+        Banco::getInstance()->getConnection()->close();
+
         for ($i = 0; $i < count($array); $i++) {
             /** @var Cliente $cli */
             $cli = $array[$i];
@@ -96,10 +84,10 @@ class ClienteControl
 
     public function ordenar(string $col)
     {
-        $db = Banco::getInstance();
-        $db->open();
-        $array = Cliente::getAll($db->getConnection());
-        $db->getConnection()->close();
+        $jarray = array();
+        if (!Banco::getInstance()->open()) return json_encode($jarray);
+        $array = Cliente::getAll();
+        Banco::getInstance()->getConnection()->close();
 
         if (count($array) >= 2) {
             switch ($col) {
@@ -240,7 +228,6 @@ class ClienteControl
             }
         }
 
-        $jarray = array();
         for ($i = 0; $i < count($array); $i++) {
             /** @var Cliente $cli */
             $cli = $array[$i];
@@ -260,79 +247,76 @@ class ClienteControl
 
     public function excluir(int $id)
     {
-        $db = Banco::getInstance();
-        $db->open();
+        if (!Banco::getInstance()->open()) return json_encode('Erro ao abrir a conexão com o banco de dados.');
         
-        $cliente = Cliente::getById($db->getConnection(), $id);
+        $cliente = Cliente::getById($id);
         
-        if (!$db->getConnection()) return json_encode('Erro ao abrir a conexão com o banco de dados.');
-        
-        $db->getConnection()->begin_transaction();
+        Banco::getInstance()->getConnection()->begin_transaction();
 
-        $res_cli = Cliente::delete($db->getConnection(), $cliente->getTipo(), $id);
+        $res_cli = Cliente::delete($cliente->getTipo(), $id);
         if ($res_cli == -10 || $res_cli == -1) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Ocorreu um problema ao excluir o cliente;');
         }
         if ($res_cli == -5) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Id inválido.');
         }
 
         if ($cliente->getTipo() == 1) {
-            $res_pes = PessoaFisica::delete($db->getConnection(), $cliente->getPessoaFisica()->getId());
+            $res_pes = PessoaFisica::delete($cliente->getPessoaFisica()->getId());
             if ($res_pes == -10 || $res_pes == -1) {
-                $db->getConnection()->rollback();
-                $db->getConnection()->close();
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getConnection()->close();
                 return json_encode('Ocorreu um problema ao excluir a pessoa;');
             }
             if ($res_pes == -5) {
-                $db->getConnection()->rollback();
-                $db->getConnection()->close();
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getConnection()->close();
                 return json_encode('Id inválido.');
             }
         } else {
-            $res_pes = PessoaJuridica::delete($db->getConnection(), $cliente->getPessoaJuridica()->getId());
+            $res_pes = PessoaJuridica::delete($cliente->getPessoaJuridica()->getId());
             if ($res_pes == -10 || $res_pes == -1) {
-                $db->getConnection()->rollback();
-                $db->getConnection()->close();
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getConnection()->close();
                 return json_encode('Ocorreu um problema ao excluir a pessoa;');
             }
             if ($res_pes == -5) {
-                $db->getConnection()->rollback();
-                $db->getConnection()->close();
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getConnection()->close();
                 return json_encode('Id inválido.');
             }
         }
 
-        $res_ctt = Contato::delete($db->getConnection(), $cliente->getTipo() == 1 ? $cliente->getPessoaFisica()->getContato()->getId() : $cliente->getPessoaJuridica()->getContato()->getId());
+        $res_ctt = Contato::delete($cliente->getTipo() == 1 ? $cliente->getPessoaFisica()->getContato()->getId() : $cliente->getPessoaJuridica()->getContato()->getId());
         if ($res_ctt == -10 || $res_ctt == -1) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Ocorreu um problema ao excluir o contato;');
         }
         if ($res_ctt == -5) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Id inválido.');
         }
 
-        $res_end = Endereco::delete($db->getConnection(), $cliente->getTipo() == 1 ? $cliente->getPessoaFisica()->getContato()->getEndereco()->getId() : $cliente->getPessoaJuridica()->getContato()->getEndereco()->getId());
+        $res_end = Endereco::delete($cliente->getTipo() == 1 ? $cliente->getPessoaFisica()->getContato()->getEndereco()->getId() : $cliente->getPessoaJuridica()->getContato()->getEndereco()->getId());
         if ($res_end == -10 || $res_end == -1) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Ocorreu um problema ao excluir o endereço;');
         }
         if ($res_end == -5) {
-            $db->getConnection()->rollback();
-            $db->getConnection()->close();
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
             return json_encode('Id inválido.');
         }
 
-        $db->getConnection()->commit();
-        $db->getConnection()->close();
+        Banco::getInstance()->getConnection()->commit();
+        Banco::getInstance()->getConnection()->close();
 
         return json_encode('');
     }

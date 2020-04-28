@@ -46,33 +46,33 @@ class PessoaJuridica
         return $this->contato;
     }
 
-    public static function getById(mysqli $conn, int $id) : ?PessoaJuridica
+    public static function getById(int $id) : ?PessoaJuridica
     {
-        return $id > 0 ? PessoaJuridicaDAO::getById($conn, $id) : null;
+        return $id > 0 ? PessoaJuridicaDAO::getById($id) : null;
     }
 
-    public static function verifyCnpj(mysqli $conn, string $cnpj) : bool
+    public static function verifyCnpj(string $cnpj) : bool
     {
-        return strlen(trim($cnpj)) > 0 && PessoaJuridicaDAO::countCnpj($conn, $cnpj) > 0;
+        return strlen(trim($cnpj)) > 0 && PessoaJuridicaDAO::countCnpj($cnpj) > 0;
     }
 
-    public function insert(mysqli $conn) : int
+    public function insert() : int
     {
         if ($this->id != 0 || strlen(trim($this->razaoSocial)) <= 0 || strlen(trim($this->nomeFantasia)) <= 0 || strlen(trim($this->cnpj)) < 18 || $this->contato == null) return -5;
 
-        return PessoaJuridicaDAO::insert($conn, $this->razaoSocial, $this->nomeFantasia, $this->cnpj, $this->contato->getId());
+        return PessoaJuridicaDAO::insert($this->razaoSocial, $this->nomeFantasia, $this->cnpj, $this->contato->getId());
     }
 
-    public function update(mysqli $conn) : int
+    public function update() : int
     {
         if ($this->id <= 0 || strlen(trim($this->razaoSocial)) <= 0 || strlen(trim($this->nomeFantasia)) <= 0 || strlen(trim($this->cnpj)) < 18 || $this->contato == null) return -5;
 
-        return PessoaJuridicaDAO::update($conn, $this->id, $this->razaoSocial, $this->nomeFantasia, $this->cnpj, $this->contato->getId());
+        return PessoaJuridicaDAO::update($this->id, $this->razaoSocial, $this->nomeFantasia, $this->cnpj, $this->contato->getId());
     }
 
-    public static function delete(mysqli $conn, int $id) : int
+    public static function delete(int $id) : int
     {
-        return $id > 0 ? PessoaJuridicaDAO::delete($conn, $id) : -5;
+        return $id > 0 ? PessoaJuridicaDAO::delete($id) : -5;
     }
 
     public function jsonSerialize()

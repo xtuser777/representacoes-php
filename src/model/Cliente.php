@@ -57,48 +57,48 @@ class Cliente
         $this->pessoaJuridica = $pj;
     }
 
-    public static function getById(mysqli $conn, int $id): ?Cliente
+    public static function getById(int $id): ?Cliente
     {
-        return $id > 0 ? ClienteDAO::getById($conn, $id) : null;
+        return $id > 0 ? ClienteDAO::getById($id) : null;
     }
 
-    public static function getByKey(mysqli $conn, string $key): array
+    public static function getByKey(string $key): array
     {
-        return $key !== null && strlen(trim($key)) > 0 ? ClienteDAO::getByKey($conn, $key) : array();
+        return $key !== null && strlen(trim($key)) > 0 ? ClienteDAO::getByKey($key) : array();
     }
 
-    public static function getByCad(mysqli $conn, string $cad): array
+    public static function getByCad(string $cad): array
     {
-        return $cad !== null && strlen(trim($cad)) > 0 ? ClienteDAO::getByCad($conn, $cad) : array();
+        return $cad !== null && strlen(trim($cad)) > 0 ? ClienteDAO::getByCad($cad) : array();
     }
 
-    public static function getByKeyCad(mysqli $conn, string $key, string $cad): array
+    public static function getByKeyCad(string $key, string $cad): array
     {
-        return ($key !== null && strlen(trim($key)) > 0) && ($cad !== null && strlen(trim($cad)) > 0) ? ClienteDAO::getByKeyCad($conn, $key, $cad) : array();
+        return ($key !== null && strlen(trim($key)) > 0) && ($cad !== null && strlen(trim($cad)) > 0) ? ClienteDAO::getByKeyCad($key, $cad) : array();
     }
 
-    public static function getAll(mysqli $conn): array
+    public static function getAll(): array
     {
-        return ClienteDAO::getAll($conn);
+        return ClienteDAO::getAll();
     }
 
-    public function insert(mysqli $conn): int
+    public function insert(): int
     {
         if ($this->id != 0 || strlen(trim($this->cadastro)) <= 0 || $this->tipo <= 0) return -5;
 
-        return ClienteDAO::insert($conn, $this->cadastro, $this->tipo, ($this->tipo == 1) ? $this->pessoaFisica->getId() : 0, ($this->tipo == 2) ? $this->pessoaJuridica->getId() : 0);
+        return ClienteDAO::insert($this->cadastro, $this->tipo, ($this->tipo == 1) ? $this->pessoaFisica->getId() : 0, ($this->tipo == 2) ? $this->pessoaJuridica->getId() : 0);
     }
 
-    public function update(mysqli $conn): int
+    public function update(): int
     {
         if ($this->id <= 0 || strlen(trim($this->cadastro)) <= 0 || $this->tipo <= 0) return -5;
 
-        return ClienteDAO::update($conn, $this->id, $this->cadastro, $this->tipo);
+        return ClienteDAO::update($this->id, $this->cadastro, $this->tipo);
     }
 
-    public static function delete(mysqli $conn, int $tipo, int $id): int
+    public static function delete(int $tipo, int $id): int
     {
-        return $id > 0 ? ClienteDAO::delete($conn, $tipo, $id) : -5;
+        return $id > 0 ? ClienteDAO::delete($tipo, $id) : -5;
     }
 
     public function jsonSerialize()
