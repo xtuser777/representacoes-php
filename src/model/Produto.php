@@ -102,7 +102,7 @@ class Produto
     {
         if ($this->id <= 0 || strlen(trim($this->descricao)) <= 0 || strlen(trim($this->medida)) <= 0 || $this->preco <= 0 || $this->representacao == null) return -5;
 
-        return ProdutoDAO::update($this->id, $this->descricao, $this->medida, $this->preco, $this->precoOut);
+        return ProdutoDAO::update($this->id, $this->descricao, $this->medida, $this->preco, $this->precoOut, $this->representacao->getId());
     }
 
     public function delete(): int

@@ -38,11 +38,11 @@ class ProdutoDAO
         return $stmt->insert_id;
     }
 
-    public static function update(int $id, string $descricao, string $medida, float $preco, float $precoOut): int
+    public static function update(int $id, string $descricao, string $medida, float $preco, float $precoOut, int $representacao): int
     {
         $sql = "
             update produto
-            set pro_descricao = ?, pro_medida = ?, pro_preco = ?, pro_preco_out = ?
+            set pro_descricao = ?, pro_medida = ?, pro_preco = ?, pro_preco_out = ?, rep_id = ?
             where pro_id = ?;
         ";
 
@@ -53,7 +53,7 @@ class ProdutoDAO
             return -10;
         }
 
-        $stmt->bind_param("ssddi", $descricao, $medida, $preco, $precoOut, $id);
+        $stmt->bind_param("ssddii", $descricao, $medida, $preco, $precoOut, $representacao, $id);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return -10;
