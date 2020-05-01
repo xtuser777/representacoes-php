@@ -14,7 +14,7 @@ class RepresentacaoNovoControl
         $res = false;
         if (Banco::getInstance()->open())
         {
-            $res = PessoaJuridica::verifyCnpj(Banco::getInstance()->getConnection(), $cnpj);
+            $res = PessoaJuridica::verifyCnpj($cnpj);
             Banco::getInstance()->getConnection()->close();
         }
 
@@ -25,12 +25,12 @@ class RepresentacaoNovoControl
     {
         if (!Banco::getInstance()->open()) return json_encode('Erro ao conectar-se ao banco de dados.');
 
-        $cidade = Cidade::getById(Banco::getInstance()->getConnection(), $cid);
+        $cidade = Cidade::getById($cid);
 
         Banco::getInstance()->getConnection()->begin_transaction();
 
         $endareco = new Endereco(0, $rua, $num, $bairro, $comp, $cep, $cidade);
-        $end = $endareco->insert(Banco::getInstance()->getConnection());
+        $end = $endareco->insert();
         if ($end == -10 || $end == -1)
         {
             Banco::getInstance()->getConnection()->close();
@@ -44,7 +44,7 @@ class RepresentacaoNovoControl
 
         $endereco = new Endereco($end, $rua, $num, $bairro, $comp, $cep, $cidade);
         $contato = new Contato(0, $tel, $cel, $email, $endereco);
-        $ctt = $contato->insert(Banco::getInstance()->getConnection());
+        $ctt = $contato->insert();
         if ($ctt == -10 || $ctt == -1)
         {
             Banco::getInstance()->getConnection()->rollback();
@@ -60,7 +60,7 @@ class RepresentacaoNovoControl
 
         $contato = new Contato($ctt, $tel, $cel, $email, $endereco);
         $pessoa = new PessoaJuridica(0, $rs, $nf, $cnpj, $contato);
-        $pes = $pessoa->insert(Banco::getInstance()->getConnection());
+        $pes = $pessoa->insert();
         if ($pes == -10 || $pes == -1)
         {
             Banco::getInstance()->getConnection()->rollback();

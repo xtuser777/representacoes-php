@@ -64,3 +64,4 @@ require ROOT . "/src/control/TipoCaminhaoDetalhesControl.php";
 require ROOT . "/src/control/ProdutoControl.php";
 require ROOT . "/src/control/ProdutoNovoControl.php";
 require ROOT . "/src/control/ProdutoDetalhesControl.php";
+require ROOT . "/src/control/ProdutoTipoCaminhaoControl.php";

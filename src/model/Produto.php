@@ -1,21 +1,17 @@
 <?php namespace scr\model;
 
+use ArrayObject;
 use scr\dao\ProdutoDAO;
 
 class Produto
 {
-    /** @var int */
     private $id;
-    /** @var string */
     private $descricao;
-    /** @var string */
     private $medida;
-    /** @var double */
     private $preco;
-    /** @var double */
     private $precoOut;
-    /** @var Representacao */
     private $representacao;
+    private $tiposCaminhao;
 
     /**
      * Produto constructor.
@@ -25,8 +21,9 @@ class Produto
      * @param float $preco
      * @param float $precoOut
      * @param Representacao $representacao
+     * @param array $tipos
      */
-    public function __construct(int $id, string $descricao, string $medida, float $preco, float $precoOut, Representacao $representacao)
+    public function __construct(int $id, string $descricao, string $medida, float $preco, float $precoOut, Representacao $representacao, array $tipos)
     {
         $this->id = $id;
         $this->descricao = $descricao;
@@ -34,6 +31,7 @@ class Produto
         $this->preco = $preco;
         $this->precoOut = $precoOut;
         $this->representacao = $representacao;
+        $this->tiposCaminhao = $tipos;
     }
 
     public function getId(): int
@@ -66,6 +64,11 @@ class Produto
         return $this->representacao;
     }
 
+    public function getTipos(): array
+    {
+        return $this->tiposCaminhao;
+    }
+
     public static function findById(int $id): ?Produto
     {
         return $id > 0 ? ProdutoDAO::selectId($id) : null;
@@ -91,11 +94,21 @@ class Produto
         return ProdutoDAO::select();
     }
 
+    public static function verifyType(int $product, int $type): bool
+    {
+        return $type > 0 ? ProdutoDAO::verifyType($product, $type) : false;
+    }
+
     public function save(): int
     {
         if ($this->id != 0 || strlen(trim($this->descricao)) <= 0 || strlen(trim($this->medida)) <= 0 || $this->preco <= 0 || $this->representacao == null) return -5;
 
         return ProdutoDAO::insert($this->descricao, $this->medida, $this->preco, $this->precoOut, $this->representacao->getId());
+    }
+
+    public function saveType(int $type): int
+    {
+        return $type > 0 ? ProdutoDAO::insertType($this->id, $type) : -5;
     }
 
     public function update(): int
@@ -108,6 +121,11 @@ class Produto
     public function delete(): int
     {
         return $this->id > 0 ? ProdutoDAO::delete($this->id) : -5;
+    }
+
+    public function deleteType(int $type): int
+    {
+        return $type > 0 ? ProdutoDAO::deleteType($this->id, $type) : -5;
     }
 
     public function jsonSerialize()

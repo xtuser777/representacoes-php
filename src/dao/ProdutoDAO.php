@@ -2,6 +2,7 @@
 
 namespace scr\dao;
 
+use ArrayObject;
 use mysqli_result;
 use mysqli_stmt;
 use scr\model\Cidade;
@@ -11,6 +12,7 @@ use scr\model\Estado;
 use scr\model\PessoaJuridica;
 use scr\model\Produto;
 use scr\model\Representacao;
+use scr\model\TipoCaminhao;
 use scr\util\Banco;
 
 class ProdutoDAO
@@ -36,6 +38,29 @@ class ProdutoDAO
         }
 
         return $stmt->insert_id;
+    }
+
+    public static function insertType(int $product, int $type): int
+    {
+        $sql = "
+            insert into produto_tipo_caminhao (pro_id, tip_cam_id)
+            values (?, ?);
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $stmt->bind_param("ii", $product, $type);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
     }
 
     public static function update(int $id, string $descricao, string $medida, float $preco, float $precoOut, int $representacao): int
@@ -140,7 +165,8 @@ class ProdutoDAO
                             )
                         )
                     )
-                )
+                ),
+                self::selectTypes($row["pro_id"])
             );
         }
 
@@ -206,7 +232,8 @@ class ProdutoDAO
                         )
                     )
                 )
-            )
+            ),
+            self::selectTypes($row["pro_id"])
         );
     }
 
@@ -273,7 +300,8 @@ class ProdutoDAO
                             )
                         )
                     )
-                )
+                ),
+                self::selectTypes($row["pro_id"])
             );
         }
 
@@ -342,7 +370,8 @@ class ProdutoDAO
                             )
                         )
                     )
-                )
+                ),
+                self::selectTypes($row["pro_id"])
             );
         }
 
@@ -410,10 +439,111 @@ class ProdutoDAO
                             )
                         )
                     )
-                )
+                ),
+                self::selectTypes($row["pro_id"])
             );
         }
 
         return $produtos;
+    }
+
+    public static function selectTypes(int $product): array
+    {
+        if ($product <= 0) return array();
+
+        $sql = "
+            select tc.tip_cam_id, tc.tip_cam_descricao, tc.tip_cam_eixos, tc.tip_cam_capacidade
+            from tipo_caminhao tc
+            inner join produto_tipo_caminhao ptc on ptc.tip_cam_id = tc.tip_cam_id
+            where ptc.pro_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return array();
+        }
+
+        $stmt->bind_param("i", $product);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return array();
+        }
+
+        /** @var $result mysqli_result */
+        if (!($result = $stmt->get_result()) || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return array();
+        }
+
+        $tipos = array();
+        while ($row = $result->fetch_assoc()) {
+            $tipos[] = new TipoCaminhao (
+                $row["tip_cam_id"],
+                $row["tip_cam_descricao"],
+                $row["tip_cam_eixos"],
+                $row["tip_cam_capacidade"]
+            );
+        }
+
+        return $tipos;
+    }
+
+    public static function verifyType(int $product, int $type): bool
+    {
+        $sql = "
+            select count(tip_cam_id) > 0 as res
+            from produto_tipo_caminhao
+            where pro_id = ? 
+            and tip_cam_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return true;
+        }
+
+        $stmt->bind_param("ii", $product, $type);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return true;
+        }
+
+        /** @var $result mysqli_result */
+        if (!($result = $stmt->get_result()) || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return true;
+        }
+        $row = $result->fetch_assoc();
+
+        return $row["res"];
+    }
+
+    public static function deleteType(int $product, int $type): int
+    {
+        $sql = "
+            delete
+            from produto_tipo_caminhao
+            where pro_id = ?
+            and tip_cam_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $stmt->bind_param("ii", $product, $type);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
     }
 }

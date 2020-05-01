@@ -13,8 +13,8 @@ function get(url_i) {
 }
 
 $(document).ready(function (event) {
-    $('#preco').mask('00.000.000,00', { reverse: true });
-    $('#preco_out').mask('00.000.000,00', { reverse: true });
+    $('#preco').mask('00,000,000.00', { reverse: true });
+    $('#preco_out').mask('00,000,000.00', { reverse: true });
 
     var representacao = document.getElementById("representacao");
     var representacoes = get("/gerenciar/produto/novo/obter-representacoes.php");

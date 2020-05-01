@@ -204,7 +204,7 @@ function excluir(id) {
                     data: { id: id },
                     success: function (result) {
                         if (result === "") {
-                            obterTipos();
+                            obterProdutos();
                         }
                         else {
                             mostraDialogo(

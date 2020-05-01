@@ -40,7 +40,7 @@ class ProdutoDetalhesControl
         Banco::getInstance()->getConnection()->begin_transaction();
 
         $precoOut = $precoOut <= 0 ? $preco : $precoOut;
-        $produto = new Produto($pro, $descricao, $medida, $preco, $precoOut, $rep);
+        $produto = new Produto($pro, $descricao, $medida, $preco, $precoOut, $rep, []);
         $res = $produto->update();
         if ($res == -10 || $res == -1) {
             Banco::getInstance()->getConnection()->rollback();
