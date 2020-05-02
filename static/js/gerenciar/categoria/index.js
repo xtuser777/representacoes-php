@@ -27,7 +27,7 @@ function get(url_i) {
 }
 
 function obter() {
-    var dados = get("/Categoria/Obter");
+    var dados = get("/gerenciar/categoria/obter.php");
 
     preencherTabela(dados);
 }
@@ -36,7 +36,7 @@ $(document).ready(function (event) {
     obter();
 });
 
-function filtrarTipos() {
+function filtrar() {
     var filtro = $("#filtro").val();
     
     if (filtro === "") {
@@ -44,8 +44,8 @@ function filtrarTipos() {
     } else {
         $.ajax({
             type: "POST",
-            url: "/Categoria/ObterPorFiltro",
-            data: {filtro: filtro},
+            url: "/gerenciar/categoria/obter-por-chave.php",
+            data: { chave: filtro },
             async: false,
             success: function (result) {
                 preencherTabela(result);
@@ -67,8 +67,8 @@ function ordenar() {
 
     $.ajax({
         type: "POST",
-        url: "/Categoria/Ordenar",
-        data: {ord: ord},
+        url: "/gerenciar/categoria/ordenar.php",
+        data: { col: ord },
         async: false,
         success: function (result) {
             preencherTabela(result);
@@ -87,7 +87,7 @@ function ordenar() {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/Categoria/Enviar',
+        url: '/gerenciar/categoria/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);
@@ -123,7 +123,7 @@ function excluir(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/Categoria/Excluir',
+                    url: '/gerenciar/categoria/excluir.php',
                     data: { id: id },
                     success: function (result) {
                         if (result === "") {

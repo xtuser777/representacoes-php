@@ -23,6 +23,7 @@ require ROOT . '/src/model/Cliente.php';
 require ROOT . '/src/model/Representacao.php';
 require ROOT . "/src/model/TipoCaminhao.php";
 require ROOT . "/src/model/Produto.php";
+require ROOT . "/src/model/Categoria.php";
 
 require ROOT . '/src/util/Singleton.php';
 require ROOT . '/src/util/Banco.php';
@@ -41,6 +42,7 @@ require ROOT . '/src/dao/ClienteDAO.php';
 require ROOT . '/src/dao/RepresentacaoDAO.php';
 require ROOT . "/src/dao/TipoCaminhaoDAO.php";
 require ROOT . "/src/dao/ProdutoDAO.php";
+require ROOT . "/src/dao/CategoriaDAO.php";
 
 require ROOT . '/src/control/CidadeControl.php';
 require ROOT . '/src/control/EstadoControl.php';
@@ -65,3 +67,6 @@ require ROOT . "/src/control/ProdutoControl.php";
 require ROOT . "/src/control/ProdutoNovoControl.php";
 require ROOT . "/src/control/ProdutoDetalhesControl.php";
 require ROOT . "/src/control/ProdutoTipoCaminhaoControl.php";
+require ROOT . "/src/control/CategoriaControl.php";
+require ROOT . "/src/control/CategoriaNovoControl.php";
+require ROOT . "/src/control/CategoriaDetalhesControl.php";

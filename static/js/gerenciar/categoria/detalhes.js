@@ -15,7 +15,7 @@ function get(url_i) {
 }
 
 $(document).ready(function (event) {
-    var dados = get("/Categoria/ObterDetalhes");
+    var dados = get("/gerenciar/categoria/detalhes/obter.php");
     if (dados !== "") {
         _cat= dados.id;
         $("#desc").val(dados.descricao);
@@ -41,7 +41,7 @@ function gravar() {
 
         $.ajax({
             type: "POST",
-            url: "/Categoria/Alterar",
+            url: "/gerenciar/categoria/detalhes/alterar.php",
             data: form,
             contentType: false,
             processData: false,

@@ -16,7 +16,7 @@ function gravar() {
 
         $.ajax({
             type: "POST",
-            url: "/Categoria/Gravar",
+            url: "/gerenciar/categoria/novo/gravar.php",
             data: form,
             contentType: false,
             processData: false,
