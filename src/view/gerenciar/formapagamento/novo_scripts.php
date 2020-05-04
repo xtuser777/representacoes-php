@@ -1,0 +1,1 @@
+<script type="text/javascript" src="/static/js/gerenciar/formapagamento/novo.js"></script>

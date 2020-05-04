@@ -61,6 +61,7 @@
                             <li><a href="/gerenciar/produto">Produtos</a></li>
                             <li><a href="/gerenciar/tipocaminhao">Tipos de Caminhão</a></li>
                             <li><a href="/gerenciar/categoria">Categorias de Contas</a></li>
+                            <li><a href="/gerenciar/formapagamento">Formas de Pagamento</a></li>
                         </ul>
                         <!-- Fim popup botao gerenciar -->
                     </li>
