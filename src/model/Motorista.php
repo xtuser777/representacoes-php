@@ -1,6 +1,8 @@
 <?php namespace scr\model;
 
 
+use scr\dao\MotoristaDAO;
+
 class Motorista
 {
     private $id;
@@ -34,6 +36,50 @@ class Motorista
     public function getDadosBancarios(): DadosBancarios
     {
         return $this->dadosBancarios;
+    }
+
+    public static function findById(int $id): ?Motorista
+    {
+        return $id > 0 ? MotoristaDAO::selectId($id) : null;
+    }
+
+    public static function findByKey(string $key): array
+    {
+        return strlen(trim($key)) > 0 ? MotoristaDAO::selectKey($key) : array();
+    }
+
+    public static function findByCad(string $cad): array
+    {
+        return strlen(trim($cad)) > 0 ? MotoristaDAO::selectCad($cad) : array();
+    }
+
+    public static function findByKeyCad(string $key, string $cad): array
+    {
+        return strlen(trim($key)) > 0 && strlen(trim($cad)) > 0 ? MotoristaDAO::selectKeyCad($key, $cad) : array();
+    }
+
+    public static function findAll(): array
+    {
+        return MotoristaDAO::select();
+    }
+
+    public function save(): int
+    {
+        if ($this->id != 0 || strlen($this->cadastro) <= 0 || $this->pessoa == null || $this->dadosBancarios == null) return -5;
+
+        return MotoristaDAO::insert($this->cadastro, $this->pessoa->getId(), $this->dadosBancarios->getId());
+    }
+
+    public function update(): int
+    {
+        if ($this->id <= 0 || strlen($this->cadastro) <= 0 || $this->pessoa == null || $this->dadosBancarios == null) return -5;
+
+        return MotoristaDAO::update($this->id, $this->cadastro, $this->pessoa->getId(), $this->dadosBancarios->getId());
+    }
+
+    public function delete(): int
+    {
+        return $this->id > 0 ? MotoristaDAO::delete($this->id) : -5;
     }
 
     public function jsonSerialize()

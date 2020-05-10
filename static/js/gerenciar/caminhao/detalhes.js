@@ -18,9 +18,10 @@ function get(url_i) {
 }
 
 $(document).ready(function (event) {
-    $("#ano").mask('0000', {reverse: false});
+    $("#anofab").mask('0000', {reverse: false});
+    $("#anomod").mask('0000', {reverse: false});
     
-    var tipos = get('/TipoCaminhao/Obter');
+    var tipos = get('/gerenciar/tipocaminhao/obter.php');
     if (tipos !== null && tipos !== "") {
         for (var i = 0; i < tipos.length; i++) {
             var option = document.createElement("option");
@@ -30,7 +31,7 @@ $(document).ready(function (event) {
         }
     }
 
-    var props = get('/Motorista/Obter');
+    var props = get('/gerenciar/motorista/obter.php');
     if (props !== null && props !== "") {
         for (var i = 0; i < props.length; i++) {
             var option = document.createElement("option");
@@ -40,13 +41,14 @@ $(document).ready(function (event) {
         }
     }
 
-    var caminhao = get('/Caminhao/ObterDetalhes');
+    var caminhao = get('/gerenciar/caminhao/detalhes/obter.php');
     if (caminhao !== null && caminhao !== "") {
         idcaminhao = caminhao.id;
         $('#placa').val(caminhao.placa);
         $('#marca').val(caminhao.marca);
         $('#modelo').val(caminhao.modelo);
-        $('#ano').val(caminhao.ano);
+        $('#anofab').val(caminhao.anoFabricacao);
+        $("#anomod").val(caminhao.anoModelo);
         $('#tipo').val(caminhao.tipo.id);
         $('#proprietario').val(caminhao.proprietario.id);
     }
@@ -56,7 +58,8 @@ function gravar() {
     var placa = $("#placa").val();
     var marca = $("#marca").val();
     var modelo = $("#modelo").val();
-    var ano = $("#ano").val();
+    var anofab = $("#anofab").val();
+    var anomod = $("#anomod").val();
     var tipo = $("#tipo").val();
     var prop = $("#proprietario").val();
 
@@ -83,11 +86,18 @@ function gravar() {
         $("#msmodelo").html('');
     }
 
-    if (ano === "") {
+    if (anofab === "") {
         erros++;
-        $("#msano").html('<span class="label label-danger">O ano do caminhão deve ser preenchido!</span>');
+        $("#msanofab").html('<span class="label label-danger">O ano deve ser preenchido!</span>');
     } else {
-        $("#msano").html('');
+        $("#msanofab").html('');
+    }
+
+    if (anomod === "") {
+        erros++;
+        $("#msanomod").html('<span class="label label-danger">O ano deve ser preenchido!</span>');
+    } else {
+        $("#msanomod").html('');
     }
 
     if (tipo === "0"){
@@ -110,13 +120,14 @@ function gravar() {
         form.append("placa", placa);
         form.append("marca", marca);
         form.append("modelo", modelo);
-        form.append("ano", ano);
+        form.append("anofab", anofab);
+        form.append("anomod", anomod);
         form.append("tipo", tipo);
         form.append("proprietario", prop);
 
         $.ajax({
             type: "POST",
-            url: "/Caminhao/Alterar",
+            url: "/gerenciar/caminhao/detalhes/alterar.php",
             data: form,
             contentType: false,
             processData: false,
@@ -125,11 +136,10 @@ function gravar() {
                 if (response === "") {
                     mostraDialogo(
                         "<strong>Caminhão alterado com sucesso!</strong>" +
-                        "<br />Os dados do novo caminhão foram salvos com sucesso no banco de dados.",
+                        "<br />Os dados do caminhão foram salvos com sucesso no banco de dados.",
                         "success",
                         2000
                     );
-                    limpar();
                 } else {
                     mostraDialogo(
                         "<strong>Problemas ao alterar o caminhão...</strong>" +
@@ -152,7 +162,8 @@ function gravar() {
         $("#placa").val(placa);
         $("#marca").val(marca);
         $("#modelo").val(modelo);
-        $("#ano").val(ano);
+        $("#anofab").val(anofab);
+        $("#anomod").val(anomod);
         $("#tipo").val(tipo);
         $("#proprietario").val(prop);
     }

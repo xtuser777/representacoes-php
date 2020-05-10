@@ -40,7 +40,7 @@ class ClienteNovoControl
             0, $rua, $num, $bairro, $comp, $cep, $cidade
         );
         $res_end = $endereco->insert();
-        if ($res_end == -10) {
+        if ($res_end == -10 || $res_end == -1) {
             Banco::getInstance()->getConnection()->close();
             return json_encode('Ocorreu um problema ao gravar o endereço.');
         }
@@ -56,7 +56,7 @@ class ClienteNovoControl
             )
         );
         $res_ctt = $contato->insert();
-        if ($res_ctt == -10) {
+        if ($res_ctt == -10 || $res_ctt == -1) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getConnection()->close();
             return json_encode('Ocorreu um problema ao gravar o contato.');
@@ -79,7 +79,7 @@ class ClienteNovoControl
                 )
             );
             $res_pes = $pessoa->insert();
-            if ($res_pes == -10) {
+            if ($res_pes == -10 || $res_pes == -1) {
                 Banco::getInstance()->getConnection()->rollback();
                 Banco::getInstance()->getConnection()->close();
                 return json_encode('Ocorreu um problema ao gravar a pessoa.');
@@ -100,7 +100,7 @@ class ClienteNovoControl
                 )
             );
             $res_pes = $pessoa->insert();
-            if ($res_pes == -10) {
+            if ($res_pes == -10 || $res_pes == -1) {
                 Banco::getInstance()->getConnection()->rollback();
                 Banco::getInstance()->getConnection()->close();
                 return json_encode('Ocorreu um problema ao gravar a pessoa.');
@@ -134,7 +134,7 @@ class ClienteNovoControl
             )
         );
         $res = $cliente->insert();
-        if ($res == -10) {
+        if ($res == -10 || $res == -1) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getConnection()->close();
             return json_encode('Ocorreu um problema ao gravar o cliente.');
