@@ -184,4 +184,61 @@ CREATE OR REPLACE TABLE motorista
     dad_ban_id INTEGER NOT NULL,
     FOREIGN KEY (pf_id) REFERENCES pessoa_fisica(pf_id),
     FOREIGN KEY (dad_ban_id) REFERENCES dados_bancarios(dad_ban_id)
-)
+);
+
+CREATE OR REPLACE TABLE caminhao
+(
+    cam_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    cam_placa VARCHAR(10) NOT NULL,
+    cam_marca VARCHAR(30) NOT NULL,
+    cam_modelo VARCHAR(50) NOT NULL,
+    cam_ano_fabricacao VARCHAR(4) NOT NULL,
+    cam_ano_modelo VARCHAR(4) NOT NULL,
+    tip_cam_id INTEGER NOT NULL,
+    mot_id INTEGER NOT NULL,
+    FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
+    FOREIGN KEY (mot_id) REFERENCES motorista(mot_id)
+);
+
+CREATE OR REPLACE TABLE orcamento_venda
+(
+    orc_ven_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    orc_ven_descricao VARCHAR(100) NOT NULL,
+    orc_ven_data DATE NOT NULL,
+    orc_ven_nome_cliente VARCHAR(70) NOT NULL,
+    orc_ven_documento_cliente VARCHAR(16) NOT NULL,
+    orc_ven_telefone_cliente VARCHAR(14) NOT NULL,
+    orc_ven_celular_cliente VARCHAR(16) NOT NULL,
+    orc_ven_email_cliente VARCHAR(70) NOT NULL,
+    orc_ven_peso DECIMAL(10,2) NOT NULL,
+    orc_ven_valor DECIMAL(10,2) NOT NULL,
+    orc_ven_validade DATE NOT NULL,
+    fun_id INTEGER,
+    cid_id INTEGER,
+    tip_cam_id INTEGER NOT NULL,
+    usu_id INTEGER NOT NULL,
+    cli_id INTEGER NOT NULL,
+    FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
+    FOREIGN KEY (usu_id) REFERENCES usuario(usu_id),
+    FOREIGN KEY (cli_id) REFERENCES cliente(cli_id)
+);
+
+CREATE OR REPLACE TABLE orcamento_frete
+(
+    orc_fre_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    orc_fre_descricao VARCHAR(100) NOT NULL,
+    orc_fre_data DATE NOT NULL,
+    orc_fre_distancia INTEGER NOT NULL,
+    orc_fre_peso DECIMAL(10,2) NOT NULL,
+    orc_fre_valor DECIMAL(10,2) NOT NULL,
+    orc_fre_entrega DATE NOT NULL,
+    orc_fre_validade DATE NOT NULL,
+    orc_ven_id INTEGER,
+    rep_id INTEGER,
+    tip_cam_id INTEGER NOT NULL,
+    cid_id INTEGER NOT NULL,
+    usu_id INTEGER NOT NULL,
+    FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
+    FOREIGN KEY (cid_id) REFERENCES cidade(cid_id),
+    FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
+);
