@@ -69,6 +69,27 @@ class Contato
     {
         return $id > 0 ? ContatoDAO::delete($id) : -5;
     }
+
+    public static function validarEmail(string $email): bool
+    {
+        $usuario = substr($email, 0, strpos($email, "@"));
+        $dominio = substr($email, strpos($email, "@")+1, strlen($email));
+        if (
+            (strlen($usuario) >=1) &&
+            (strlen($dominio) >=3) &&
+            (strpos($usuario, "@")===false) &&
+            (strpos($dominio, "@")===false) &&
+            (strpos($usuario, " ")===false) &&
+            (strpos($dominio, " ")===false) &&
+            (strpos($dominio, ".")!==false) &&
+            (strpos($dominio, ".")>=1)&&
+            (strpos($dominio, ".") < strlen($dominio) - 1)
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     
     public function jsonSerialize()
     {

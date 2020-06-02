@@ -31,7 +31,7 @@ class ProdutoDetalhesControl
         return json_encode($produto->jsonSerialize());
     }
 
-    public function alterar(int $pro, string $descricao, string $medida, float $preco, float $precoOut, int $representacao)
+    public function alterar(int $pro, string $descricao, string $medida, float $peso, float $preco, float $precoOut, int $representacao)
     {
         if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
 
@@ -40,7 +40,7 @@ class ProdutoDetalhesControl
         Banco::getInstance()->getConnection()->begin_transaction();
 
         $precoOut = $precoOut <= 0 ? $preco : $precoOut;
-        $produto = new Produto($pro, $descricao, $medida, $preco, $precoOut, $rep, []);
+        $produto = new Produto($pro, $descricao, $medida, $peso, $preco, $precoOut, $rep, []);
         $res = $produto->update();
         if ($res == -10 || $res == -1) {
             Banco::getInstance()->getConnection()->rollback();

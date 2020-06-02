@@ -21,7 +21,7 @@ class ProdutoNovoControl
         return json_encode($jarray);
     }
 
-    public function gravar(string $descricao, string $medida, float $preco, float $precoOut, int $representacao)
+    public function gravar(string $descricao, string $medida, float $peso, float $preco, float $precoOut, int $representacao)
     {
         if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
 
@@ -30,7 +30,7 @@ class ProdutoNovoControl
         Banco::getInstance()->getConnection()->begin_transaction();
 
         $precoOut = $precoOut <= 0 ? $preco : $precoOut;
-        $produto = new Produto(0, $descricao, $medida, $preco, $precoOut, $rep, []);
+        $produto = new Produto(0, $descricao, $medida, $peso, $preco, $precoOut, $rep, []);
         $res = $produto->save();
         if ($res == -10 || $res == -1 || $res == 0) {
             Banco::getInstance()->getConnection()->rollback();

@@ -139,8 +139,9 @@ CREATE OR REPLACE TABLE produto
     pro_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     pro_descricao VARCHAR(70) NOT NULL,
     pro_medida VARCHAR(40) NOT NULL,
-    pro_preco DECIMAL NOT NULL,
-    pro_preco_out DECIMAL,
+    pro_peso DECIMAL(10,1) NOT NULL,
+    pro_preco DECIMAL(10,2) NOT NULL,
+    pro_preco_out DECIMAL(10,2),
     rep_id INTEGER NOT NULL,
     FOREIGN KEY (rep_id) REFERENCES representacao(rep_id)
 );
@@ -215,10 +216,8 @@ CREATE OR REPLACE TABLE orcamento_venda
     orc_ven_validade DATE NOT NULL,
     fun_id INTEGER,
     cid_id INTEGER,
-    tip_cam_id INTEGER NOT NULL,
     usu_id INTEGER NOT NULL,
     cli_id INTEGER NOT NULL,
-    FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id),
     FOREIGN KEY (cli_id) REFERENCES cliente(cli_id)
 );
@@ -241,4 +240,27 @@ CREATE OR REPLACE TABLE orcamento_frete
     FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
     FOREIGN KEY (cid_id) REFERENCES cidade(cid_id),
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
+);
+
+CREATE OR REPLACE TABLE orcamento_venda_produto
+(
+    orc_ven_id INTEGER NOT NULL,
+    pro_id INTEGER NOT NULL,
+    orc_ven_pro_quantidade INTEGER NOT NULL,
+    orc_ven_pro_valor DECIMAL(10,2) NOT NULL,
+    orc_ven_pro_peso DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (orc_ven_id, pro_id),
+    FOREIGN KEY (orc_ven_id) REFERENCES orcamento_venda(orc_ven_id),
+    FOREIGN KEY (pro_id) REFERENCES produto(pro_id)
+);
+
+CREATE OR REPLACE TABLE orcamento_frete_produto
+(
+    orc_fre_id INTEGER NOT NULL,
+    pro_id INTEGER NOT NULL,
+    orc_fre_pro_quantidade INTEGER NOT NULL,
+    orc_fre_pro_peso DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (orc_fre_id, pro_id),
+    FOREIGN KEY (orc_fre_id) REFERENCES orcamento_frete(orc_fre_id),
+    FOREIGN KEY (pro_id) REFERENCES produto(pro_id)
 );

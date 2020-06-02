@@ -103,14 +103,14 @@ class Usuario
     
     public function insert() : int
     {
-        if ($this->id != 0 || strlen(trim($this->login)) <= 0 || strlen(trim($this->senha)) < 6 || $this->funcionario == null || $this->nivel == null) { return -5; }
+        if ($this->id != 0 || $this->funcionario == null || $this->nivel == null) return -5;
         
         return UsuarioDAO::insert($this->login, $this->senha, $this->ativo, $this->funcionario->getId(), $this->nivel->getId());
     }
     
     public function update() : int
     {
-        if ($this->id <= 0 || strlen(trim($this->login)) <= 0 || strlen(trim($this->senha)) < 6 || $this->funcionario == null || $this->nivel == null) { return -5; }
+        if ($this->id <= 0 || $this->funcionario == null || $this->nivel == null) return -5;
         
         return UsuarioDAO::update($this->id, $this->login, $this->senha, $this->ativo, $this->funcionario->getId(), $this->nivel->getId());
     }

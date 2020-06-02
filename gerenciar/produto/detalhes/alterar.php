@@ -1,20 +1,22 @@
 <?php
 
-require_once '../../../header.php';
+require '../../../header.php';
 
-if (!isset($_SESSION['USER_ID']))
-{
-    header('Location: /login/index.php');
-}
-elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0)
-{
+if (!isset($_SESSION['USER_ID'])) {
+    header('Location: /login');
+} elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
     header('Content-type: application/json');
     echo json_encode('Método inválido.');
 }
-else
-{
-    $control = new \scr\control\ProdutoDetalhesControl();
+else {
+    $prod = $_POST['produto'];
+    $desc = $_POST["descricao"];
+    $med = $_POST["medida"];
+    $peso = $_POST["peso"];
+    $preco = $_POST["preco"];
+    $precoOut = ($_POST["preco_out"] !== '') ? $_POST["preco_out"] : $preco;
+    $rep = $_POST["representacao"];
 
     header('Content-type: application/json');
-    echo $control->alterar ($_POST['produto'], $_POST['descricao'], $_POST['medida'], $_POST['preco'], $_POST['preco_out'], $_POST['representacao']);
+    echo (new scr\control\ProdutoDetalhesControl())->alterar ($prod, $desc, $med, $peso, $preco, $precoOut, $rep);
 }

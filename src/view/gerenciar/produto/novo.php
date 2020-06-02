@@ -26,13 +26,22 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-3">
                 <label for="medida">Medida <span style="color: red;">*</span>:</label>
                 <input type="text" id="medida" class="form-control input-sm" style="width: 100%;" placeholder="Exemplo: Kg, Sacos de X Kg..." value="" />
                 <div id="msmedida"></div>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-3">
+                <label for="peso">Peso <span style="color: red;">*</span>:</label>
+                <div class="input-group">
+                    <input type="text" id="peso" class="form-control input-sm" style="width: 100%;" value=""/>
+                    <div class="input-group-addon">KG</div>
+                </div>
+                <div id="mspeso"></div>
+            </div>
+
+            <div class="col-sm-3">
                 <label for="preco">Preço <span style="color: red;">*</span>:</label>
                 <div class="input-group">
                     <div class="input-group-addon">R$</div>
@@ -41,7 +50,7 @@
                 <div id="mspreco"></div>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-3">
                 <label for="preco_out">Preço fora do estado:</label>
                 <div class="input-group">
                     <div class="input-group-addon">R$</div>

@@ -3,6 +3,7 @@
 use mysqli_result;
 use mysqli_stmt;
 use scr\model\OrcamentoFrete;
+use scr\model\OrcamentoVenda;
 use scr\util\Banco;
 
 class OrcamentoFreteDAO
@@ -91,7 +92,7 @@ class OrcamentoFreteDAO
         while ($row = $result->fetch_assoc()) {
             $orcamentos[] = new OrcamentoFrete(
                 $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],$row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
-                OrcamentoVendaDAO::selectId($row["orc_ven_id"]),
+                OrcamentoVenda::findById($row["orc_ven_id"]),
                 RepresentacaoDAO::getById($row["rep_id"]),
                 TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
                 CidadeDAO::getById($row["cid_id"]),

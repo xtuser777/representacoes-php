@@ -80,11 +80,12 @@ class ItemOrcamentoVenda
         );
     }
 
-    public static function findAll(): array
+    public static function findAllItems(int $orcamento): array
     {
         $sql = "
             select orc_ven_id, pro_id, orc_ven_pro_quantidade, orc_ven_pro_valor, orc_ven_pro_peso
-            from orcamento_venda_produto;
+            from orcamento_venda_produto
+            where orc_ven_id = ?;
         ";
         /** @var $stmt mysqli_stmt */
         $stmt = Banco::getInstance()->getConnection()->prepare($sql);
@@ -92,6 +93,7 @@ class ItemOrcamentoVenda
             echo Banco::getInstance()->getConnection()->error;
             return array();
         }
+        $stmt->bind_param("i", $orcamento);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return array();
@@ -130,7 +132,7 @@ class ItemOrcamentoVenda
         }
         $orcamento = $this->orcamento->getId();
         $produto = $this->produto->getId();
-        $stmt->bind_param("iiiff", $orcamento, $produto, $this->quantidade, $this->valor, $this->peso);
+        $stmt->bind_param("iiidd", $orcamento, $produto, $this->quantidade, $this->valor, $this->peso);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return -10;
@@ -155,7 +157,7 @@ class ItemOrcamentoVenda
         }
         $orcamento = $this->orcamento->getId();
         $produto = $this->produto->getId();
-        $stmt->bind_param("iffii", $this->quantidade, $this->valor, $this->peso, $orcamento, $produto);
+        $stmt->bind_param("iddii", $this->quantidade, $this->valor, $this->peso, $orcamento, $produto);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return -10;

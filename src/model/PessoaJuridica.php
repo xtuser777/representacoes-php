@@ -75,6 +75,52 @@ class PessoaJuridica
         return $id > 0 ? PessoaJuridicaDAO::delete($id) : -5;
     }
 
+    public static function validarCNPJ(string $cnpj): bool
+    {
+        $cnpj = str_replace('.','',$cnpj);
+        $cnpj = str_replace('/','',$cnpj);
+        $cnpj = str_replace('-','',$cnpj);
+
+        if($cnpj === '') return false;
+
+        if (strlen($cnpj) !== 14)
+            return false;
+
+        // Elimina CNPJs invalidos conhecidos
+        if (
+            $cnpj === "00000000000000" || $cnpj === "11111111111111" || $cnpj === "22222222222222" ||
+            $cnpj === "33333333333333" || $cnpj === "44444444444444" || $cnpj === "55555555555555" ||
+            $cnpj === "66666666666666" || $cnpj === "77777777777777" || $cnpj === "88888888888888" ||
+            $cnpj === "99999999999999"
+        ) return false;
+
+        // Valida DVs
+        $tamanho = strlen($cnpj) - 2;
+        $numeros = substr($cnpj, 0,$tamanho);
+        $digitos = substr($cnpj, $tamanho);
+        $soma = 0;
+        $pos = $tamanho - 7;
+        for ($i = $tamanho; $i >= 1; $i--) {
+            $soma += $numeros{($tamanho - $i)} * $pos--;
+            if ($pos < 2) $pos = 9;
+        }
+        $resultado = $soma % 11 < 2 ? 0 : 11 - $soma % 11;
+        if (("".$resultado){0} !== $digitos{0}) return false;
+
+        $tamanho = $tamanho + 1;
+        $numeros = substr($cnpj, 0, $tamanho);
+        $soma = 0;
+        $pos = $tamanho - 7;
+        for ($i = $tamanho; $i >= 1; $i--) {
+            $soma += $numeros{($tamanho - $i)} * $pos--;
+            if ($pos < 2) $pos = 9;
+        }
+        $resultado = $soma % 11 < 2 ? 0 : 11 - $soma % 11;
+        if (("".$resultado){0} !== $digitos{1}) return false;
+
+        return true;
+    }
+
     public function jsonSerialize()
     {
         $this->contato = $this->contato->jsonSerialize();

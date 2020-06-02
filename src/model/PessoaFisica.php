@@ -82,6 +82,48 @@ class PessoaFisica
         return $id > 0 ? PessoaFisicaDAO::delete($id) : -5;
     }
 
+    public static function validarCPF(string $cpf): bool
+    {
+        $cpf = str_replace('.', '', $cpf);
+        $cpf = str_replace('-', '', $cpf);
+        if ($cpf === '') return false;
+
+        // Elimina CPFs invalidos conhecidos
+        if (
+            strlen($cpf) != 11 || $cpf == "00000000000" || $cpf == "11111111111" || $cpf == "22222222222" ||
+            $cpf == "33333333333" || $cpf == "44444444444" || $cpf == "55555555555" || $cpf == "66666666666" ||
+            $cpf == "77777777777" || $cpf == "88888888888" || $cpf == "99999999999"
+        ) return false;
+
+        // Valida 1o digito
+        $add = 0;
+        for ($i = 0; $i < 9; $i++) {
+            $add += $cpf{$i} * (10 - $i);
+        }
+        $rev = 11 - ($add % 11);
+        if ($rev == 10 || $rev == 11) {
+            $rev = 0;
+        }
+        if ($rev != $cpf{9}) {
+            return false;
+        }
+
+        // Valida 2o digito
+        $add = 0;
+        for ($i = 0; $i < 10; $i++) {
+            $add += $cpf{$i} * (11 - $i);
+        }
+        $rev = 11 - ($add % 11);
+        if ($rev == 10 || $rev == 11) {
+            $rev = 0;
+        }
+        if ($rev != $cpf{10}) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function jsonSerialize() 
     {
         $this->contato = $this->contato->jsonSerialize();

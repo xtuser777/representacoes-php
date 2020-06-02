@@ -13,6 +13,7 @@ function get(url_i) {
 }
 
 $(document).ready(function (event) {
+    $('#peso').mask('000,000.0', { reverse: true });
     $('#preco').mask('00,000,000.00', { reverse: true });
     $('#preco_out').mask('00,000,000.00', { reverse: true });
 
@@ -29,11 +30,12 @@ $(document).ready(function (event) {
 });
 
 function gravar() {
-    var desc = $("#desc").val();
-    var medida = $("#medida").val();
-    var preco = $("#preco").val();
-    var preco_out = $("#preco_out").val();
-    var rep = $("#representacao").val();
+    let desc = $("#desc").val();
+    let medida = $("#medida").val();
+    let peso = $("#peso").val();
+    let preco = $("#preco").val();
+    let preco_out = $("#preco_out").val();
+    let rep = $("#representacao").val();
 
     var erros = 0;
 
@@ -49,6 +51,13 @@ function gravar() {
         $("#msmedida").html('<span class="label label-danger">A unidade de medida precisa ser preenchida!</span>');
     } else {
         $("#msmedida").html('');
+    }
+
+    if (peso === "" || peso === "0") {
+        erros++;
+        $("#mspeso").html('<span class="label label-danger">O peso deve ser preenchido!</span>');
+    } else {
+        $("#mspeso").html('');
     }
 
     if (preco === "" || preco === "0") {
@@ -69,6 +78,7 @@ function gravar() {
         var form = new FormData();
         form.append("descricao", desc);
         form.append("medida", medida);
+        form.append("peso", peso);
         form.append("preco", preco);
         form.append("preco_out", preco_out);
         form.append("representacao", rep);
@@ -117,7 +127,8 @@ function gravar() {
 }
 
 function limpar() {
-    $("input[type='text']").val("");
+    $("input[type='text']").val("")
+    $("#peso").val("0");
     $("#preco").val("0");
     $("#preco_out").val("0");
     $("#representacao").val("0");

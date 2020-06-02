@@ -31,7 +31,7 @@
                     <span class="icon-bar"></span>
                 </button>
 
-                <a style="color: #fff; font-weight: bold;" class="navbar-brand" href="/inicio/index.php">SCR</a>
+                <a style="color: #fff; font-weight: bold;" class="navbar-brand" href="/inicio">SCR</a>
 
             </div>
 

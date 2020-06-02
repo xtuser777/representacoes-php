@@ -28,7 +28,7 @@ class RepresentacaoDetalhesControl
         $result = false;
         if (Banco::getInstance()->open())
         {
-            $result = PessoaJuridica::verifyCnpj(Banco::getInstance()->getConnection(), $cnpj);
+            $result = PessoaJuridica::verifyCnpj($cnpj);
             Banco::getInstance()->getConnection()->close();
         }
 
@@ -39,12 +39,12 @@ class RepresentacaoDetalhesControl
     {
         if (!Banco::getInstance()->open()) return json_encode('Erro ao conectar-se ao banco de dados.');
 
-        $cidade = Cidade::getById(Banco::getInstance()->getConnection(), $cid);
+        $cidade = Cidade::getById($cid);
 
         Banco::getInstance()->getConnection()->begin_transaction();
 
         $endereco = new Endereco($end, $rua, $num, $bairro, $comp, $cep, $cidade);
-        $res1 = $endereco->update(Banco::getInstance()->getConnection());
+        $res1 = $endereco->update();
         if ($res1 == -10 || $res1 == -1)
         {
             Banco::getInstance()->getConnection()->close();
@@ -57,7 +57,7 @@ class RepresentacaoDetalhesControl
         }
 
         $contato = new Contato($ctt, $tel, $cel, $email, $endereco);
-        $res2 = $contato->update(Banco::getInstance()->getConnection());
+        $res2 = $contato->update();
         if ($res2 == -10 || $res2 == -1)
         {
             Banco::getInstance()->getConnection()->rollback();
@@ -72,7 +72,7 @@ class RepresentacaoDetalhesControl
         }
 
         $pessoa = new PessoaJuridica($pes, $rs, $nf, $cnpj, $contato);
-        $res3 = $pessoa->update(Banco::getInstance()->getConnection());
+        $res3 = $pessoa->update();
         if ($res3 == -10 || $res3 == -1)
         {
             Banco::getInstance()->getConnection()->rollback();
