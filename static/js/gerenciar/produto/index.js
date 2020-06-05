@@ -36,10 +36,16 @@ function obterProdutos() {
 }
 
 $(document).ready(function (event) {
+    var representacoes = get("/gerenciar/produto/obter-representacoes.php");
+    if (representacoes.length === 0) {
+        alert("Não há representações cadastradas.");
+        location.href = "../../inicio";
+    }
+
     obterProdutos();
 
     var representacao = document.getElementById("representacao");
-    var representacoes = get("/gerenciar/produto/obter-representacoes.php");
+
     if (representacoes != null && representacoes !== "") {
         for (var i = 0; i < representacoes.length; i++) {
             var option = document.createElement("option");

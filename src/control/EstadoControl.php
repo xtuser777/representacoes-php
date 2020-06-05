@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\util\Banco;
 use scr\model\Estado;
@@ -10,7 +14,7 @@ class EstadoControl
         $json = null;
         if (Banco::getInstance()->open())
         {
-            $estado = Estado::getById($id);
+            $estado = (new Estado)->getById($id);
             Banco::getInstance()->getConnection()->close();
             if ($estado) $json = $estado->jsonSerialize();
         }
@@ -23,7 +27,7 @@ class EstadoControl
         $jarray = array();
         if (Banco::getInstance()->open())
         {
-            $array = Estado::getAll();
+            $array = (new Estado)->getAll();
             Banco::getInstance()->getConnection()->close();
 
             for ($i = 0; $i < count($array); $i++)

@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\util\Banco;
 use scr\model\Cidade;
@@ -10,7 +14,7 @@ class CidadeControl
         $json = null;
         if (Banco::getInstance()->open())
         {
-            $cidade = Cidade::getById($id);
+            $cidade = (new Cidade)->getById($id);
             Banco::getInstance()->getConnection()->close();
             if ($cidade) $json = $cidade->jsonSerialize();
         }
@@ -23,7 +27,7 @@ class CidadeControl
         $jarray = array();
         if (Banco::getInstance()->open())
         {
-            $array = Cidade::getByEstado($estado);
+            $array = (new Cidade)->getByEstado($estado);
             Banco::getInstance()->getConnection()->close();
 
             for ($i = 0; $i < count($array); $i++)

@@ -1,14 +1,17 @@
-<?php namespace scr\model;
+<?php
 
-use mysqli;
-use scr\dao\NivelDAO;
+
+namespace scr\model;
+
+
+use scr\util\Banco;
 
 class Nivel 
 {
     private $id;
     private $descricao;
     
-    public function __construct(int $id, string $descricao)
+    public function __construct(int $id = 0, string $descricao = "")
     {
         $this->id = $id;
         $this->descricao = $descricao;
@@ -24,14 +27,55 @@ class Nivel
         return $this->descricao;
     }
     
-    public static function getById(int $id) : ?Nivel
+    public function getById(int $id) : ?Nivel
     {
-        return $id > 0 ? NivelDAO::getById($id) : null;
+        if ($id <= 0) return null;
+
+        $sql = "
+            select niv_id,niv_descricao
+            from nivel 
+            where niv_id = ?;
+        ";
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$st) {
+            echo Banco::getInstance()->getConnection()->error;
+            return null;
+        }
+        $st->bind_param('i', $id);
+        $st->execute();
+        if (!($result = $st->get_result()) || $result->num_rows == 0) {
+            echo $st->error;
+            return null;
+        }
+        $row = $result->fetch_assoc();
+        $n = new Nivel($row['niv_id'], $row['niv_descricao']);
+
+        return $n;
     }
     
-    public static function getAll() : array
+    public function getAll() : array
     {
-        return NivelDAO::getAll();
+        $sql = "
+            select niv_id,niv_descricao 
+            from nivel;
+         ";
+        $st = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$st) {
+            echo Banco::getInstance()->getConnection()->error;
+            return array();
+        }
+        $st->execute();
+        if (!($result = $st->get_result()) || $result->num_rows == 0) {
+            echo $st->error;
+            return array();
+        }
+        $niveis = [];
+        for ($i = 0; $i < $result->num_rows; $i++) {
+            $row = $result->fetch_assoc();
+            $niveis[] = new Nivel($row['niv_id'], $row['niv_descricao']);
+        }
+
+        return $niveis;
     }
 
     public function jsonSerialize() 

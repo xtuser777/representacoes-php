@@ -131,7 +131,7 @@ CREATE OR REPLACE TABLE tipo_caminhao
     tip_cam_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     tip_cam_descricao VARCHAR(70) NOT NULL,
     tip_cam_eixos INTEGER NOT NULL,
-    tip_cam_capacidade DECIMAL NOT NULL
+    tip_cam_capacidade DECIMAL(10,2) NOT NULL
 );
 
 CREATE OR REPLACE TABLE produto
@@ -171,9 +171,9 @@ CREATE OR REPLACE TABLE forma_pagamento
 CREATE OR REPLACE TABLE dados_bancarios
 (
     dad_ban_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    dad_ban_banco VARCHAR() NOT NULL,
-    dad_ban_agencia VARCHAR() NOT NULL,
-    dad_ban_conta VARCHAR() NOT NULL,
+    dad_ban_banco VARCHAR(5) NOT NULL,
+    dad_ban_agencia VARCHAR(6) NOT NULL,
+    dad_ban_conta VARCHAR(12) NOT NULL,
     dad_ban_tipo INTEGER NOT NULL
 );
 
@@ -215,11 +215,11 @@ CREATE OR REPLACE TABLE orcamento_venda
     orc_ven_valor DECIMAL(10,2) NOT NULL,
     orc_ven_validade DATE NOT NULL,
     fun_id INTEGER,
-    cid_id INTEGER,
+    cid_id INTEGER NOT NULL,
     usu_id INTEGER NOT NULL,
-    cli_id INTEGER NOT NULL,
+    cli_id INTEGER,
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id),
-    FOREIGN KEY (cli_id) REFERENCES cliente(cli_id)
+    FOREIGN KEY (cid_id) REFERENCES cidade(cid_id)
 );
 
 CREATE OR REPLACE TABLE orcamento_frete
@@ -263,4 +263,30 @@ CREATE OR REPLACE TABLE orcamento_frete_produto
     PRIMARY KEY (orc_fre_id, pro_id),
     FOREIGN KEY (orc_fre_id) REFERENCES orcamento_frete(orc_fre_id),
     FOREIGN KEY (pro_id) REFERENCES produto(pro_id)
+);
+
+CREATE OR REPLACE TABLE proprietario
+(
+    prp_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    prp_cadastro DATE NOT NULL,
+    prp_tipo INTEGER NOT NULL,
+    mot_id INTEGER NOT NULL
+);
+
+CREATE OR REPLACE TABLE proprietario_pessoa_fisica
+(
+    prp_id INTEGER NOT NULL,
+    pf_id INTEGER NOT NULL,
+    PRIMARY KEY (prp_id, pf_id),
+    FOREIGN KEY (prp_id) REFERENCES proprietario(prp_id),
+    FOREIGN KEY (pf_id) REFERENCES pessoa_fisica(pf_id)
+);
+
+CREATE OR REPLACE TABLE proprietario_pessoa_juridica
+(
+    prp_id INTEGER NOT NULL,
+    pj_id INTEGER NOT NULL,
+    PRIMARY KEY (prp_id, pj_id),
+    FOREIGN KEY (prp_id) REFERENCES proprietario(prp_id),
+    FOREIGN KEY (pj_id) REFERENCES pessoa_juridica(pj_id)
 );

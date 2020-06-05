@@ -13,12 +13,17 @@ function get(url_i) {
 }
 
 $(document).ready(function (event) {
+    var representacoes = get("/gerenciar/produto/novo/obter-representacoes.php");
+    if (representacoes.length === 0) {
+        alert("Não há representações cadastradas.");
+        location.href = "../../inicio";
+    }
+
     $('#peso').mask('000,000.0', { reverse: true });
     $('#preco').mask('00,000,000.00', { reverse: true });
     $('#preco_out').mask('00,000,000.00', { reverse: true });
 
     var representacao = document.getElementById("representacao");
-    var representacoes = get("/gerenciar/produto/novo/obter-representacoes.php");
     if (representacoes != null && representacoes !== "") {
         for (var i = 0; i < representacoes.length; i++) {
             var option = document.createElement("option");

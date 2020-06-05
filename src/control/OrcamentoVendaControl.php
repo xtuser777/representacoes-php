@@ -188,8 +188,8 @@ class OrcamentoVendaControl
 
     public function excluirItens(int $orcamento): bool
     {
-        $itens = ItemOrcamentoVenda::findAll($orcamento);
-        if (count($itens) <= 0) return false;
+        $itens = ItemOrcamentoVenda::findAllItems($orcamento);
+        if (count($itens) <= 0) return true;
         /** @var ItemOrcamentoVenda $item */
         foreach ($itens as $item) {
             $iv = $item->delete();

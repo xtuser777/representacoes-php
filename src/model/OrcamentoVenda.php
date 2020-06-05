@@ -421,7 +421,7 @@ class OrcamentoVenda
             echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
-        $stmt->bind_param("i", $id);
+        $stmt->bind_param("i", $this->id);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return -10;

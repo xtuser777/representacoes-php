@@ -12,7 +12,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <label for="tipo">Tipo do Cliente: </label>
-                <input type="text" id="tipo" class="form-control input-sm" style="width: 100%;" />
+                <input type="text" id="tipo" class="form-control input-sm" style="width: 100%;" disabled />
             </div>
         </div>
     </div>

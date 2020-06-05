@@ -34,14 +34,11 @@ require ROOT . "/src/model/ItemOrcamentoVenda.php";
 require ROOT . '/src/util/Singleton.php';
 require ROOT . '/src/util/Banco.php';
 
-require ROOT . '/src/dao/EstadoDAO.php';
-require ROOT . '/src/dao/CidadeDAO.php';
 require ROOT . '/src/dao/EnderecoDAO.php';
 require ROOT . '/src/dao/ContatoDAO.php';
 require ROOT . '/src/dao/PessoaFisicaDAO.php';
 require ROOT . '/src/dao/PessoaJuridicaDAO.php';
 require ROOT . '/src/dao/FuncionarioDAO.php';
-require ROOT . '/src/dao/NivelDAO.php';
 require ROOT . '/src/dao/UsuarioDAO.php';
 require ROOT . '/src/dao/ParametrizacaoDAO.php';
 require ROOT . '/src/dao/ClienteDAO.php';

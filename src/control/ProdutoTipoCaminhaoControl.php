@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\Produto;
 use scr\model\TipoCaminhao;
@@ -8,9 +12,9 @@ class ProdutoTipoCaminhaoControl
 {
     public function obter()
     {
-        if (!isset($_SESSION["PRODUTO"])) return json_encode("Produto não selecionado.");
+        if (!isset($_SESSION["PRODUTO"])) return json_encode(null);
 
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se com o banco de dados.");
+        if (!Banco::getInstance()->open()) return json_encode([]);
         $tipos = Produto::findById($_SESSION["PRODUTO"])->getTipos();
         Banco::getInstance()->getConnection()->close();
 

@@ -23,12 +23,13 @@ class ProdutoDetalhesControl
 
     public function obter()
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!isset($_SESSION["PRODUTO"])) return json_encode(null);
+        if (!Banco::getInstance()->open()) return json_encode(null);
         /** @var Produto $produto */
         $produto = Produto::findById($_SESSION["PRODUTO"]);
         Banco::getInstance()->getConnection()->close();
 
-        return json_encode($produto->jsonSerialize());
+        return json_encode(($produto !== null) ? $produto->jsonSerialize() : null);
     }
 
     public function alterar(int $pro, string $descricao, string $medida, float $peso, float $preco, float $precoOut, int $representacao)

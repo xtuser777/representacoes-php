@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\util\Banco;
 use scr\model\Nivel;
@@ -10,7 +14,7 @@ class NivelControl
         $jarray = [];
         if (Banco::getInstance()->open())
         {
-            $array = Nivel::getAll();
+            $array = (new Nivel)->getAll();
             Banco::getInstance()->getConnection()->close();
 
             for ($i = 0; $i < count($array); $i++) {

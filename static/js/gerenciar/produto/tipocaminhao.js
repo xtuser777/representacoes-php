@@ -27,15 +27,23 @@ function get(url_i) {
     return res;
 }
 
-function obterVinculos() {
+$(document).ready(function (event) {
     var dados = get("/gerenciar/produto/tipocaminhao/obter.php");
+    if (dados === null) {
+        alert("Produto não selecionado.");
+        return location.href = "../produto/index.php";
+    }
 
     preencherTabela(dados);
-}
 
-$(document).ready(function (event) {
-    var tipo = document.getElementById("select_tipo");
     var tipos = get("/gerenciar/tipocaminhao/obter.php");
+    if (tipos === null || tipos.length === 0) {
+        alert("Não há tipos de caminhão cadastrados");
+        location.href = "../produto/index.php";
+    }
+
+    var tipo = document.getElementById("select_tipo");
+
     if (tipos != null && tipos !== "") {
         for (var i = 0; i < tipos.length; i++) {
             var option = document.createElement("option");
@@ -44,8 +52,6 @@ $(document).ready(function (event) {
             tipo.appendChild(option);
         }
     }
-
-    obterVinculos();
 });
 
 function filtrarVinculos() {

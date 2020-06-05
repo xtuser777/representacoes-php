@@ -15,6 +15,12 @@ function get(url_i) {
 }
 
 $(document).ready(function (event) {
+    var dados = get("/gerenciar/produto/detalhes/obter.php");
+    if (dados === null || dados === {}) {
+        alert("Nenhum produto selecionado");
+        location.href = "../index.php";
+    }
+
     $('#peso').mask('000,000.0', { reverse: true });
     $('#preco').mask('00,000,000.00', { reverse: true });
     $('#preco_out').mask('00,000,000.00', { reverse: true });
@@ -30,7 +36,6 @@ $(document).ready(function (event) {
         }
     }
 
-    var dados = get("/gerenciar/produto/detalhes/obter.php");
     if (dados !== "") {
         _produto = dados.id;
         $("#desc").val(dados.descricao);
