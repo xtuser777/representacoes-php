@@ -18,7 +18,7 @@ if (!isset($_SESSION["USER_ID"])) {
 
         <link rel="icon" type="image/png" href="/static/images/logo.png">
 
-        <title>Novo Propritário de Caminhão - Sistema de Controle de Representações</title>
+        <title>Detalhes do Propritário de Caminhão - Sistema de Controle de Representações</title>
 
         <link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" type="text/css" href="/static/lib/fancybox/jquery.fancybox.min.css"/>
@@ -194,7 +194,7 @@ if (!isset($_SESSION["USER_ID"])) {
             <div class="card-title">
                 <div class="card-title-container" style="text-align: center;">
                     <h4>
-                        <b>SCR - Cadastrar Proprietário de Caminhão</b>
+                        <b>SCR - Detalhes do Proprietário de Caminhão</b>
                     </h4>
                 </div>
             </div>
@@ -213,7 +213,7 @@ if (!isset($_SESSION["USER_ID"])) {
 
                         <div class="col-sm-6">
                             <label for="select_tipo">Tipo </label>
-                            <select id="select_tipo" class="form-control input-sm" onchange="selectTipoChange();">
+                            <select id="select_tipo" class="form-control input-sm" disabled>
                                 <option value="1">PESSOA FÍSICA</option>
                                 <option value="2">PESSOA JURÍDICA</option>
                             </select>
@@ -378,14 +378,10 @@ if (!isset($_SESSION["USER_ID"])) {
                     <a role="button" id="voltar" class="btn btn-default" style="width: 100%;" href="/gerenciar/proprietario">VOLTAR</a>
                 </div>
 
-                <div class="col-sm-6"></div>
+                <div class="col-sm-8"></div>
 
                 <div class="col-sm-2">
-                    <button id="limpar" class="btn btn-primary" style="width: 100%;" onclick="limpar();">LIMPAR</button>
-                </div>
-
-                <div class="col-sm-2">
-                    <button id="salvar" class="btn btn-success" style="width: 100%;" onclick="gravar();">SALVAR</button>
+                    <button id="salvar" class="btn btn-success" style="width: 100%;" onclick="alterar();">SALVAR</button>
                 </div>
             </div>
         </div>
@@ -395,7 +391,7 @@ if (!isset($_SESSION["USER_ID"])) {
         <script src="/static/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="/static/js/site.js"></script>
         <script src="/static/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
-        <script src="/static/js/gerenciar/proprietario/novo.js"></script>
+        <script src="/static/js/gerenciar/proprietario/detalhes.js"></script>
 
     </body>
 

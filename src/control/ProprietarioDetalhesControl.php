@@ -13,8 +13,18 @@ use scr\model\PessoaJuridica;
 use scr\model\Proprietario;
 use scr\util\Banco;
 
-class ProprietarioNovoControl
+class ProprietarioDetalhesControl
 {
+    public function obter()
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode(null);
+        $prop = (new Proprietario())->findById($_SESSION["PROP"]);
+        Banco::getInstance()->getConnection()->close();
+
+        return json_encode(($prop !== null) ? $prop->jsonSerialize() : null);
+    }
+
     public function obterMotoristas()
     {
         if (!Banco::getInstance()->open()) return json_encode([]);
@@ -56,7 +66,7 @@ class ProprietarioNovoControl
         return json_encode($valid);
     }
 
-    public function gravar(int $mot, int $tipo, string $nome, string $rg, string $cpf, string $nasc, string $rs, string $nf, string $cnpj, string $rua, string $num, string $bairro, string $comp, string $cep, int $cid, string $tel, string $cel, string $email)
+    public function alterar($mot, $tipo, $prp, $pes, $ctt, $end, $nome, $rg, $cpf, $nasc, $rs, $nf, $cnpj, $rua, $num, $bairro, $comp, $cep, $cid, $tel, $cel, $email)
     {
         if (!Banco::getInstance()->open())
             return json_encode("Erro ao conectar-se ao banco de dados.");
@@ -64,81 +74,76 @@ class ProprietarioNovoControl
         $cidade = (new Cidade())->getById($cid);
         if (!$cidade)
             return json_encode("Cidade não registrada.");
-        $endereco = new Endereco(0, $rua, $num, $bairro, $comp, $cep, $cidade);
-        $end = $endereco->insert();
-        if ($end === -10 || $end === -1) {
+        $endereco = new Endereco($end, $rua, $num, $bairro, $comp, $cep, $cidade);
+        $rend = $endereco->update();
+        if ($rend === -10 || $rend === -1) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getConnection()->close();
-            return json_encode("Ocorreu um problema ao gravar o endereço.");
+            return json_encode("Ocorreu um problema ao alterar o endereço.");
         }
-        if ($end === -5) {
-            Banco::getInstance()->getConnection()->rollback();
-            Banco::getInstance()->getConnection()->close();
-            return json_encode("Parâmetros inválidos.");
-        }
-        $endereco->setId($end);
-        $contato = new Contato(0, $tel, $cel, $email, $endereco);
-        $ctt = $contato->insert();
-        if ($ctt === -10 || $ctt === -1) {
-            Banco::getInstance()->getConnection()->rollback();
-            Banco::getInstance()->getConnection()->close();
-            return json_encode("Ocorreu um problema ao gravar o contato.");
-        }
-        if ($ctt === -5) {
+        if ($rend === -5) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getConnection()->close();
             return json_encode("Parâmetros inválidos.");
         }
-        $contato->setId($ctt);
-        $pes = 0;
+        $contato = new Contato($ctt, $tel, $cel, $email, $endereco);
+        $rctt = $contato->update();
+        if ($rctt === -10 || $rctt === -1) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Ocorreu um problema ao alterar o contato.");
+        }
+        if ($rctt === -5) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Parâmetros inválidos.");
+        }
         if ($tipo === 1) {
-            $pessoa = new PessoaFisica(0, $nome, $rg, $cpf, $nasc, $contato);
-            $pes = $pessoa->insert();
-            if ($pes === -10 || $pes === -1) {
+            $pessoa = new PessoaFisica($pes, $nome, $rg, $cpf, $nasc, $contato);
+            $rpes = $pessoa->update();
+            if ($rpes === -10 || $rpes === -1) {
                 Banco::getInstance()->getConnection()->rollback();
                 Banco::getInstance()->getConnection()->close();
-                return json_encode("Ocorreu um problema ao gravar a pessoa.");
+                return json_encode("Ocorreu um problema ao alterar a pessoa.");
             }
-            if ($pes === -5) {
+            if ($rpes === -5) {
                 Banco::getInstance()->getConnection()->rollback();
                 Banco::getInstance()->getConnection()->close();
                 return json_encode("Parâmetros inválidos.");
             }
-            $pessoa->setId($pes);
-            $prop = new Proprietario(0, date('Y-m-d'), $tipo, $motorista, $pessoa, null);
-            $prp = $prop->save();
-            if ($prp === -10 || $prp === -1) {
+            $prop = new Proprietario($prp, date('Y-m-d'), $tipo, $motorista, $pessoa, null);
+            $rprp = $prop->update();
+            if ($rprp === -10 || $rprp === -1) {
                 Banco::getInstance()->getConnection()->rollback();
                 Banco::getInstance()->getConnection()->close();
-                return json_encode("Ocorreu um problema ao gravar o proprietário.");
+                return json_encode("Ocorreu um problema ao alterar o proprietário.");
             }
-            if ($prp === -5) {
+            if ($rprp === -5) {
                 Banco::getInstance()->getConnection()->rollback();
                 Banco::getInstance()->getConnection()->close();
                 return json_encode("Parâmetros inválidos.");
             }
         } else {
-            $pessoa = new PessoaJuridica(0, $rs, $nf, $cnpj, $contato);
-            $pes = $pessoa->insert();
-            if ($pes === -10 || $pes === -1) {
+            $pessoa = new PessoaJuridica($pes, $rs, $nf, $cnpj, $contato);
+            $rpes = $pessoa->update();
+            if ($rpes === -10 || $rpes === -1) {
                 Banco::getInstance()->getConnection()->rollback();
                 Banco::getInstance()->getConnection()->close();
-                return json_encode("Ocorreu um problema ao gravar a pessoa.");
+                return json_encode("Ocorreu um problema ao alterar a pessoa.");
             }
-            if ($pes === -5) {
+            if ($rpes === -5) {
                 Banco::getInstance()->getConnection()->rollback();
                 Banco::getInstance()->getConnection()->close();
                 return json_encode("Parâmetros inválidos.");
             }
-            $pessoa->setId($pes);
-            $prop = new Proprietario(0, date('Y-m-d'), $tipo, $motorista, null, $pessoa);
-            $prp = $prop->save();
-            if ($prp === -10 || $prp === -1) {
+            $prop = new Proprietario($prp, date('Y-m-d'), $tipo, $motorista, null, $pessoa);
+            $rprp = $prop->update();
+            if ($rprp === -10 || $rprp === -1) {
                 Banco::getInstance()->getConnection()->rollback();
                 Banco::getInstance()->getConnection()->close();
-                return json_encode("Ocorreu um problema ao gravar o proprietário.");
+                return json_encode("Ocorreu um problema ao alterar o proprietário.");
             }
-            if ($prp === -5) {
+            if ($rprp === -5) {
                 Banco::getInstance()->getConnection()->rollback();
                 Banco::getInstance()->getConnection()->close();
                 return json_encode("Parâmetros inválidos.");

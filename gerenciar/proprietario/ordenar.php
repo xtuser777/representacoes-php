@@ -1,21 +1,15 @@
 <?php
 
-require_once '../../header.php';
+require '../../header.php';
 
-if (!isset($_SESSION['USER_ID']))
-{
-    header('Location: /login/index.php');
-}
-elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0)
-{
+if (!isset($_SESSION['USER_ID'])) {
+    header('Location: /login');
+} elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
     header('Content-type: application/json');
     echo json_encode('Método inválido.');
-}
-else
-{
+} else {
     $col = $_POST['col'];
-    $control = new \scr\control\MotoristaControl();
 
     header('Content-type: application/json');
-    echo $control->ordenar($col);
+    echo (new scr\control\ProprietarioControl())->ordenar($col);
 }

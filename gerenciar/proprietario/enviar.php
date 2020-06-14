@@ -1,16 +1,12 @@
 <?php
 
-require_once '../../header.php';
+require '../../header.php';
 
-if (!isset($_SESSION['USER_ID']))
-{
-    header('Location: /login/index.php');
-}
-else
-{
+if (!isset($_SESSION['USER_ID'])) {
+    header('Location: /login');
+} else {
     $id = $_POST['id'];
-    $control = new \scr\control\MotoristaControl();
 
     header('Content-type: application/json');
-    echo $control->enviar($id);
+    echo (new scr\control\ProprietarioControl())->enviar($id);
 }

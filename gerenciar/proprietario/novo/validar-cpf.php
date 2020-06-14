@@ -9,8 +9,7 @@ if (!isset($_SESSION['USER_ID'])) {
     echo json_encode('Método inválido.');
 } else {
     $cpf = $_POST['cpf'];
-    $control = new scr\control\OrcamentoVendaNovoControl();
 
     header('Content-type: application/json');
-    echo $control->validarCPF($cpf);
+    echo (new scr\control\ProprietarioNovoControl())->validarCpf($cpf);
 }

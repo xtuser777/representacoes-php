@@ -8,5 +8,5 @@ if (!isset($_SESSION["USER_ID"])) {
     echo "Método inválido.";
 } else {
     header('Content-type: application/json');
-    echo (new scr\control\ProprietarioNovoControl())->obterMotoristas();
+    echo (new scr\control\ProprietarioDetalhesControl())->obterMotoristas();
 }

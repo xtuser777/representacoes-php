@@ -141,10 +141,12 @@ class ClienteControl
                     usort($array, function (Cliente $a, Cliente $b) {
                         if ($a->getTipo() == 1 && $b->getTipo() == 1) {
                             if (strcasecmp($a->getPessoaFisica()->getCpf(), $b->getPessoaFisica()->getCpf()) === 0) return 0;
-                            return ((strcasecmp($a->getPessoaFisica()->getNome(), $b->getPessoaFisica()->getNome()) < 0) ? -1 : 1);
+                            return ((strcasecmp($a->getPessoaFisica()->getCpf(), $b->getPessoaFisica()->getCpf()) < 0) ? -1 : 1);
                         } elseif ($a->getTipo() == 1) {
-                            return ((strcasecmp($a->getPessoaFisica()->getNome(), $b->getPessoaJuridica()->getNomeFantasia()) < 0) ? -1 : 1);
+                            if (strcasecmp($a->getPessoaFisica()->getCpf(), $b->getPessoaJuridica()->getCnpj()) === 0) return 0;
+                            return ((strcasecmp($a->getPessoaFisica()->getCpf(), $b->getPessoaJuridica()->getCnpj()) < 0) ? -1 : 1);
                         } elseif ($b->getTipo() == 1) {
+                            if (strcasecmp($a->getPessoaJuridica()->getCnpj(), $b->getPessoaFisica()->getCpf()) === 0) return 0;
                             return ((strcasecmp($a->getPessoaJuridica()->getCnpj(), $b->getPessoaFisica()->getCpf()) < 0) ? -1 : 1);
                         } else {
                             if (strcasecmp($a->getPessoaJuridica()->getCnpj(), $b->getPessoaJuridica()->getCnpj()) === 0) return 0;
@@ -156,10 +158,12 @@ class ClienteControl
                     usort($array, function (Cliente $a, Cliente $b) {
                         if ($a->getTipo() == 1 && $b->getTipo() == 1) {
                             if (strcasecmp($a->getPessoaFisica()->getCpf(), $b->getPessoaFisica()->getCpf()) === 0) return 0;
-                            return ((strcasecmp($a->getPessoaFisica()->getNome(), $b->getPessoaFisica()->getNome()) > 0) ? -1 : 1);
+                            return ((strcasecmp($a->getPessoaFisica()->getCpf(), $b->getPessoaFisica()->getCpf()) > 0) ? -1 : 1);
                         } elseif ($a->getTipo() == 1) {
-                            return ((strcasecmp($a->getPessoaFisica()->getNome(), $b->getPessoaJuridica()->getNomeFantasia()) > 0) ? -1 : 1);
+                            if (strcasecmp($a->getPessoaFisica()->getCpf(), $b->getPessoaJuridica()->getCnpj()) === 0) return 0;
+                            return ((strcasecmp($a->getPessoaFisica()->getCpf(), $b->getPessoaJuridica()->getCnpj()) > 0) ? -1 : 1);
                         } elseif ($b->getTipo() == 1) {
+                            if (strcasecmp($a->getPessoaJuridica()->getCnpj(), $b->getPessoaFisica()->getCpf()) === 0) return 0;
                             return ((strcasecmp($a->getPessoaJuridica()->getCnpj(), $b->getPessoaFisica()->getCpf()) > 0) ? -1 : 1);
                         } else {
                             if (strcasecmp($a->getPessoaJuridica()->getCnpj(), $b->getPessoaJuridica()->getCnpj()) === 0) return 0;
@@ -228,6 +232,7 @@ class ClienteControl
             }
         }
 
+        $jarray = [];
         for ($i = 0; $i < count($array); $i++) {
             /** @var Cliente $cli */
             $cli = $array[$i];

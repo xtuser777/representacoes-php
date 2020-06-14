@@ -9,8 +9,7 @@ if (!isset($_SESSION['USER_ID'])) {
     echo json_encode('Método inválido.');
 } else {
     $cnpj = $_POST['cnpj'];
-    $control = new scr\control\OrcamentoVendaNovoControl();
 
     header('Content-type: application/json');
-    echo $control->validarCNPJ($cnpj);
+    echo (new scr\control\ProprietarioNovoControl())->validarCNPJ($cnpj);
 }

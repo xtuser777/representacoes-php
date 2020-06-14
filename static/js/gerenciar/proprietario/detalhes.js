@@ -37,6 +37,12 @@ const msTel = document.getElementById("mstel");
 const msCel = document.getElementById("mscel");
 const msEmail = document.getElementById("msemail");
 
+let _motorista = 0;
+let _tipo = 0;
+let _pessoa = 0;
+let _contato = 0;
+let _endereco = 0;
+
 let erroNome = true;
 let erroRg = true;
 let erroCpf = true;
@@ -634,7 +640,7 @@ async function validar() {
     }
 }
 
-async function gravar() {
+async function alterar() {
     let motorista = 0;
     let tipo = 0;
     let nome = "";
@@ -657,7 +663,7 @@ async function gravar() {
 
     if (await validar()) {
         motorista = Number.parseInt($(selectMotorista).val());
-        tipo = Number.parseInt($(selectTipo).val());
+        tipo = _tipo;
         if (tipo === 1) {
             nome = $(textNome).val();
             rg = $(textRg).val();
@@ -682,6 +688,10 @@ async function gravar() {
         let frm = new FormData();
         frm.append("motorista", motorista);
         frm.append("tipo", tipo);
+        frm.append("prop", _prop);
+        frm.append("pessoa", _pessoa);
+        frm.append("contato", _contato);
+        frm.append("endereco", _endereco);
         frm.append("nome", nome);
         frm.append("rg", rg);
         frm.append("cpf", cpf);
@@ -701,26 +711,25 @@ async function gravar() {
 
         await $.ajax({
             type: "POST",
-            url: "/gerenciar/proprietario/novo/gravar.php",
+            url: "/gerenciar/proprietario/detalhes/alterar.php",
             data: frm,
             contentType: false,
             processData: false,
             success: function (response) {
                 if (response.length > 0) {
                     mostraDialogo(
-                        "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
+                        "<strong>Ocorreu um problema ao executar a operação...</strong>" +
                         "<br/>"+response,
                         "danger",
                         2000
                     );
                 } else {
                     mostraDialogo(
-                        "<strong>Proprietário cadastrado com sucesso!</strong>" +
-                        "<br/>O novo proprietário foi salvo com sucesso no sistema...",
+                        "<strong>Proprietário alterado com sucesso!</strong>" +
+                        "<br/>O proprietário foi alterado com sucesso no sistema...",
                         "success",
                         2000
                     );
-                    limpar();
                 }
             },
             error: function (XMLHttpRequest, txtStatus, errorThrown) {
@@ -759,7 +768,7 @@ $(document).ready((event) => {
 
     let estados = get('/estado/obter.php');
     limparEstados();
-    if (estados !== "") {
+    if (estados !== []) {
         for (let i = 0; i < estados.length; i++) {
             let option = document.createElement("option");
             option.value = estados[i].id;
@@ -768,15 +777,43 @@ $(document).ready((event) => {
         }
     }
 
-    if ($(selectTipo).val() === "1") {
-        if (!juridica.classList.contains("hidden"))
-            juridica.classList.add("hidden");
-        if (fisica.classList.contains("hidden"))
-            fisica.classList.remove("hidden");
-    } else {
-        if (juridica.classList.contains("hidden"))
-            juridica.classList.remove("hidden");
-        if (!fisica.classList.contains("hidden"))
-            fisica.classList.add("hidden");
+    let prop = get("/gerenciar/proprietario/detalhes/obter.php");
+    if (prop !== null || prop !== "") {
+        _motorista = (prop.motorista !== null) ? prop.motorista.id : 0;
+        _tipo = prop.tipo;
+        _prop = prop.id;
+        let pes = (_tipo === 1) ? prop.pessoaFisica : prop.pessoaJuridica;
+        _pessoa = pes.id;
+        _contato = pes.contato.id;
+        _endereco = pes.contato.endereco.id;
+
+        if (_tipo === 2) {
+            selectMotorista.disabled = true;
+        }
+
+        $(selectMotorista).val(_motorista);
+        $(selectTipo).val(_tipo);
+        selectTipoChange();
+        if (_tipo === 1) {
+            $(textNome).val(pes.nome);
+            $(textRg).val(pes.rg);
+            $(textCpf).val(pes.cpf);
+            $(dateNasc).val(pes.nascimento);
+        } else {
+            $(textRazaoSocial).val(pes.razaoSocial);
+            $(textNomeFantasia).val(pes.nomeFantasia);
+            $(textCnpj).val(pes.cnpj);
+        }
+        $(textRua).val(pes.contato.endereco.rua);
+        $(textNumero).val(pes.contato.endereco.numero);
+        $(textBairro).val(pes.contato.endereco.bairro);
+        $(textComplemento).val(pes.contato.endereco.complemento);
+        $(selectEstado).val(pes.contato.endereco.cidade.estado.id);
+        selectEstadoChange();
+        $(selectCidade).val(pes.contato.endereco.cidade.id);
+        $(textCep).val(pes.contato.endereco.cep);
+        $(textTelefone).val(pes.contato.telefone);
+        $(textCelular).val(pes.contato.celular);
+        $(textEmail).val(pes.contato.email);
     }
 });

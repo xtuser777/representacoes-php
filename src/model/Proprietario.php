@@ -71,8 +71,8 @@ class Proprietario
             FROM proprietario pp
             LEFT JOIN proprietario_pessoa_fisica ppf ON pp.prp_id = ppf.prp_id
             LEFT JOIN proprietario_pessoa_juridica ppj ON pp.prp_id = ppj.prp_id
-            LEFT JOIN pessoa_fisica pf ON cpf.pf_id = pf.pf_id
-            LEFT JOIN pessoa_juridica pj ON cpj.pj_id = pj.pj_id
+            LEFT JOIN pessoa_fisica pf ON ppf.pf_id = pf.pf_id
+            LEFT JOIN pessoa_juridica pj ON ppj.pj_id = pj.pj_id
             INNER JOIN contato ct ON ct.ctt_id = pf.ctt_id OR ct.ctt_id = pj.ctt_id
             INNER JOIN endereco en ON ct.end_id = en.end_id
             INNER JOIN cidade c ON en.cid_id = c.cid_id
@@ -96,7 +96,7 @@ class Proprietario
             $stmt->error;
             return null;
         }
-        $row = $result->fetch_row();
+        $row = $result->fetch_assoc();
 
         return new Proprietario(
             $row["prp_id"], $row["prp_cadastro"], $row["prp_tipo"],
@@ -148,8 +148,8 @@ class Proprietario
             FROM proprietario pp
             LEFT JOIN proprietario_pessoa_fisica ppf ON pp.prp_id = ppf.prp_id
             LEFT JOIN proprietario_pessoa_juridica ppj ON pp.prp_id = ppj.prp_id
-            LEFT JOIN pessoa_fisica pf ON cpf.pf_id = pf.pf_id
-            LEFT JOIN pessoa_juridica pj ON cpj.pj_id = pj.pj_id
+            LEFT JOIN pessoa_fisica pf ON ppf.pf_id = pf.pf_id
+            LEFT JOIN pessoa_juridica pj ON ppj.pj_id = pj.pj_id
             INNER JOIN contato ct ON ct.ctt_id = pf.ctt_id OR ct.ctt_id = pj.ctt_id
             INNER JOIN endereco en ON ct.end_id = en.end_id
             INNER JOIN cidade c ON en.cid_id = c.cid_id
@@ -231,8 +231,8 @@ class Proprietario
             FROM proprietario pp
             LEFT JOIN proprietario_pessoa_fisica ppf ON pp.prp_id = ppf.prp_id
             LEFT JOIN proprietario_pessoa_juridica ppj ON pp.prp_id = ppj.prp_id
-            LEFT JOIN pessoa_fisica pf ON cpf.pf_id = pf.pf_id
-            LEFT JOIN pessoa_juridica pj ON cpj.pj_id = pj.pj_id
+            LEFT JOIN pessoa_fisica pf ON ppf.pf_id = pf.pf_id
+            LEFT JOIN pessoa_juridica pj ON ppj.pj_id = pj.pj_id
             INNER JOIN contato ct ON ct.ctt_id = pf.ctt_id OR ct.ctt_id = pj.ctt_id
             INNER JOIN endereco en ON ct.end_id = en.end_id
             INNER JOIN cidade c ON en.cid_id = c.cid_id
@@ -312,8 +312,8 @@ class Proprietario
             FROM proprietario pp
             LEFT JOIN proprietario_pessoa_fisica ppf ON pp.prp_id = ppf.prp_id
             LEFT JOIN proprietario_pessoa_juridica ppj ON pp.prp_id = ppj.prp_id
-            LEFT JOIN pessoa_fisica pf ON cpf.pf_id = pf.pf_id
-            LEFT JOIN pessoa_juridica pj ON cpj.pj_id = pj.pj_id
+            LEFT JOIN pessoa_fisica pf ON ppf.pf_id = pf.pf_id
+            LEFT JOIN pessoa_juridica pj ON ppj.pj_id = pj.pj_id
             INNER JOIN contato ct ON ct.ctt_id = pf.ctt_id OR ct.ctt_id = pj.ctt_id
             INNER JOIN endereco en ON ct.end_id = en.end_id
             INNER JOIN cidade c ON en.cid_id = c.cid_id
@@ -395,8 +395,8 @@ class Proprietario
             FROM proprietario pp
             LEFT JOIN proprietario_pessoa_fisica ppf ON pp.prp_id = ppf.prp_id
             LEFT JOIN proprietario_pessoa_juridica ppj ON pp.prp_id = ppj.prp_id
-            LEFT JOIN pessoa_fisica pf ON cpf.pf_id = pf.pf_id
-            LEFT JOIN pessoa_juridica pj ON cpj.pj_id = pj.pj_id
+            LEFT JOIN pessoa_fisica pf ON ppf.pf_id = pf.pf_id
+            LEFT JOIN pessoa_juridica pj ON ppj.pj_id = pj.pj_id
             INNER JOIN contato ct ON ct.ctt_id = pf.ctt_id OR ct.ctt_id = pj.ctt_id
             INNER JOIN endereco en ON ct.end_id = en.end_id
             INNER JOIN cidade c ON en.cid_id = c.cid_id
@@ -504,9 +504,8 @@ class Proprietario
             echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
-        $pessoaFisica = ($this->pessoaFisica) ? $this->pessoaFisica->getId() : 0;
-        $pessoaJuridica = ($this->pessoaJuridica) ? $this->pessoaJuridica->getId() : 0;
-        $stmt_pes->bind_param("ii", $pessoaFisica, $pessoaJuridica);
+        $pessoa = ($this->pessoaFisica) ? $this->pessoaFisica->getId() : $this->pessoaJuridica->getId();
+        $stmt_pes->bind_param("ii", $insertId, $pessoa);
         if (!$stmt_pes->execute()) {
             echo $stmt_pes->error;
             return -10;
@@ -517,7 +516,7 @@ class Proprietario
 
     public function update(): int
     {
-        if ($this->id !== 0 || strlen(trim($this->cadastro)) <= 0 || $this->tipo <= 0) return -5;
+        if ($this->id <= 0 || strlen(trim($this->cadastro)) <= 0 || $this->tipo <= 0) return -5;
         $sql = "
             UPDATE proprietario
             SET prp_tipo = ?,mot_id = ?

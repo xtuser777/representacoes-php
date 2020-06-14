@@ -26,6 +26,11 @@ class PessoaJuridica
         return $this->id;
     }
 
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
     public function getRazaoSocial(): string
     {
         return $this->razaoSocial;

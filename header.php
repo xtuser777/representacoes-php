@@ -28,6 +28,7 @@ require ROOT . "/src/model/FormaPagamento.php";
 require ROOT . "/src/model/DadosBancarios.php";
 require ROOT . "/src/model/Motorista.php";
 require ROOT . "/src/model/Caminhao.php";
+require ROOT . "/src/model/Proprietario.php";
 require ROOT . "/src/model/OrcamentoVenda.php";
 require ROOT . "/src/model/ItemOrcamentoVenda.php";
 
@@ -90,3 +91,6 @@ require ROOT . "/src/control/OrcamentoVendaNovoControl.php";
 require ROOT . "/src/control/OrcamentoVendaNovoItemControl.php";
 require ROOT . "/src/control/OrcamentoVendaDetalhesControl.php";
 require ROOT . "/src/control/OrcamentoVendaDetalhesItemControl.php";
+require ROOT . "/src/control/ProprietarioControl.php";
+require ROOT . "/src/control/ProprietarioNovoControl.php";
+require ROOT . "/src/control/ProprietarioDetalhesControl.php";

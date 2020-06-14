@@ -9,8 +9,7 @@ if (!isset($_SESSION['USER_ID'])) {
     echo json_encode('Método inválido.');
 } else {
     $email = $_POST['email'];
-    $control = new scr\control\OrcamentoVendaNovoControl();
 
     header('Content-type: application/json');
-    echo $control->validarEmail($email);
+    echo (new scr\control\ProprietarioNovoControl())->validarEmail($email);
 }
