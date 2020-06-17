@@ -13,8 +13,9 @@ elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0)
 }
 else
 {
-    $control = new \scr\control\CaminhaoDetalhesControl();
-
     header('Content-type: application/json');
-    echo $control->alterar($_POST['caminhao'],$_POST['placa'],$_POST['marca'],$_POST['modelo'],$_POST['anofab'],$_POST['anomod'],$_POST['tipo'],$_POST['proprietario']);
+    echo (new scr\control\CaminhaoDetalhesControl())->alterar(
+        $_POST['caminhao'],$_POST['placa'],$_POST['marca'],$_POST['modelo'],$_POST['cor'],
+        $_POST['anofab'],$_POST['anomod'],$_POST['tipo'],$_POST['proprietario']
+    );
 }

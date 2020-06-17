@@ -280,7 +280,7 @@ class RepresentacaoDAO
             return array();
         }
 
-        $pkey = '%'+$key+'%';
+        $pkey = '%'.$key.'%';
         $statement->bind_param('sss', $pkey, $pkey, $cad);
         $statement->execute();
 

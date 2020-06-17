@@ -10,22 +10,28 @@
     <div class="fieldset-card-legend">Dados do Caminhão</div>
     <div class="fieldset-card-container">
         <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <label for="placa">Placa <span style="color: red;">*</span>:</label>
-                <input type="text" id="placa" class="form-control input-sm" style="width: 100%;" value="" />
+                <input type="text" id="placa" class="form-control input-sm" style="width: 100%;" value="" maxlength="8" />
                 <div id="msplaca"></div>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-3">
                 <label for="marca">Marca <span style="color: red;">*</span>:</label>
-                <input type="text" id="marca" class="form-control input-sm" style="width: 100%;" value="" />
+                <input type="text" id="marca" class="form-control input-sm" style="width: 100%;" value="" maxlength="30" />
                 <div id="msmarca"></div>
             </div>
 
-            <div class="col-sm-5">
+            <div class="col-sm-4">
                 <label for="modelo">Modelo <span style="color: red;">*</span>:</label>
-                <input type="text" id="modelo" class="form-control input-sm" style="width: 100%;" value="" />
+                <input type="text" id="modelo" class="form-control input-sm" style="width: 100%;" value="" maxlength="50" />
                 <div id="msmodelo"></div>
+            </div>
+
+            <div class="col-sm-3">
+                <label for="cor">Cor <span style="color: red;">*</span>:</label>
+                <input type="text" id="cor" class="form-control input-sm" style="width: 100%;" value="" maxlength="30" />
+                <div id="mscor"></div>
             </div>
         </div>
 

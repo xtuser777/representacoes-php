@@ -120,7 +120,6 @@ $(document).ready(function () {
 
         _tipo = response.tipo;
         $("#tipo").val(_tipo === 1 ? "PESSOA FÍSICA" : "PESSOA JURÍDICA");
-        $("#tipo").readOnly = true;
 
         if (_tipo === 1) {
             $("#nome").val(pessoa.nome);

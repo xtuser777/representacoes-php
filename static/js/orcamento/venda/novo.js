@@ -454,6 +454,12 @@ function buttonSalvarClick() {
 }
 
 $(document).ready((event) => {
+    let prods = get("/orcamento/venda/novo/item/obter.php");
+    if (prods === null || prods.length === 0) {
+        alert("Não existem produtos cadastrados!");
+        location.href = "../../inicio";
+    }
+
     clientes = get("/orcamento/venda/novo/obter-clientes.php");
     if (clientes !== "" || clientes !== [] || clientes !== null) {
         for (let i = 0; i < clientes.length; i++) {

@@ -75,7 +75,7 @@ class OrcamentoVendaDetalhesControl
         if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
         $cliente = ($cli > 0) ? Cliente::getById($cli) : null;
         $vendedor = ($vdd > 0) ? Funcionario::getById($vdd) : null;
-        $cidade = Cidade::getById($cid);
+        $cidade = (new Cidade())->getById($cid);
         if (!$cidade) return json_encode("Cidade não encontrada no cadastro.");
         $usuario = Usuario::getById($_SESSION["USER_ID"]);
         Banco::getInstance()->getConnection()->begin_transaction();

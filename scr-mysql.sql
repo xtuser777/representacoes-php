@@ -193,12 +193,13 @@ CREATE OR REPLACE TABLE caminhao
     cam_placa VARCHAR(10) NOT NULL,
     cam_marca VARCHAR(30) NOT NULL,
     cam_modelo VARCHAR(50) NOT NULL,
+    cam_cor VARCHAR(30) NOT NULL,
     cam_ano_fabricacao VARCHAR(4) NOT NULL,
     cam_ano_modelo VARCHAR(4) NOT NULL,
     tip_cam_id INTEGER NOT NULL,
-    mot_id INTEGER NOT NULL,
+    prp_id INTEGER NOT NULL,
     FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
-    FOREIGN KEY (mot_id) REFERENCES motorista(mot_id)
+    FOREIGN KEY (prp_id) REFERENCES proprietario(prp_id)
 );
 
 CREATE OR REPLACE TABLE orcamento_venda
@@ -207,7 +208,7 @@ CREATE OR REPLACE TABLE orcamento_venda
     orc_ven_descricao VARCHAR(100) NOT NULL,
     orc_ven_data DATE NOT NULL,
     orc_ven_nome_cliente VARCHAR(70) NOT NULL,
-    orc_ven_documento_cliente VARCHAR(16) NOT NULL,
+    orc_ven_documento_cliente VARCHAR(18) NOT NULL,
     orc_ven_telefone_cliente VARCHAR(14) NOT NULL,
     orc_ven_celular_cliente VARCHAR(16) NOT NULL,
     orc_ven_email_cliente VARCHAR(70) NOT NULL,

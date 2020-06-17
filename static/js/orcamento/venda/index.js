@@ -46,6 +46,11 @@ function obter() {
 }
 
 $(document).ready(function (event) {
+    let prods = get("/orcamento/venda/novo/item/obter.php");
+    if (prods === null || prods.length === 0) {
+        alert("Não existem produtos cadastrados!");
+        location.href = "../../inicio";
+    }
     obter();
 });
 

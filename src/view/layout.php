@@ -56,6 +56,7 @@
                             <?php endif ?>
                             <li><a href="/gerenciar/cliente">Clientes</a></li>
                             <li><a href="/gerenciar/motorista">Motoristas</a></li>
+                            <li><a href="/gerenciar/proprietario">Proprietários de Caminhões</a></li>
                             <li><a href="/gerenciar/caminhao">Caminhões</a></li>
                             <li><a href="/gerenciar/representacao">Representações</a></li>
                             <li><a href="/gerenciar/produto">Produtos</a></li>

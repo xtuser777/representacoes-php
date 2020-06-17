@@ -60,6 +60,7 @@
                 <th style="width: 10%;">PLACA</th>
                 <th style="width: 20%;">MARCA</th>
                 <th style="width: 40%;">MODELO</th>
+                <th style="width: 20%;">COR</th>
                 <th style="width: 8%;">ANO</th>
                 <th style="width: 2%;">&nbsp;</th>
                 <th style="width: 2%;">&nbsp;</th>

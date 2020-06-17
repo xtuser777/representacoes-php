@@ -13,8 +13,9 @@ elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0)
 }
 else
 {
-    $control = new \scr\control\CaminhaoNovoControl();
-
     header('Content-type: application/json');
-    echo $control->gravar($_POST['placa'],$_POST['marca'],$_POST['modelo'],$_POST['anofab'],$_POST['anomod'],$_POST['tipo'],$_POST['proprietario']);
+    echo (new scr\control\CaminhaoNovoControl())->gravar(
+        $_POST['placa'],$_POST['marca'],$_POST['modelo'],$_POST['cor'],
+        $_POST['anofab'],$_POST['anomod'],$_POST['tipo'],$_POST['proprietario']
+    );
 }

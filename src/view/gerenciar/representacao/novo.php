@@ -113,7 +113,7 @@
             <div class="col-sm-6">
                 <label for="email">E-Mail <span style="color: red;">*</span>:</label>
                 <div class="input-group" style="width: 100%;">
-                    <div class="input-group-addon">@@</div>
+                    <div class="input-group-addon">@</div>
                     <input type="text" id="email" class="form-control input-sm" />
                 </div>
                 <div id="msemail"></div>

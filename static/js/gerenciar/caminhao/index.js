@@ -7,6 +7,7 @@ function preencherTabela(dados) {
                 <td>' + this.placa + '</td>\
                 <td>' + this.marca + '</td>\
                 <td>' + this.modelo + '</td>\
+                <td>' + this.cor + '</td>\
                 <td>' + this.anoFabricacao + '</td>\
                 <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
                 <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\

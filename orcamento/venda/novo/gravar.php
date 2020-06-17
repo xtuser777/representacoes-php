@@ -16,8 +16,8 @@ if (!isset($_SESSION["USER_ID"])) {
     $desc = $_POST["desc"];
     $vdd = $_POST["vdd"];
     $cid = $_POST["cid"];
-    $peso = $_POST["peso"];
-    $valor = $_POST["valor"];
+    $peso = str_replace(",", ".", $_POST["peso"]);
+    $valor = str_replace(",", ".", $_POST["valor"]);
     $venc = $_POST["venc"];
     $itens = json_decode($_POST["itens"]);
 

@@ -49,7 +49,6 @@ require ROOT . "/src/dao/CategoriaDAO.php";
 require ROOT . "/src/dao/FormaPagamentoDAO.php";
 require ROOT . "/src/dao/DadosBancariosDAO.php";
 require ROOT . "/src/dao/MotoristaDAO.php";
-require ROOT . "/src/dao/CaminhaoDAO.php";
 
 require ROOT . '/src/control/CidadeControl.php';
 require ROOT . '/src/control/EstadoControl.php';
