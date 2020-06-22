@@ -18,7 +18,7 @@ function limparEstados() {
 function carregarCidades() {
     $.ajax({
         type: 'POST',
-        url: '/cidade/obter-por-estado.php',
+        url: '/representacoes/cidade/obter-por-estado.php',
         data: { estado: cbestado.value },
         async: false,
         success: function (response) {lista_cidades = response;},
@@ -79,7 +79,7 @@ $(document).ready(function () {
     $("#tel").mask('(00) 0000-0000', {reverse: false});
     $("#cel").mask('(00) 00000-0000', {reverse: false});
 
-    lista_estados = get('/estado/obter.php');
+    lista_estados = get('/representacoes/estado/obter.php');
     limparEstados();
     if (lista_estados !== "") {
         for (var i = 0; i < lista_estados.length; i++) {
@@ -90,7 +90,7 @@ $(document).ready(function () {
         }
     }
 
-    var response = get("/configuracao/parametrizacao/obter.php");
+    var response = get("/representacoes/configuracao/parametrizacao/obter.php");
     if (response != null && response !== "") {
         endereco = response.pessoa.contato.endereco.id;
         contato = response.pessoa.contato.id;
@@ -356,7 +356,7 @@ function gravar() {
         if (novo === true) {
             $.ajax({
                 type: 'POST',
-                url: '/configuracao/parametrizacao/gravar.php',
+                url: '/representacoes/configuracao/parametrizacao/gravar.php',
                 data: form,
                 contentType: false,
                 processData: false,
@@ -388,7 +388,7 @@ function gravar() {
         } else {
             $.ajax({
                 type: 'POST',
-                url: '/configuracao/parametrizacao/alterar.php',
+                url: '/representacoes/configuracao/parametrizacao/alterar.php',
                 data: form,
                 contentType: false,
                 processData: false,

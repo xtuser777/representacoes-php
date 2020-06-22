@@ -1,9 +1,9 @@
 function gravar() {
-    var desc = $("#desc").val();
-    var eixos = $("#eixos").val();
-    var cap = $("#capacidade").val();
+    let desc = $("#desc").val();
+    let eixos = $("#eixos").val();
+    let cap = $("#capacidade").val();
     
-    var erros = 0;
+    let erros = 0;
 
     if (desc === "") {
         erros++;
@@ -27,14 +27,14 @@ function gravar() {
     }
     
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("desc", desc);
         form.append("eixos", eixos);
         form.append("capacidade", cap);
 
         $.ajax({
             type: "POST",
-            url: "/gerenciar/tipocaminhao/novo/gravar.php",
+            url: "/representacoes/gerenciar/tipocaminhao/novo/gravar.php",
             data: form,
             contentType: false,
             processData: false,

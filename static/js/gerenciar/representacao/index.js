@@ -1,18 +1,18 @@
 function ordenarRepresentacoes() {
-    var ord = $("#cbord").val();
+    let ord = $("#cbord").val();
 
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/representacao/ordenar.php',
+        url: '/representacoes/gerenciar/representacao/ordenar.php',
         async: false,
         data: { col : ord },
         success: function (response) { preencherTabela(response); },
-        error: function () { alert("Ocorreu um problema ao comunicar-se com o servidor..."); }
+        error: function (xhr, status, thrown) { alert("Ocorreu um problema ao comunicar-se com o servidor..."); }
     });
 }
 
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
         txt +=
             '<tr>\
@@ -45,7 +45,7 @@ function get(url_i) {
 }
 
 function obterRepresentacoes() {
-    var data = get("/gerenciar/representacao/obter.php");
+    let data = get("/representacoes/gerenciar/representacao/obter.php");
     preencherTabela(data);
 }
 
@@ -54,8 +54,8 @@ $(document).ready(function(event) {
 });
 
 function filtrarRepresentacoes() {
-    var filtro = $("#filtro").val();
-    var cadastro = $("#filtro_cad").val();
+    let filtro = $("#filtro").val();
+    let cadastro = $("#filtro_cad").val();
 
     if (filtro === "" && cadastro === "") {
         obterRepresentacoes();
@@ -63,14 +63,15 @@ function filtrarRepresentacoes() {
         if (filtro !== "" && cadastro !== "") {
             $.ajax({
                 type: 'POST',
-                url: '/gerenciar/representacao/obter-por-chave-cad.php',
+                url: '/representacoes/gerenciar/representacao/obter-por-chave-cad.php',
                 data: { chave: filtro, cad: cadastro },
                 success: function (response) {
                     if (response != null && response !== ""){
                         preencherTabela(response);
                     }
                 },
-                error: function () {
+                error: function (xhr, status, thrown) {
+                    console.error(thrown);
                     alert("Ocorreu um erro ao comunicar-se com o servidor...");
                 }
             });
@@ -78,14 +79,15 @@ function filtrarRepresentacoes() {
             if (filtro !== "") {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/representacao/obter-por-chave.php',
+                    url: '/representacoes/gerenciar/representacao/obter-por-chave.php',
                     data: { chave: filtro },
                     success: function (response) {
                         if (response != null && response !== ""){
                             preencherTabela(response);
                         }
                     },
-                    error: function () {
+                    error: function (xhr, status, thrown) {
+                        console.error(thrown);
                         alert("Ocorreu um erro ao comunicar-se com o servidor...");
                     }
                 });
@@ -93,14 +95,15 @@ function filtrarRepresentacoes() {
                 if (cadastro !== ""){
                     $.ajax({
                         type: 'POST',
-                        url: '/gerenciar/representacao/obter-por-cadastro.php',
+                        url: '/representacoes/gerenciar/representacao/obter-por-cadastro.php',
                         data: { cad: cadastro },
                         success: function (response) {
                             if (response != null && response !== ""){
                                 preencherTabela(response);
                             }
                         },
-                        error: function () {
+                        error: function (xhr, status, thrown) {
+                            console.error(thrown);
                             alert("Ocorreu um erro ao comunicar-se com o servidor...");
                         }
                     });
@@ -113,7 +116,7 @@ function filtrarRepresentacoes() {
 function adicionarUnidade(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/representacao/enviar.php',
+        url: '/representacoes/gerenciar/representacao/enviar.php',
         data: {id: id},
         async: false,
         success: function (response) {
@@ -147,7 +150,7 @@ function excluir(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/representacao/excluir.php',
+                    url: '/representacoes/gerenciar/representacao/excluir.php',
                     data: {id: id},
                     success: function (result) {
                         if (result.length > 0) {
@@ -173,7 +176,7 @@ function excluir(id) {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/representacao/enviar.php',
+        url: '/representacoes/gerenciar/representacao/enviar.php',
         data: {id: id},
         async: false,
         success: function (response) {

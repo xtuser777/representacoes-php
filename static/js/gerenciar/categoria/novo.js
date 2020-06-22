@@ -1,7 +1,7 @@
 function gravar() {
-    var desc = $("#desc").val();
+    let desc = $("#desc").val();
     
-    var erros = 0;
+    let erros = 0;
 
     if (desc === "") {
         erros++;
@@ -11,12 +11,12 @@ function gravar() {
     }
     
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("desc", desc);
 
         $.ajax({
             type: "POST",
-            url: "/gerenciar/categoria/novo/gravar.php",
+            url: "/representacoes/gerenciar/categoria/novo/gravar.php",
             data: form,
             contentType: false,
             processData: false,

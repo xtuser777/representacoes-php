@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="/static/images/logo.png">
+    <link rel="icon" type="image/png" href="../static/images/logo.png">
     <title>Autenticação do Usuário - Sistema de Controle de Representações</title>
-    <link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../static/lib/bootstrap/dist/css/bootstrap.css">
     <style type="text/css">
         .container {
             width: 100vw;
@@ -61,8 +61,8 @@
         <span id="msgAutenticacao" class="label label-danger hidden"></span>
     </div>
 </div>
-<script type="text/javascript" src="/static/lib/jquery/dist/jquery.js"></script>
-<script type="text/javascript" src="/static/lib/bootstrap/dist/js/bootstrap.js"></script>
-<script type="text/javascript" src="/static/js/login/index.js"></script>
+<script type="text/javascript" src="../static/lib/jquery/dist/jquery.js"></script>
+<script type="text/javascript" src="../static/lib/bootstrap/dist/js/bootstrap.js"></script>
+<script type="text/javascript" src="../static/js/login/index.js"></script>
 </body>
 </html>

@@ -48,7 +48,7 @@ function validarAcesso() {
     {
         $.ajax({
             type: 'POST',
-            url: '/login/autenticar.php',
+            url: '../login/autenticar.php',
             data: { login : txLogin, senha : txSenha },
             success: function (result)
             {
@@ -56,11 +56,11 @@ function validarAcesso() {
                 {
                     if(result.login === "first")
                     {
-                        window.location.href = "../../configuracao/wizard/parametrizacao";
+                        window.location.href = "../configuracao/parametrizacao";
                     }
                     else
                     {
-                        window.location.href = "../../inicio";
+                        window.location.href = "../inicio";
                     }
                 }
                 else if (typeof result === "string")

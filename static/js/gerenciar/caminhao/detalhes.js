@@ -18,7 +18,7 @@ function get(url_i) {
 }
 
 $(document).ready(function (event) {
-    let caminhao = get('/gerenciar/caminhao/detalhes/obter.php');
+    let caminhao = get('/representacoes/gerenciar/caminhao/detalhes/obter.php');
     if (caminhao === null || caminhao === "") {
         alert("Caminhão não selecionado.");
         location.href = "../caminhao";
@@ -27,7 +27,7 @@ $(document).ready(function (event) {
     $("#anofab").mask('0000', {reverse: false});
     $("#anomod").mask('0000', {reverse: false});
     
-    let tipos = get('/gerenciar/caminhao/detalhes/obter-tipos.php');
+    let tipos = get('/representacoes/gerenciar/caminhao/detalhes/obter-tipos.php');
     if (tipos !== null && tipos !== "") {
         for (let i = 0; i < tipos.length; i++) {
             let option = document.createElement("option");
@@ -37,7 +37,7 @@ $(document).ready(function (event) {
         }
     }
 
-    let props = get('/gerenciar/caminhao/detalhes/obter-proprietarios.php');
+    let props = get('/representacoes/gerenciar/caminhao/detalhes/obter-proprietarios.php');
     if (props !== null && props !== "") {
         for (let i = 0; i < props.length; i++) {
             let option = document.createElement("option");
@@ -150,7 +150,7 @@ function gravar() {
     }
 
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("caminhao", idcaminhao);
         form.append("placa", placa);
         form.append("marca", marca);
@@ -163,7 +163,7 @@ function gravar() {
 
         $.ajax({
             type: "POST",
-            url: "/gerenciar/caminhao/detalhes/alterar.php",
+            url: "/representacoes/gerenciar/caminhao/detalhes/alterar.php",
             data: form,
             contentType: false,
             processData: false,

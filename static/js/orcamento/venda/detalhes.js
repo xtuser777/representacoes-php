@@ -39,7 +39,10 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err);}
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
+            alert(thrown);
+        }
     });
 
     return res;
@@ -83,7 +86,7 @@ function validarCPF(cpf) {
     let resposta = false;
     $.ajax({
         type: "POST",
-        url: "/orcamento/venda/novo/validar-cpf.php",
+        url: "/representacoes/orcamento/venda/novo/validar-cpf.php",
         data: { cpf: cpf },
         async: false,
         success: (response) => { resposta = response; },
@@ -99,7 +102,7 @@ function validarCNPJ(cnpj) {
     let resposta = false;
     $.ajax({
         type: "POST",
-        url: "/orcamento/venda/novo/validar-cnpj.php",
+        url: "/representacoes/orcamento/venda/novo/validar-cnpj.php",
         data: { cnpj: cnpj },
         async: false,
         success: (response) => { resposta = response; },
@@ -168,7 +171,7 @@ function validarEmail(email) {
     let resposta = false;
     $.ajax({
         type: "POST",
-        url: "/orcamento/venda/novo/validar-email.php",
+        url: "/representacoes/orcamento/venda/novo/validar-email.php",
         data: { email: email },
         async: false,
         success: (response) => { resposta = response; },
@@ -246,7 +249,7 @@ function carregarCidades() {
 
     $.ajax({
         type: 'POST',
-        url: '/cidade/obter-por-estado.php',
+        url: '/representacoes/cidade/obter-por-estado.php',
         data: {
             estado: selectEstado.value
         },
@@ -266,8 +269,8 @@ function carregarCidades() {
 
     limparCidades();
     if (cidades !== "") {
-        for (var i = 0; i < cidades.length; i++) {
-            var option = document.createElement("option");
+        for (let i = 0; i < cidades.length; i++) {
+            let option = document.createElement("option");
             option.value = cidades[i].id;
             option.text = cidades[i].nome;
             selectCidade.appendChild(option);
@@ -406,7 +409,7 @@ function buttonSalvarClick() {
 
             $.ajax({
                 type: "POST",
-                url: "/orcamento/venda/detalhes/alterar.php",
+                url: "/representacoes/orcamento/venda/detalhes/alterar.php",
                 data: frm,
                 contentType: false,
                 processData: false,
@@ -454,7 +457,7 @@ function buttonSalvarClick() {
 }
 
 $(document).ready((event) => {
-    clientes = get("/orcamento/venda/novo/obter-clientes.php");
+    clientes = get("/representacoes/orcamento/venda/novo/obter-clientes.php");
     if (clientes !== "" || clientes !== [] || clientes !== null) {
         for (let i = 0; i < clientes.length; i++) {
             let option = document.createElement("option");
@@ -464,7 +467,7 @@ $(document).ready((event) => {
         }
     }
 
-    let vendedores = get('/orcamento/venda/novo/obter-vendedores.php');
+    let vendedores = get('/representacoes/orcamento/venda/novo/obter-vendedores.php');
     if (vendedores !== "" || vendedores !== [] || vendedores !== null) {
         for (let i = 0; i < vendedores.length; i++) {
             let option = document.createElement("option");
@@ -474,7 +477,7 @@ $(document).ready((event) => {
         }
     }
 
-    let estados = get('/estado/obter.php');
+    let estados = get('/representacoes/estado/obter.php');
     limparEstados();
     if (estados !== "" || estados !== [] || estados !== null) {
         for (let i = 0; i < estados.length; i++) {
@@ -487,7 +490,7 @@ $(document).ready((event) => {
 
     buttonLimparClick();
 
-    let orcamento = get('/orcamento/venda/detalhes/obter.php');
+    let orcamento = get('/representacoes/orcamento/venda/detalhes/obter.php');
     if (orcamento !== null && orcamento !== {}) {
         orcamentoId = orcamento.id;
         if (orcamento.cliente !== null) selectCliente.value = orcamento.cliente.id;
@@ -503,7 +506,7 @@ $(document).ready((event) => {
         selectEstado.value = orcamento.destino.estado.id;
         carregarCidades();
         selectCidade.value = orcamento.destino.id;
-        let itensBanco = get("/orcamento/venda/detalhes/item/obter.php");
+        let itensBanco = get("/representacoes/orcamento/venda/detalhes/item/obter.php");
         if (itensBanco.length > 0) {
             let itensOrc = itensBanco;
             for (let i = 0; i < itensOrc.length; i++) {

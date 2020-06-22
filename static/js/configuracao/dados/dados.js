@@ -1,42 +1,42 @@
-var txnome = document.getElementById("txNome");
-var dtNasc = document.getElementById("dtNasc");
-var txrg = document.getElementById("txRg");
-var txcpf = document.getElementById("txCpf");
-var txrua = document.getElementById("txRua");
-var txnumero = document.getElementById("txNumero");
-var txbairro = document.getElementById("txBairro");
-var txcomplemento = document.getElementById("txComplemento");
-var cbestado = document.getElementById("cbestado");
-var cbcidade = document.getElementById("cbcidade");
-var txcep = document.getElementById("txCep");
-var txtel = document.getElementById("txTel");
-var txcel = document.getElementById("txCel");
-var txemail = document.getElementById("txEmail");
-var txlogin = document.getElementById("txLogin");
-var txsenha = document.getElementById("txSenha");
-var txconfsenha = document.getElementById("txConfSenha");
+const txnome = document.getElementById("txNome");
+const dtNasc = document.getElementById("dtNasc");
+const txrg = document.getElementById("txRg");
+const txcpf = document.getElementById("txCpf");
+const txrua = document.getElementById("txRua");
+const txnumero = document.getElementById("txNumero");
+const txbairro = document.getElementById("txBairro");
+const txcomplemento = document.getElementById("txComplemento");
+const cbestado = document.getElementById("cbestado");
+const cbcidade = document.getElementById("cbcidade");
+const txcep = document.getElementById("txCep");
+const txtel = document.getElementById("txTel");
+const txcel = document.getElementById("txCel");
+const txemail = document.getElementById("txEmail");
+const txlogin = document.getElementById("txLogin");
+const txsenha = document.getElementById("txSenha");
+const txconfsenha = document.getElementById("txConfSenha");
 
-var btsalvar = document.getElementById("btSalvar");
-var btvoltar = document.getElementById("btVoltar");
+const btsalvar = document.getElementById("btSalvar");
+const btvoltar = document.getElementById("btVoltar");
 
-var msNome = document.getElementById("msNome");
-var msNasc = document.getElementById("msNasc");
-var msRg = document.getElementById("msRg");
-var msCpf = document.getElementById("msCpf");
-var msRua = document.getElementById("msRua");
-var msNumero = document.getElementById("msNumero");
-var msBairro = document.getElementById("msBairro");
-var msCep = document.getElementById("msCep");
-var msEstado = document.getElementById("msEstado");
-var msCidade = document.getElementById("msCidade");
-var msTelefone = document.getElementById("msTelefone");
-var msCelular = document.getElementById("msCelular");
-var msEmail = document.getElementById("msEmail");
-var msLogin = document.getElementById("msLogin");
-var msSenha = document.getElementById("msSenha");
-var msConfSenha = document.getElementById("msConfSenha");
+const msNome = document.getElementById("msNome");
+const msNasc = document.getElementById("msNasc");
+const msRg = document.getElementById("msRg");
+const msCpf = document.getElementById("msCpf");
+const msRua = document.getElementById("msRua");
+const msNumero = document.getElementById("msNumero");
+const msBairro = document.getElementById("msBairro");
+const msCep = document.getElementById("msCep");
+const msEstado = document.getElementById("msEstado");
+const msCidade = document.getElementById("msCidade");
+const msTelefone = document.getElementById("msTelefone");
+const msCelular = document.getElementById("msCelular");
+const msEmail = document.getElementById("msEmail");
+const msLogin = document.getElementById("msLogin");
+const msSenha = document.getElementById("msSenha");
+const msConfSenha = document.getElementById("msConfSenha");
 
-var auth = document.getElementById("auth");
+const auth = document.getElementById("auth");
 
 var idendereco = 0;
 var idpessoa = 0;
@@ -62,7 +62,7 @@ function limparEstados() {
 function carregarCidades() {
     $.ajax({
         type: 'POST',
-        url: '/cidade/obter-por-estado.php',
+        url: '/representacoes/cidade/obter-por-estado.php',
         data: { estado: cbestado.value },
         async: false,
         success: function (response) {lista_cidades = response;},
@@ -130,7 +130,7 @@ $(document).ready(function () {
     $(txtel).mask('(00) 0000-0000', {reverse: false});
     $(txcel).mask('(00) 00000-0000', {reverse: false});
 
-    lista_estados = get('/estado/obter.php');
+    lista_estados = get('/representacoes/estado/obter.php');
     limparEstados();
     if (lista_estados !== "") {
         for (var i = 0; i < lista_estados.length; i++) {
@@ -141,7 +141,7 @@ $(document).ready(function () {
         }
     }
 
-    let response = get('/configuracao/dados/obter.php');
+    let response = get('/representacoes/configuracao/dados/obter.php');
 
     if (response !== "") {
         idendereco = response.funcionario.pessoa.contato.endereco.id;
@@ -213,7 +213,7 @@ btvoltar.addEventListener("click", function (event) {
 function verificarLogin(login) {
     $.ajax({
         type: 'POST',
-        url: '/configuracao/dados/verificar-login.php',
+        url: '/representacoes/configuracao/dados/verificar-login.php',
         data: { login: login },
         async: false,
         success: function (response) {
@@ -232,14 +232,14 @@ function verificarLogin(login) {
 }
 
 function verificarAdmin() {
-    var data = get("/configuracao/dados/is-last-admin.php");
+    var data = get("/representacoes/configuracao/dados/is-last-admin.php");
     return (data === true && nivel_atual === 1);
 }
 
 function verificarCpf(cpf) {
     $.ajax({
         type: 'POST',
-        url: '/configuracao/dados/verificar-cpf.php',
+        url: '/representacoes/configuracao/dados/verificar-cpf.php',
         data: { cpf: cpf },
         async: false,
         success: function (response) {
@@ -264,81 +264,79 @@ function verificarCpf(cpf) {
 
 function validarCpf(cpf) {
     cpf = cpf.replace(/[^\d]+/g, '');
-    if (cpf == '') {
+    if (cpf === '') {
         return false;
     }
     // Elimina CPFs invalidos conhecidos	
-    if (cpf.length != 11 || cpf == "00000000000" || cpf == "11111111111" || cpf == "22222222222" || cpf == "33333333333" || cpf == "44444444444" || cpf == "55555555555" || cpf == "66666666666" || cpf == "77777777777" || cpf == "88888888888" || cpf == "99999999999") {
+    if (
+        cpf.length !== 11 || cpf === "00000000000" || cpf === "11111111111" || cpf === "22222222222"
+        || cpf === "33333333333" || cpf === "44444444444" || cpf === "55555555555" || cpf === "66666666666"
+        || cpf === "77777777777" || cpf === "88888888888" || cpf === "99999999999"
+    ) {
         return false;
     }
     // Valida 1o digito	
-    add = 0;
-    for (i = 0; i < 9; i++) {
+    let add = 0;
+    for (let i = 0; i < 9; i++) {
         add += parseInt(cpf.charAt(i)) * (10 - i);
     }
-    rev = 11 - (add % 11);
-    if (rev == 10 || rev == 11) {
+    let rev = 11 - (add % 11);
+    if (rev === 10 || rev === 11) {
         rev = 0;
     }
-    if (rev != parseInt(cpf.charAt(9))) {
+    if (rev !== parseInt(cpf.charAt(9))) {
         return false;
     }
     // Valida 2o digito	
     add = 0;
-    for (i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i++) {
         add += parseInt(cpf.charAt(i)) * (11 - i);
     }
     rev = 11 - (add % 11);
-    if (rev == 10 || rev == 11) {
+    if (rev === 10 || rev === 11) {
         rev = 0;
     }
-    if (rev != parseInt(cpf.charAt(10))) {
-        return false;
-    }
-    return true;
+
+    return rev === parseInt(cpf.charAt(10));
 }
 
 function validacaoEmail(email) {
-    usuario = email.substring(0, email.indexOf("@"));
-    dominio = email.substring(email.indexOf("@")+ 1, email.length);
-    if (
-        (usuario.length >=1) &&
-        (dominio.length >=3) &&
-        (usuario.search("@")===-1) &&
-        (dominio.search("@")===-1) &&
-        (usuario.search(" ")===-1) &&
-        (dominio.search(" ")===-1) &&
-        (dominio.search(".")!==-1) &&
-        (dominio.indexOf(".") >=1)&&
+    let usuario = email.substring(0, email.indexOf("@"));
+    let dominio = email.substring(email.indexOf("@")+ 1, email.length);
+    return (
+        (usuario.length >= 1) &&
+        (dominio.length >= 3) &&
+        (usuario.search("@") === -1) &&
+        (dominio.search("@") === -1) &&
+        (usuario.search(" ") === -1) &&
+        (dominio.search(" ") === -1) &&
+        (dominio.search(".") !== -1) &&
+        (dominio.indexOf(".") >= 1) &&
         (dominio.lastIndexOf(".") < dominio.length - 1)
-    ) {
-        return true;
-    } else {
-        return false;
-    }
+    );
 }
 
 btsalvar.addEventListener("click", function (event) {
-    var nome = txnome.value;
-    var nasc = dtNasc.value;
-    var rg = txrg.value;
-    var cpf = txcpf.value;
-    var tipo = tipo_atual;
-    var rua = txrua.value;
-    var numero = txnumero.value;
-    var bairro = txbairro.value;
-    var complemento = txcomplemento.value;
-    var cep = txcep.value;
+    let nome = txnome.value;
+    let nasc = dtNasc.value;
+    let rg = txrg.value;
+    let cpf = txcpf.value;
+    let tipo = tipo_atual;
+    let rua = txrua.value;
+    let numero = txnumero.value;
+    let bairro = txbairro.value;
+    let complemento = txcomplemento.value;
+    let cep = txcep.value;
     let cidade = cbcidade.value;
-    var telefone = txtel.value;
-    var celular = txcel.value;
-    var email = txemail.value;
-    var nivel = nivel_atual;
-    var login = txlogin.value;
-    var senha = txsenha.value;
-    var confsenha = txconfsenha.value;
+    let telefone = txtel.value;
+    let celular = txcel.value;
+    let email = txemail.value;
+    let nivel = nivel_atual;
+    let login = txlogin.value;
+    let senha = txsenha.value;
+    let confsenha = txconfsenha.value;
 
-    var dataNasc = new Date(nasc);
+    let dataNasc = new Date(nasc);
     erros = 0;
 
     if (nome.length === 0) {
@@ -550,7 +548,7 @@ btsalvar.addEventListener("click", function (event) {
     }
 
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("endereco", idendereco);
         form.append("contato", idcontato);
         form.append("pessoa", idpessoa);
@@ -578,7 +576,7 @@ btsalvar.addEventListener("click", function (event) {
 
         $.ajax({
             type: 'POST',
-            url: '/configuracao/dados/salvar.php',
+            url: '/representacoes/configuracao/dados/salvar.php',
             data: form,
             contentType: false,
             processData: false,

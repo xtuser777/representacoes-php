@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\Contato;
 use scr\model\Endereco;
@@ -208,7 +212,7 @@ class RepresentacaoControl
             return json_encode('Identificação inválida.');
         }
 
-        $pes = PessoaJuridica::delete(Banco::getInstance()->getConnection(), $representacao->getPessoa()->getId());
+        $pes = PessoaJuridica::delete($representacao->getPessoa()->getId());
         if ($pes == -10 || $pes == -1)
         {
             Banco::getInstance()->getConnection()->rollback();
@@ -222,7 +226,7 @@ class RepresentacaoControl
             return json_encode('Identificação inválida.');
         }
 
-        $ctt = Contato::delete(Banco::getInstance()->getConnection(), $representacao->getPessoa()->getContato()->getId());
+        $ctt = Contato::delete($representacao->getPessoa()->getContato()->getId());
         if ($ctt == -10 || $ctt == -1)
         {
             Banco::getInstance()->getConnection()->rollback();
@@ -236,7 +240,7 @@ class RepresentacaoControl
             return json_encode('Identificação inválida.');
         }
 
-        $end = Endereco::delete(Banco::getInstance()->getConnection(), $representacao->getPessoa()->getContato()->getEndereco()->getId());
+        $end = Endereco::delete($representacao->getPessoa()->getContato()->getEndereco()->getId());
         if ($end == -10 || $end == -1)
         {
             Banco::getInstance()->getConnection()->rollback();

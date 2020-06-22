@@ -1,5 +1,5 @@
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
         txt += 
             '<tr>\
@@ -22,13 +22,17 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err.d);}
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
+            alert(thrown);
+        }
     });
+
     return res;
 }
 
 function obter() {
-    var dados = get("/gerenciar/formapagamento/obter.php");
+    let dados = get("/representacoes/gerenciar/formapagamento/obter.php");
 
     preencherTabela(dados);
 }
@@ -38,14 +42,14 @@ $(document).ready(function (event) {
 });
 
 function filtrar() {
-    var filtro = $("#filtro").val();
+    let filtro = $("#filtro").val();
     
     if (filtro === "") {
         obter();
     } else {
         $.ajax({
             type: "POST",
-            url: "/gerenciar/formapagamento/obter-por-chave.php",
+            url: "/representacoes/gerenciar/formapagamento/obter-por-chave.php",
             data: { chave: filtro },
             async: false,
             success: function (result) {
@@ -68,7 +72,7 @@ function ordenar() {
 
     $.ajax({
         type: "POST",
-        url: "/gerenciar/formapagamento/ordenar.php",
+        url: "/representacoes/gerenciar/formapagamento/ordenar.php",
         data: { col: ord },
         async: false,
         success: function (result) {
@@ -88,7 +92,7 @@ function ordenar() {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/formapagamento/enviar.php',
+        url: '/representacoes/gerenciar/formapagamento/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);
@@ -124,7 +128,7 @@ function excluir(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/formapagamento/excluir.php',
+                    url: '/representacoes/gerenciar/formapagamento/excluir.php',
                     data: { id: id },
                     success: function (result) {
                         if (result === "") {

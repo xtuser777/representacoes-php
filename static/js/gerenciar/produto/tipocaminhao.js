@@ -1,5 +1,5 @@
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
         txt +=
             '<tr>\
@@ -22,31 +22,34 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err.d);}
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
+            alert(thrown);
+        }
     });
     return res;
 }
 
 $(document).ready(function (event) {
-    var dados = get("/gerenciar/produto/tipocaminhao/obter.php");
+    let dados = get("/representacoes/gerenciar/produto/tipocaminhao/obter.php");
     if (dados === null) {
         alert("Produto não selecionado.");
-        return location.href = "../produto/index.php";
+        return location.href = "../../produto";
     }
 
     preencherTabela(dados);
 
-    var tipos = get("/gerenciar/tipocaminhao/obter.php");
+    let tipos = get("/representacoes/gerenciar/tipocaminhao/obter.php");
     if (tipos === null || tipos.length === 0) {
         alert("Não há tipos de caminhão cadastrados");
-        location.href = "../produto/index.php";
+        location.href = "../../produto";
     }
 
-    var tipo = document.getElementById("select_tipo");
+    let tipo = document.getElementById("select_tipo");
 
     if (tipos != null && tipos !== "") {
-        for (var i = 0; i < tipos.length; i++) {
-            var option = document.createElement("option");
+        for (let i = 0; i < tipos.length; i++) {
+            let option = document.createElement("option");
             option.value = tipos[i].id;
             option.text = tipos[i].descricao;
             tipo.appendChild(option);
@@ -55,14 +58,14 @@ $(document).ready(function (event) {
 });
 
 function filtrarVinculos() {
-    var filtro = $("#filtro").val();
+    let filtro = $("#filtro").val();
 
     if (filtro === "") {
-        obterVinculos();
+        preencherTabela(get("/representacoes/gerenciar/produto/tipocaminhao/obter.php"));
     } else {
         $.ajax({
             type: "POST",
-            url: "/gerenciar/produto/tipocaminhao/obter-por-chave.php",
+            url: "/representacoes/gerenciar/produto/tipocaminhao/obter-por-chave.php",
             data: {filtro: filtro},
             async: false,
             success: function (result) {
@@ -81,11 +84,11 @@ function filtrarVinculos() {
 }
 
 function ordenarVinculos() {
-    var ord = $("#cbord").val();
+    let ord = $("#cbord").val();
 
     $.ajax({
         type: "POST",
-        url: "/gerenciar/produto/tipocaminhao/ordenar.php",
+        url: "/representacoes/gerenciar/produto/tipocaminhao/ordenar.php",
         data: { col: ord },
         async: false,
         success: function (result) {
@@ -119,11 +122,11 @@ function excluir(t) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/produto/tipocaminhao/excluir.php',
+                    url: '/representacoes/gerenciar/produto/tipocaminhao/excluir.php',
                     data: { tipo: t},
                     success: function (result) {
                         if (result === "") {
-                            obterVinculos();
+                            preencherTabela(get("/representacoes/gerenciar/produto/tipocaminhao/obter.php"));
                         }
                         else {
                             mostraDialogo(
@@ -149,11 +152,11 @@ function excluir(t) {
 }
 
 function verificarTipo(tipo) {
-    var res = true;
+    let res = true;
 
     $.ajax({
         type: "POST",
-        url: "/gerenciar/produto/tipocaminhao/verificar-tipo.php",
+        url: "/representacoes/gerenciar/produto/tipocaminhao/verificar-tipo.php",
         data: { tipo: tipo },
         async: false,
         success: function (result) {
@@ -173,18 +176,18 @@ function verificarTipo(tipo) {
 }
 
 function adicionarTipo() {
-    var tipo = $("#select_tipo").val();
+    let tipo = $("#select_tipo").val();
 
     if (tipo !== "0") {
         if (verificarTipo(tipo) === false) {
             $.ajax({
                 type: "POST",
-                url: "/gerenciar/produto/tipocaminhao/adicionar.php",
+                url: "/representacoes/gerenciar/produto/tipocaminhao/adicionar.php",
                 data: { tipo: tipo },
                 async: false,
                 success: function (result) {
                     if (result === "") {
-                        obterVinculos();
+                        preencherTabela(get("/representacoes/gerenciar/produto/tipocaminhao/obter.php"));
                         mostraDialogo(
                             "Tipo de caminhão adicionado com sucesso!",
                             "success",

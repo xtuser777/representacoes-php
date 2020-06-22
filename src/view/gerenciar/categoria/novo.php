@@ -23,7 +23,7 @@
 
 <div class="row">
     <div class="col-sm-2">
-        <a role="button" class="btn btn-default" style="width: 100%;" href="/gerenciar/categoria">VOLTAR</a>
+        <a role="button" class="btn btn-default" style="width: 100%;" href="/representacoes/gerenciar/categoria">VOLTAR</a>
     </div>
 
     <div class="col-sm-6"></div>

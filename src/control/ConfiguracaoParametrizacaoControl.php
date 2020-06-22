@@ -39,7 +39,7 @@ class ConfiguracaoParametrizacaoControl
     {
         if (!Banco::getInstance()->open()) return json_encode('Ocorreu um problema na conexão com o banco de dados.');
 
-        $cid = Cidade::getById($cidade);
+        $cid = (new Cidade())->getById($cidade);
 
         Banco::getInstance()->getConnection()->begin_transaction();
 
@@ -106,7 +106,7 @@ class ConfiguracaoParametrizacaoControl
     {
         if (!Banco::getInstance()->open()) return json_encode('Ocorreu um problema na conexão com o banco de dados.');
 
-        $cid = Cidade::getById($cidade);
+        $cid = (new Cidade())->getById($cidade);
 
         Banco::getInstance()->getConnection()->begin_transaction();
 

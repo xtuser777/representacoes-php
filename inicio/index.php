@@ -3,7 +3,7 @@
 require_once '../header.php';
 
 if (!isset($_SESSION['USER_ID'])) {
-    header('Location: /login/index.php');
+    header('Location: /representacoes/login');
 } else {
     $page_title = 'Eventos do Sistema';
     $section_container = '/src/view/inicio/index.php';

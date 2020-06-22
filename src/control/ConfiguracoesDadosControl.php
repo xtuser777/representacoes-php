@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\util\Banco;
 use scr\model\Cidade;
@@ -52,7 +56,7 @@ class ConfiguracoesDadosControl
     {
         if (!Banco::getInstance()->open()) return json_encode('Erro ao conectar-se ao banco de dados.');
 
-        $cid = Cidade::getById($cidade);
+        $cid = (new Cidade())->getById($cidade);
 
         Banco::getInstance()->getConnection()->begin_transaction();
 

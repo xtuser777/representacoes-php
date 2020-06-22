@@ -9,13 +9,17 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err.d);}
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
+            alert(thrown);
+        }
     });
+
     return res;
 }
 
 $(document).ready(function (event) {
-    var dados = get("/gerenciar/tipocaminhao/detalhes/obter.php");
+    let dados = get("/representacoes/gerenciar/tipocaminhao/detalhes/obter.php");
     if (dados !== "") {
         _tipo = dados.id;
         $("#desc").val(dados.descricao);
@@ -25,11 +29,11 @@ $(document).ready(function (event) {
 });
 
 function gravar() {
-    var desc = $("#desc").val();
-    var eixos = $("#eixos").val();
-    var cap = $("#capacidade").val();
+    let desc = $("#desc").val();
+    let eixos = $("#eixos").val();
+    let cap = $("#capacidade").val();
     
-    var erros = 0;
+    let erros = 0;
 
     if (desc === "") {
         erros++;
@@ -53,7 +57,7 @@ function gravar() {
     }
     
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("tipo", _tipo);
         form.append("desc", desc);
         form.append("eixos", eixos);
@@ -61,7 +65,7 @@ function gravar() {
 
         $.ajax({
             type: "POST",
-            url: "/gerenciar/tipocaminhao/detalhes/alterar.php",
+            url: "/representacoes/gerenciar/tipocaminhao/detalhes/alterar.php",
             data: form,
             contentType: false,
             processData: false,

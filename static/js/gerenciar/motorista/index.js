@@ -1,5 +1,5 @@
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
         txt +=
             '<tr>\
@@ -16,11 +16,11 @@ function preencherTabela(dados) {
 }
 
 function ordenar() {
-    var ord = $("#cbord").val();
+    let ord = $("#cbord").val();
 
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/motorista/ordenar.php',
+        url: '/representacoes/gerenciar/motorista/ordenar.php',
         async: false,
         data: { col : ord },
         success: function (response) { preencherTabela(response); },
@@ -43,7 +43,7 @@ function get(url_i) {
 }
 
 function obter() {
-    var data = get("/gerenciar/motorista/obter.php");
+    let data = get("/representacoes/gerenciar/motorista/obter.php");
     preencherTabela(data);
 }
 
@@ -52,8 +52,8 @@ $(document).ready(function (event) {
 });
 
 function filtrar() {
-    var filtro = $("#filtro").val();
-    var cadastro = $("#filtro_cad").val();
+    let filtro = $("#filtro").val();
+    let cadastro = $("#filtro_cad").val();
 
     if (filtro === "" && cadastro === "") {
         obter();
@@ -61,7 +61,7 @@ function filtrar() {
         if (filtro !== "" && cadastro !== "") {
             $.ajax({
                 type: 'POST',
-                url: '/gerenciar/motorista/obter-por-chave-cad.php',
+                url: '/representacoes/gerenciar/motorista/obter-por-chave-cad.php',
                 data: { chave: filtro, cad: cadastro },
                 success: function (response) {
                     if (response != null && response !== ""){
@@ -76,7 +76,7 @@ function filtrar() {
             if (filtro !== "") {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/motorista/obter-por-chave.php',
+                    url: '/representacoes/gerenciar/motorista/obter-por-chave.php',
                     data: { chave: filtro },
                     success: function (response) {
                         if (response != null && response !== ""){
@@ -91,7 +91,7 @@ function filtrar() {
                 if (cadastro !== ""){
                     $.ajax({
                         type: 'POST',
-                        url: '/gerenciar/motorista/obter-por-cadastro.php',
+                        url: '/representacoes/gerenciar/motorista/obter-por-cadastro.php',
                         data: { cad: cadastro },
                         success: function (response) {
                             if (response != null && response !== ""){
@@ -126,7 +126,7 @@ function excluir(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/motorista/excluir.php',
+                    url: '/representacoes/gerenciar/motorista/excluir.php',
                     data: {id: id},
                     success: function (result) {
                         if (result.length > 0) {
@@ -148,7 +148,7 @@ function excluir(id) {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/motorista/enviar.php',
+        url: '/representacoes/gerenciar/motorista/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);

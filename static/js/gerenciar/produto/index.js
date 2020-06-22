@@ -1,5 +1,5 @@
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
         txt +=
             '<tr>\
@@ -25,18 +25,18 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err.d);}
+        error: function (xhr, status, thrown) {alert(thrown);}
     });
     return res;
 }
 
 function obterProdutos() {
-    var dados = get("/gerenciar/produto/obter.php");
+    let dados = get("/representacoes/gerenciar/produto/obter.php");
     preencherTabela(dados);
 }
 
 $(document).ready(function (event) {
-    var representacoes = get("/gerenciar/produto/obter-representacoes.php");
+    let representacoes = get("/representacoes/gerenciar/produto/obter-representacoes.php");
     if (representacoes.length === 0) {
         alert("Não há representações cadastradas.");
         location.href = "../../inicio";
@@ -44,11 +44,11 @@ $(document).ready(function (event) {
 
     obterProdutos();
 
-    var representacao = document.getElementById("representacao");
+    let representacao = document.getElementById("representacao");
 
     if (representacoes != null && representacoes !== "") {
-        for (var i = 0; i < representacoes.length; i++) {
-            var option = document.createElement("option");
+        for (let i = 0; i < representacoes.length; i++) {
+            let option = document.createElement("option");
             option.value = representacoes[i].id;
             option.text = representacoes[i].pessoa.nomeFantasia + " (" + representacoes[i].unidade + ")";
             representacao.appendChild(option);
@@ -57,8 +57,8 @@ $(document).ready(function (event) {
 });
 
 function filtrarProdutos() {
-    var filtro = $("#filtro").val().trim();
-    var rep = $("#representacao").val();
+    let filtro = $("#filtro").val().trim();
+    let rep = $("#representacao").val();
 
     if (filtro === "" && rep === "0") {
         obterProdutos();
@@ -66,7 +66,7 @@ function filtrarProdutos() {
         if (filtro !== "" && rep !== "0") {
             $.ajax({
                 type: "POST",
-                url: "/gerenciar/produto/obter-por-chave-representacao.php",
+                url: "/representacoes/gerenciar/produto/obter-por-chave-representacao.php",
                 data: { filtro: filtro, representacao: rep },
                 async: false,
                 success: function (result) {
@@ -85,7 +85,7 @@ function filtrarProdutos() {
             if (filtro !== "") {
                 $.ajax({
                     type: "POST",
-                    url: "/gerenciar/produto/obter-por-chave.php",
+                    url: "/representacoes/gerenciar/produto/obter-por-chave.php",
                     data: { filtro: filtro },
                     async: false,
                     success: function (result) {
@@ -103,7 +103,7 @@ function filtrarProdutos() {
             } else {
                 $.ajax({
                     type: "POST",
-                    url: "/gerenciar/produto/obter-por-representacao.php",
+                    url: "/representacoes/gerenciar/produto/obter-por-representacao.php",
                     data: { representacao: rep },
                     async: false,
                     success: function (result) {
@@ -124,11 +124,11 @@ function filtrarProdutos() {
 }
 
 function ordenarProdutos() {
-    var ord = $("#cbord").val();
+    let ord = $("#cbord").val();
 
     $.ajax({
         type: "POST",
-        url: "/gerenciar/produto/ordenar.php",
+        url: "/representacoes/gerenciar/produto/ordenar.php",
         data: { col: ord },
         async: false,
         success: function (result) {
@@ -148,7 +148,7 @@ function ordenarProdutos() {
 function vincularTipos(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/produto/enviar.php',
+        url: '/representacoes/gerenciar/produto/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);
@@ -170,7 +170,7 @@ function vincularTipos(id) {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/produto/enviar.php',
+        url: '/representacoes/gerenciar/produto/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);
@@ -206,7 +206,7 @@ function excluir(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/produto/excluir.php',
+                    url: '/representacoes/gerenciar/produto/excluir.php',
                     data: { id: id },
                     success: function (result) {
                         if (result === "") {

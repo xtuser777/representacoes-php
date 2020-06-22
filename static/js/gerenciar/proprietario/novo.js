@@ -150,6 +150,7 @@ function get(url_i) {
         success: function (result) {res = result;},
         error: function (XMLHttpRequest, txtStatus, errorThrown) { console.error(errorThrown); }
     });
+
     return res;
 }
 
@@ -193,7 +194,7 @@ async function validarCpf(cpf) {
     let valid = false;
     await $.ajax({
         type: "POST",
-        url: "/gerenciar/proprietario/novo/validar-cpf.php",
+        url: "/representacoes/gerenciar/proprietario/novo/validar-cpf.php",
         data: { cpf: cpf },
         success: function (response) {
             valid = response;
@@ -284,7 +285,7 @@ async function validarCnpj(cnpj) {
     let valid = false;
     await $.ajax({
         type: "POST",
-        url: "/gerenciar/proprietario/novo/validar-cnpj.php",
+        url: "/representacoes/gerenciar/proprietario/novo/validar-cnpj.php",
         data: { cnpj: cnpj },
         success: function (response) {
             valid = response;
@@ -422,7 +423,7 @@ async function validarEmail(email) {
     let valid = false;
     await $.ajax({
         type: "POST",
-        url: "/gerenciar/proprietario/novo/validar-email.php",
+        url: "/representacoes/gerenciar/proprietario/novo/validar-email.php",
         data: { email: email },
         success: function (response) { valid = response; },
         error: function (XMLHttpRequest, txtStatus, errorThrown) { console.error(errorThrown); }
@@ -448,7 +449,7 @@ async function textEmailBlur() {
 }
 
 function limparEstados() {
-    for (var i = selectEstado.childElementCount - 1; i > 0; i--) {
+    for (let i = selectEstado.childElementCount - 1; i > 0; i--) {
         selectEstado.children.item(i).remove();
     }
 }
@@ -460,7 +461,7 @@ function carregarCidades() {
 
     $.ajax({
         type: 'POST',
-        url: '/cidade/obter-por-estado.php',
+        url: '/representacoes/cidade/obter-por-estado.php',
         data: form,
         contentType: false,
         processData: false,
@@ -498,7 +499,7 @@ function selectEstadoChange() {
 }
 
 function limparCidades() {
-    for (var i = selectCidade.childElementCount - 1; i > 0; i--) {
+    for (let i = selectCidade.childElementCount - 1; i > 0; i--) {
         selectCidade.children.item(i).remove();
     }
 }
@@ -701,7 +702,7 @@ async function gravar() {
 
         await $.ajax({
             type: "POST",
-            url: "/gerenciar/proprietario/novo/gravar.php",
+            url: "/representacoes/gerenciar/proprietario/novo/gravar.php",
             data: frm,
             contentType: false,
             processData: false,
@@ -749,7 +750,7 @@ $(document).ready((event) => {
     $(textTelefone).mask('(00) 0000-0000', {reverse: false});
     $(textCelular).mask('(00) 00000-0000', {reverse: false});
 
-    motoristas = get("/gerenciar/proprietario/novo/obter-motoristas.php");
+    motoristas = get("/representacoes/gerenciar/proprietario/novo/obter-motoristas.php");
     for (let i = 0; i < motoristas.length; i++) {
         let option = document.createElement("option");
         option.value = motoristas[i].id;
@@ -757,7 +758,7 @@ $(document).ready((event) => {
         selectMotorista.appendChild(option);
     }
 
-    let estados = get('/estado/obter.php');
+    let estados = get('/representacoes/estado/obter.php');
     limparEstados();
     if (estados !== "") {
         for (let i = 0; i < estados.length; i++) {

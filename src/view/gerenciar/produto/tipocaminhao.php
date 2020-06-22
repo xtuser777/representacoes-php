@@ -49,7 +49,7 @@
         <div class="row" style="margin-bottom: 10px;">
             <div class="col-sm-2">
                 <label for="voltar">&nbsp;</label>
-                <a role="button" id="voltar" class="btn btn-default btn-sm" style="width: 100%;" href="/gerenciar/produto">VOLTAR</a>
+                <a role="button" id="voltar" class="btn btn-default btn-sm" style="width: 100%;" href="/representacoes/gerenciar/produto">VOLTAR</a>
             </div>
 
             <div class="col-sm-8">

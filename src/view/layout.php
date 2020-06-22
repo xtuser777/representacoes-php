@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="icon" type="image/png" href="/static/images/logo.png">
+    <link rel="icon" type="image/png" href="/representacoes/static/images/logo.png">
 
     <title><?php echo $page_title ?> - Sistema de Controle de Representações</title>
 
-    <link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/dist/css/bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/lib/fancybox/jquery.fancybox.min.css"/>
-    <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/fancybox/jquery.fancybox.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/representacoes/static/css/style.css" />
 </head>
 
 <body>
@@ -43,7 +43,7 @@
 
                     <!-- Botao inicio -->
                     <li>
-                        <a style="color: #fff;" class="font-navbar" href="/inicio">Início</a>
+                        <a style="color: #fff;" class="font-navbar" href="/representacoes/inicio">Início</a>
                     </li>
                     <!-- Fim botao inicio -->
                     <!-- Botao gerenciar -->
@@ -52,17 +52,17 @@
                         <!-- Popup botao gerenciar -->
                         <ul class="dropdown-menu">
                             <?php if ($_SESSION['USER_LEVEL'] == '1'): ?>
-                                <li><a href="/gerenciar/funcionario">Funcionários</a></li>
+                                <li><a href="/representacoes/gerenciar/funcionario">Funcionários</a></li>
                             <?php endif ?>
-                            <li><a href="/gerenciar/cliente">Clientes</a></li>
-                            <li><a href="/gerenciar/motorista">Motoristas</a></li>
-                            <li><a href="/gerenciar/proprietario">Proprietários de Caminhões</a></li>
-                            <li><a href="/gerenciar/caminhao">Caminhões</a></li>
-                            <li><a href="/gerenciar/representacao">Representações</a></li>
-                            <li><a href="/gerenciar/produto">Produtos</a></li>
-                            <li><a href="/gerenciar/tipocaminhao">Tipos de Caminhão</a></li>
-                            <li><a href="/gerenciar/categoria">Categorias de Contas</a></li>
-                            <li><a href="/gerenciar/formapagamento">Formas de Pagamento</a></li>
+                            <li><a href="/representacoes/gerenciar/cliente">Clientes</a></li>
+                            <li><a href="/representacoes/gerenciar/motorista">Motoristas</a></li>
+                            <li><a href="/representacoes/gerenciar/proprietario">Proprietários de Caminhões</a></li>
+                            <li><a href="/representacoes/gerenciar/caminhao">Caminhões</a></li>
+                            <li><a href="/representacoes/gerenciar/representacao">Representações</a></li>
+                            <li><a href="/representacoes/gerenciar/produto">Produtos</a></li>
+                            <li><a href="/representacoes/gerenciar/tipocaminhao">Tipos de Caminhão</a></li>
+                            <li><a href="/representacoes/gerenciar/categoria">Categorias de Contas</a></li>
+                            <li><a href="/representacoes/gerenciar/formapagamento">Formas de Pagamento</a></li>
                         </ul>
                         <!-- Fim popup botao gerenciar -->
                     </li>
@@ -72,8 +72,8 @@
                         <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Orçamento <span class="caret"></span></a>
                         <!-- Popup botao orcamento -->
                         <ul class="dropdown-menu">
-                            <li><a href="/orcamento/venda/index">Venda</a></li>
-                            <li><a href="/orcamento/frete/index">Frete</a></li>
+                            <li><a href="/representacoes/orcamento/venda">Venda</a></li>
+                            <li><a href="/representacoes/orcamento/frete">Frete</a></li>
                         </ul>
                         <!-- Fim popup botao orcamento -->
                     </li>
@@ -157,11 +157,11 @@
                         <ul class="dropdown-menu">
                             <li class="dropdown-header">Configurações</li>
                             <?php if ($_SESSION['USER_LEVEL'] == '1') : ?>
-                                <li><a href="/configuracao/parametrizacao">Parametrização</a></li>
+                                <li><a href="/representacoes/configuracao/parametrizacao">Parametrização</a></li>
                             <?php endif; ?>
-                            <li><a href="/configuracao/dados">Meus Dados</a></li>
+                            <li><a href="/representacoes/configuracao/dados">Meus Dados</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="/login/logout.php">Sair</a></li>
+                            <li><a href="/representacoes/login/logout.php">Sair</a></li>
                         </ul>
                         <!-- Fim popup usuario -->
                     </li>
@@ -186,9 +186,9 @@
 <footer>
 </footer>
 
-<script src="/static/lib/jquery/dist/jquery.js"></script>
-<script src="/static/lib/bootstrap/dist/js/bootstrap.js"></script>
-<script src="/static/js/site.js"></script>
+<script src="/representacoes/static/lib/jquery/dist/jquery.js"></script>
+<script src="/representacoes/static/lib/bootstrap/dist/js/bootstrap.js"></script>
+<script src="/representacoes/static/js/site.js"></script>
 
 <?php include ROOT . $section_scripts; ?>
 </body>

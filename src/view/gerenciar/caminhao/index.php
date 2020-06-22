@@ -49,7 +49,7 @@
 
             <div class="col-sm-2">
                 <label for="novo">&nbsp;</label>
-                <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/gerenciar/caminhao/novo">NOVO</a>
+                <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/representacoes/gerenciar/caminhao/novo">NOVO</a>
             </div>
         </div>
 

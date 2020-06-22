@@ -317,7 +317,7 @@ class OrcamentoVenda
                 $row["orc_ven_id"],$row["orc_ven_descricao"],$row["orc_ven_data"],$row["orc_ven_nome_cliente"],$row["orc_ven_documento_cliente"],$row["orc_ven_telefone_cliente"],$row["orc_ven_celular_cliente"],$row["orc_ven_email_cliente"],$row["orc_ven_peso"],$row["orc_ven_valor"],$row["orc_ven_validade"],
                 Funcionario::getById($row["fun_id"]),
                 Cliente::getById($row["cli_id"]),
-                Cidade::getById($row["cid_id"]),
+                (new Cidade())->getById($row["cid_id"]),
                 Usuario::getById($row["usu_id"])
             );
         }

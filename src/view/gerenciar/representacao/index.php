@@ -56,7 +56,7 @@
 
             <div class="col-sm-2">
                 <label for="novo">&nbsp;</label>
-                <a role="button" id="novo" class="btn btn-success" style="width: 100%;" href="/gerenciar/representacao/novo">NOVO</a>
+                <a role="button" id="novo" class="btn btn-success" style="width: 100%;" href="/representacoes/gerenciar/representacao/novo">NOVO</a>
             </div>
         </div>
 

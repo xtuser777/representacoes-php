@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\util\Banco;
 use scr\model\Estado;
@@ -34,7 +38,7 @@ class FuncionarioNovoControl
     {
         if (!Banco::getInstance()->open()) return json_encode('Erro ao conectar-se com o banco de dados.');
 
-        $cid = Cidade::getById($cidade);
+        $cid = (new Cidade())->getById($cidade);
 
         Banco::getInstance()->getConnection()->begin_transaction();
         

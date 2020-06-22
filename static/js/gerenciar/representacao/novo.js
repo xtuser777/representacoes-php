@@ -1,29 +1,30 @@
-var cbestado = document.getElementById("cbestado");
-var cbcidade = document.getElementById("cbcidade");
+const cbestado = document.getElementById("cbestado");
+const cbcidade = document.getElementById("cbcidade");
 
 var lista_estados = [];
 var lista_cidades = [];
 var erros = 0;
 
 function limparEstados() {
-    for (var i = cbestado.childElementCount - 1; i > 0; i--) {
+    for (let i = cbestado.childElementCount - 1; i > 0; i--) {
         cbestado.children.item(i).remove();
     }
 }
 
 function carregarCidades() {
-    var form = new FormData();
+    let form = new FormData();
     form.append("estado", cbestado.value);
 
     $.ajax({
         type: 'POST',
-        url: '/cidade/obter-por-estado.php',
+        url: '/representacoes/cidade/obter-por-estado.php',
         data: form,
         contentType: false,
         processData: false,
         async: false,
         success: function (response) {lista_cidades = response;},
-        error: function (err) {
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
             mostraDialogo(
                 "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
                 "<br/>Um problema no servidor impediu sua comunicação...",
@@ -35,8 +36,8 @@ function carregarCidades() {
 
     limparCidades();
     if (lista_cidades !== "") {
-        for (var i = 0; i < lista_cidades.length; i++) {
-            var option = document.createElement("option");
+        for (let i = 0; i < lista_cidades.length; i++) {
+            let option = document.createElement("option");
             option.value = lista_cidades[i].id;
             option.text = lista_cidades[i].nome;
             cbcidade.appendChild(option);
@@ -55,7 +56,7 @@ function onCbEstadoChange() {
 }
 
 function limparCidades() {
-    for (var i = cbcidade.childElementCount - 1; i > 0; i--) {
+    for (let i = cbcidade.childElementCount - 1; i > 0; i--) {
         cbcidade.children.item(i).remove();
     }
 }
@@ -69,7 +70,8 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
             mostraDialogo(
                 "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
                 "<br/>Um problema no servidor impediu sua comunicação...",
@@ -87,11 +89,11 @@ $(document).ready(function () {
     $("#tel").mask('(00) 0000-0000', {reverse: false});
     $("#cel").mask('(00) 00000-0000', {reverse: false});
 
-    lista_estados = get('/estado/obter.php');
+    lista_estados = get('/representacoes/estado/obter.php');
     limparEstados();
     if (lista_estados !== "") {
-        for (var i = 0; i < lista_estados.length; i++) {
-            var option = document.createElement("option");
+        for (let i = 0; i < lista_estados.length; i++) {
+            let option = document.createElement("option");
             option.value = lista_estados[i].id;
             option.text = lista_estados[i].nome;
             cbestado.appendChild(option);
@@ -120,7 +122,7 @@ function limparCampos() {
 function verificarCnpj(cnpj) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/representacao/novo/verificar-cnpj.php',
+        url: '/representacoes/gerenciar/representacao/novo/verificar-cnpj.php',
         data: { cnpj: cnpj },
         async: false,
         success: function (response) {
@@ -131,7 +133,8 @@ function verificarCnpj(cnpj) {
                 $("#mscnpj").html('');
             }
         },
-        error: function () {
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
             mostraDialogo(
                 "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
                 "<br/>Um problema no servidor impediu sua comunicação...",
@@ -165,17 +168,17 @@ function validarCNPJ(cnpj) {
         return false;
 
     // Valida DVs
-    tamanho = cnpj.length - 2;
-    numeros = cnpj.substring(0,tamanho);
-    digitos = cnpj.substring(tamanho);
-    soma = 0;
-    pos = tamanho - 7;
-    for (i = tamanho; i >= 1; i--) {
+    let tamanho = cnpj.length - 2;
+    let numeros = cnpj.substring(0,tamanho);
+    let digitos = cnpj.substring(tamanho);
+    let soma = 0;
+    let pos = tamanho - 7;
+    for (let i = tamanho; i >= 1; i--) {
         soma += numeros.charAt(tamanho - i) * pos--;
         if (pos < 2)
             pos = 9;
     }
-    resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+    let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
     if (resultado.toString().charAt(0) !== digitos.charAt(0))
         return false;
 
@@ -183,51 +186,46 @@ function validarCNPJ(cnpj) {
     numeros = cnpj.substring(0,tamanho);
     soma = 0;
     pos = tamanho - 7;
-    for (i = tamanho; i >= 1; i--) {
+    for (let i = tamanho; i >= 1; i--) {
         soma += numeros.charAt(tamanho - i) * pos--;
         if (pos < 2)
             pos = 9;
     }
     resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
-    if (resultado.toString().charAt(0) !== digitos.charAt(1))
-        return false;
 
-    return true;
+    return resultado.toString().charAt(0) === digitos.charAt(1);
 }
 
 function validacaoEmail(email) {
-    usuario = email.substring(0, email.indexOf("@"));
-    dominio = email.substring(email.indexOf("@")+ 1, email.length);
-    if (
-        (usuario.length >=1) &&
-        (dominio.length >=3) &&
-        (usuario.search("@")===-1) &&
-        (dominio.search("@")===-1) &&
-        (usuario.search(" ")===-1) &&
-        (dominio.search(" ")===-1) &&
-        (dominio.search(".")!==-1) &&
-        (dominio.indexOf(".") >=1)&&
+    let usuario = email.substring(0, email.indexOf("@"));
+    let dominio = email.substring(email.indexOf("@")+ 1, email.length);
+
+    return (
+        (usuario.length >= 1) &&
+        (dominio.length >= 3) &&
+        (usuario.search("@") === -1) &&
+        (dominio.search("@") === -1) &&
+        (usuario.search(" ") === -1) &&
+        (dominio.search(" ") === -1) &&
+        (dominio.search(".") !== -1) &&
+        (dominio.indexOf(".") >= 1) &&
         (dominio.lastIndexOf(".") < dominio.length - 1)
-    ) {
-        return true;
-    } else {
-        return false;
-    }
+    );
 }
 
 function gravar() {
-    var razaosocial = $("#razao_social").val();
-    var nomefantasia = $("#nome_fantasia").val();
-    var cnpj = $("#cnpj").val();
-    var rua = $("#rua").val();
-    var numero = $("#numero").val();
-    var bairro = $("#bairro").val();
-    var complemento = $("#complemento").val();
-    var cep = $("#cep").val();
+    let razaosocial = $("#razao_social").val();
+    let nomefantasia = $("#nome_fantasia").val();
+    let cnpj = $("#cnpj").val();
+    let rua = $("#rua").val();
+    let numero = $("#numero").val();
+    let bairro = $("#bairro").val();
+    let complemento = $("#complemento").val();
+    let cep = $("#cep").val();
     let cidade = cbcidade.value;
-    var telefone = $("#tel").val();
-    var celular = $("#cel").val();
-    var email = $("#email").val();
+    let telefone = $("#tel").val();
+    let celular = $("#cel").val();
+    let email = $("#email").val();
 
     erros = 0;
 
@@ -340,7 +338,7 @@ function gravar() {
     }
 
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("razaosocial", razaosocial);
         form.append("nomefantasia", nomefantasia);
         form.append("cnpj", cnpj);
@@ -356,7 +354,7 @@ function gravar() {
 
         $.ajax({
             type: 'POST',
-            url: '/gerenciar/representacao/novo/gravar.php',
+            url: '/representacoes/gerenciar/representacao/novo/gravar.php',
             data: form,
             contentType: false,
             processData: false,
@@ -378,7 +376,8 @@ function gravar() {
                     limparCampos();
                 }
             },
-            error: function (http, status, thrown) {
+            error: function (xhr, status, thrown) {
+                console.error(thrown);
                 mostraDialogo(
                     "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
                     "<br/>"+thrown,

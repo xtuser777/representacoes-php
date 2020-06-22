@@ -1,3 +1,5 @@
 <?php
 
-header('Location: /inicio');
+$_SERVER["REQUEST_URI"];
+
+header('Location: /representacoes/inicio');

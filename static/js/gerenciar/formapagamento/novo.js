@@ -1,8 +1,8 @@
 function gravar() {
-    var desc = $("#desc").val();
-    var prazo = $("#prazo").val();
+    let desc = $("#desc").val();
+    let prazo = $("#prazo").val();
     
-    var erros = 0;
+    let erros = 0;
 
     if (desc === "") {
         erros++;
@@ -19,13 +19,13 @@ function gravar() {
     }
     
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("desc", desc);
         form.append("prazo", prazo);
 
         $.ajax({
             type: "POST",
-            url: "/gerenciar/formapagamento/novo/gravar.php",
+            url: "/representacoes/gerenciar/formapagamento/novo/gravar.php",
             data: form,
             contentType: false,
             processData: false,

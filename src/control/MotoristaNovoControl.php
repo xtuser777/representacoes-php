@@ -1,4 +1,7 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
 
 
 use scr\model\Cidade;
@@ -23,7 +26,7 @@ class MotoristaNovoControl
     public function gravar(string $nome, string $rg, string $cpf, string $nasc, string $banco, string $agencia, string $conta, int $tipo, string $tel, string $cel, string $email, string $rua, string $num, string $bairro, string $comp, string $cep, int $cid)
     {
         if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
-        $cidade = Cidade::getById($cid);
+        $cidade = (new Cidade())->getById($cid);
         Banco::getInstance()->getConnection()->begin_transaction();
         $endereco = new Endereco(
             0, $rua, $num, $bairro, $comp, $cep, $cidade

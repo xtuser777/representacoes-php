@@ -29,7 +29,7 @@
 
 <div class="row">
     <div class="col-sm-2">
-        <a role="button" class="btn btn-default" style="width: 100%;" href="/gerenciar/formapagamento">VOLTAR</a>
+        <a role="button" class="btn btn-default" style="width: 100%;" href="/representacoes/gerenciar/formapagamento">VOLTAR</a>
     </div>
 
     <div class="col-sm-8"></div>

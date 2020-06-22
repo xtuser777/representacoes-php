@@ -126,7 +126,7 @@
 
 <div class="row">
     <div class="col-sm-2">
-        <a role="button" id="voltar" class="btn btn-default" style="width: 100%;" href="/gerenciar/representacao">VOLTAR</a>
+        <a role="button" id="voltar" class="btn btn-default" style="width: 100%;" href="/representacoes/gerenciar/representacao">VOLTAR</a>
     </div>
 
     <div class="col-sm-6"></div>

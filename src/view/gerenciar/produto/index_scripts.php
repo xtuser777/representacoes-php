@@ -1,2 +1,2 @@
-<script type="text/javascript" src="/static/lib/bootbox/bootbox.min.js"></script>
-<script type="text/javascript" src="/static/js/gerenciar/produto/index.js"></script>
+<script type="text/javascript" src="/representacoes/static/lib/bootbox/bootbox.min.js"></script>
+<script type="text/javascript" src="/representacoes/static/js/gerenciar/produto/index.js"></script>

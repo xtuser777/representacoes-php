@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\Cidade;
 use scr\model\Contato;
@@ -25,7 +29,7 @@ class RepresentacaoNovoControl
     {
         if (!Banco::getInstance()->open()) return json_encode('Erro ao conectar-se ao banco de dados.');
 
-        $cidade = Cidade::getById($cid);
+        $cidade = (new Cidade())->getById($cid);
 
         Banco::getInstance()->getConnection()->begin_transaction();
 

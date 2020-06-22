@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\Cidade;
 use scr\model\Contato;
@@ -32,7 +36,7 @@ class MotoristaDetalhesControl
     public function alterar(int $end, int $ctt, int $pes, int $dad, int $mot, string $nome, string $rg, string $cpf, string $nasc, string $banco, string $agencia, string $conta, int $tipo, string $tel, string $cel, string $email, string $rua, string $num, string $bairro, string $comp, string $cep, int $cid)
     {
         if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
-        $cidade = Cidade::getById($cid);
+        $cidade = (new Cidade())->getById($cid);
         Banco::getInstance()->getConnection()->begin_transaction();
         $endereco = new Endereco($end,$rua,$num,$bairro,$comp,$cep,$cidade);
         $re = $endereco->update();

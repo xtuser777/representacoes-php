@@ -67,7 +67,10 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err);}
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
+            alert(thrown);
+        }
     });
 
     return res;
@@ -80,7 +83,7 @@ function buttonFiltrarProdClick() {
     } else {
         $.ajax({
             type: "POST",
-            url: "/orcamento/venda/novo/item/obter-por-filtro.php",
+            url: "/representacoes/orcamento/venda/novo/item/obter-por-filtro.php",
             data: { filtro: filtro },
             async: false,
             success: (response) => { preencheTabelaProd(response); },
@@ -253,7 +256,7 @@ function adicionarItem() {
 }
 
 function obterProdutos() {
-    let produtos = get("/orcamento/venda/novo/item/obter.php");
+    let produtos = get("/representacoes/orcamento/venda/novo/item/obter.php");
     preencheTabelaProd(produtos);
 }
 

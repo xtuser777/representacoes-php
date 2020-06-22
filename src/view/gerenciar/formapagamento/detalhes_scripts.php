@@ -1,1 +1,1 @@
-<script type="text/javascript" src="/static/js/gerenciar/formapagamento/detalhes.js"></script>
+<script type="text/javascript" src="/representacoes/static/js/gerenciar/formapagamento/detalhes.js"></script>

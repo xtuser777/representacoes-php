@@ -1,10 +1,10 @@
 var nivel_atual = "";
         
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
-        var tipo = (this.funcionario.tipo === 1) ? "Interno" : "Vendedor";
-        var ativo = (this.ativo === true) ? "Sim" : "Não";
+        let tipo = (this.funcionario.tipo === 1) ? "Interno" : "Vendedor";
+        let ativo = (this.ativo === true) ? "Sim" : "Não";
         txt += 
             '<tr>\
                 <td class="hidden">' + this.id + '</td>\
@@ -29,11 +29,11 @@ function preencherTabela(dados) {
 }
 
 function ordenarLista() {
-    var ord = $("#cbord").val();
+    let ord = $("#cbord").val();
 
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/funcionario/ordenar.php',
+        url: '/representacoes/gerenciar/funcionario/ordenar.php',
         async: false,
         data: { col: ord },
         success: function (response) { preencherTabela(response); },
@@ -56,7 +56,7 @@ function get(url_i) {
 }
 
 function obterFuncionarios() {
-    var data = get("/gerenciar/funcionario/obter.php");
+    let data = get("/representacoes/gerenciar/funcionario/obter.php");
     preencherTabela(data);
 }
 
@@ -65,13 +65,13 @@ $(document).ready(function (event) {
 });
 
 function verificarAdmin() {
-    var data = get("/gerenciar/funcionario/is-last-admin.php");
+    let data = get("/representacoes/gerenciar/funcionario/is-last-admin.php");
     return (data === true && nivel_atual === "Administrador");
 }
 
 function filtrarFuncionarios() {
-    var filtro = $("#filtro").val();
-    var admissao = $("#filtro_adm").val();
+    let filtro = $("#filtro").val();
+    let admissao = $("#filtro_adm").val();
 
     if (filtro === "" && admissao === "") {
         obterFuncionarios();
@@ -79,7 +79,7 @@ function filtrarFuncionarios() {
         if (filtro !== "" && admissao !== "") {
             $.ajax({
                 type: 'POST',
-                url: '/gerenciar/funcionario/obter-por-chave-adm.php',
+                url: '/representacoes/gerenciar/funcionario/obter-por-chave-adm.php',
                 data: { chave: filtro, adm: admissao },
                 success: function (response) {
                     if (response != null && response !== ""){
@@ -94,7 +94,7 @@ function filtrarFuncionarios() {
             if (filtro !== "") {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/funcionario/obter-por-chave.php',
+                    url: '/representacoes/gerenciar/funcionario/obter-por-chave.php',
                     data: { chave: filtro },
                     success: function (response) {
                         if (response != null && response !== ""){
@@ -109,7 +109,7 @@ function filtrarFuncionarios() {
                 if (admissao !== ""){
                     $.ajax({
                         type: 'POST',
-                        url: '/gerenciar/funcionario/obter-por-adm.php',
+                        url: '/representacoes/gerenciar/funcionario/obter-por-adm.php',
                         data: { adm: admissao },
                         success: function (response) {
                             if (response != null && response !== ""){
@@ -148,7 +148,7 @@ function excluir(id, nivel) {
                 if (result) {
                     $.ajax({
                         type: 'POST',
-                        url: '/gerenciar/funcionario/excluir.php',
+                        url: '/representacoes/gerenciar/funcionario/excluir.php',
                         data: {id: id},
                         success: function (result) {
                             if (result.length > 0) {
@@ -196,7 +196,7 @@ function desativar(id, nivel) {
                 if (result) {
                     $.ajax({
                         type: 'POST',
-                        url: '/gerenciar/funcionario/desativar.php',
+                        url: '/representacoes/gerenciar/funcionario/desativar.php',
                         data: {id: id},
                         success: function (result) {
                             if (result === '') {
@@ -234,7 +234,7 @@ function reativar(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/funcionario/reativar.php',
+                    url: '/representacoes/gerenciar/funcionario/reativar.php',
                     data: { id: id },
                     success: function (result) {
                         if (result === '') {
@@ -257,12 +257,12 @@ function reativar(id) {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/funcionario/enviar.php',
+        url: '/representacoes/gerenciar/funcionario/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);
             else {
-                window.location.href = "../../gerenciar/funcionario/detalhes.php";
+                window.location.href = "../../gerenciar/funcionario/detalhes";
             }
         },
         error: function (XMLHttpRequest, txtStatus, errorThrown) {

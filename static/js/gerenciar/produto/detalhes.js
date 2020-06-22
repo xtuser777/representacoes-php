@@ -15,7 +15,7 @@ function get(url_i) {
 }
 
 $(document).ready(function (event) {
-    var dados = get("/gerenciar/produto/detalhes/obter.php");
+    let dados = get("/representacoes/gerenciar/produto/detalhes/obter.php");
     if (dados === null || dados === {}) {
         alert("Nenhum produto selecionado");
         location.href = "../index.php";
@@ -25,11 +25,11 @@ $(document).ready(function (event) {
     $('#preco').mask('00,000,000.00', { reverse: true });
     $('#preco_out').mask('00,000,000.00', { reverse: true });
 
-    var representacao = document.getElementById("representacao");
-    var representacoes = get("/gerenciar/produto/detalhes/obter-representacoes.php");
+    let representacao = document.getElementById("representacao");
+    let representacoes = get("/representacoes/gerenciar/produto/detalhes/obter-representacoes.php");
     if (representacoes != null && representacoes !== "") {
-        for (var i = 0; i < representacoes.length; i++) {
-            var option = document.createElement("option");
+        for (let i = 0; i < representacoes.length; i++) {
+            let option = document.createElement("option");
             option.value = representacoes[i].id;
             option.text = representacoes[i].pessoa.nomeFantasia + " (" + representacoes[i].unidade + ")";
             representacao.appendChild(option);
@@ -104,7 +104,7 @@ function gravar() {
 
         $.ajax({
             type: "POST",
-            url: "/gerenciar/produto/detalhes/alterar.php",
+            url: "/representacoes/gerenciar/produto/detalhes/alterar.php",
             data: form,
             contentType: false,
             processData: false,

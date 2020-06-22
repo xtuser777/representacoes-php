@@ -16,13 +16,13 @@ function get(url_i) {
 }
 
 $(document).ready(function (event) {
-    let tipos = get('/gerenciar/caminhao/novo/obter-tipos.php');
+    let tipos = get('/representacoes/gerenciar/caminhao/novo/obter-tipos.php');
     if (tipos === null || tipos.length === 0) {
         alert("Não existem tipos de caminhão cadastrados.");
         location.href = "../caminhao";
     }
 
-    let props = get('/gerenciar/caminhao/novo/obter-proprietarios.php');
+    let props = get('/representacoes/gerenciar/caminhao/novo/obter-proprietarios.php');
     if (props === null || props.length === 0) {
         alert("Não existem proprietários cadastrados.");
         location.href = "../caminhao";
@@ -152,7 +152,7 @@ function gravar() {
 
         $.ajax({
             type: "POST",
-            url: "/gerenciar/caminhao/novo/gravar.php",
+            url: "/representacoes/gerenciar/caminhao/novo/gravar.php",
             data: form,
             contentType: false,
             processData: false,

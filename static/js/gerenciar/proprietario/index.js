@@ -5,7 +5,7 @@ const tableProprietarios = document.getElementById("table_proprietarios");
 const tbodyProprietarios = document.getElementById("tbody_proprietarios");
 
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
         let nome = (this.tipo === 1) ? this.pessoaFisica.nome : this.pessoaJuridica.nomeFantasia;
         let doc = (this.tipo === 1) ? this.pessoaFisica.cpf : this.pessoaJuridica.cnpj;
@@ -25,15 +25,18 @@ function preencherTabela(dados) {
 }
 
 function ordenar() {
-    var ord = $(selectOrd).val();
+    let ord = $(selectOrd).val();
 
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/proprietario/ordenar.php',
+        url: '/representacoes/gerenciar/proprietario/ordenar.php',
         async: false,
         data: { col : ord },
         success: function (response) { preencherTabela(response); },
-        error: function () { alert("Ocorreu um problema ao comunicar-se com o servidor..."); }
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
+            alert("Ocorreu um problema ao comunicar-se com o servidor...");
+        }
     });
 }
 
@@ -48,11 +51,12 @@ function get(url_i) {
         success: function (result) {res = result;},
         error: function (XMLHttpRequest, txtStatus, errorThrown) { console.error(errorThrown); }
     });
+
     return res;
 }
 
 function obter() {
-    var data = get("/gerenciar/proprietario/obter.php");
+    let data = get("/representacoes/gerenciar/proprietario/obter.php");
     preencherTabela(data);
 }
 
@@ -61,8 +65,8 @@ $(document).ready(function (event) {
 });
 
 function filtrar() {
-    var filtro = textFiltro.value.toString();
-    var cadastro = textFiltroCad.value.toString();
+    let filtro = textFiltro.value.toString();
+    let cadastro = textFiltroCad.value.toString();
 
     if (filtro === "" && cadastro === "") {
         obter();
@@ -70,14 +74,15 @@ function filtrar() {
         if (filtro !== "" && cadastro !== "") {
             $.ajax({
                 type: 'POST',
-                url: '/gerenciar/proprietario/obter-por-filtro-cad.php',
+                url: '/representacoes/gerenciar/proprietario/obter-por-filtro-cad.php',
                 data: { filtro: filtro, cad: cadastro },
                 success: function (response) {
                     if (response != null && response !== ""){
                         preencherTabela(response);
                     }
                 },
-                error: function () {
+                error: function (xhr, status, thrown) {
+                    console.error(thrown);
                     alert("Ocorreu um erro ao comunicar-se com o servidor...");
                 }
             });
@@ -85,14 +90,15 @@ function filtrar() {
             if (filtro !== "") {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/proprietario/obter-por-filtro.php',
+                    url: '/representacoes/gerenciar/proprietario/obter-por-filtro.php',
                     data: { filtro: filtro },
                     success: function (response) {
                         if (response != null && response !== ""){
                             preencherTabela(response);
                         }
                     },
-                    error: function () {
+                    error: function (xhr, status, thrown) {
+                        console.error(thrown);
                         alert("Ocorreu um erro ao comunicar-se com o servidor...");
                     }
                 });
@@ -100,14 +106,15 @@ function filtrar() {
                 if (cadastro !== ""){
                     $.ajax({
                         type: 'POST',
-                        url: '/gerenciar/proprietario/obter-por-cadastro.php',
+                        url: '/representacoes/gerenciar/proprietario/obter-por-cadastro.php',
                         data: { cad: cadastro },
                         success: function (response) {
                             if (response != null && response !== ""){
                                 preencherTabela(response);
                             }
                         },
-                        error: function () {
+                        error: function (xhr, status, thrown) {
+                            console.error(thrown);
                             alert("Ocorreu um erro ao comunicar-se com o servidor...");
                         }
                     });
@@ -135,7 +142,7 @@ function excluir(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/proprietario/excluir.php',
+                    url: '/representacoes/gerenciar/proprietario/excluir.php',
                     data: {id: id},
                     success: function (result) {
                         if (result.length > 0) {
@@ -157,7 +164,7 @@ function excluir(id) {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/proprietario/enviar.php',
+        url: '/representacoes/gerenciar/proprietario/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);

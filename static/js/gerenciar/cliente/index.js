@@ -1,10 +1,10 @@
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
-        var nome = (this.tipo === 1) ? this.pessoaFisica.nome : this.pessoaJuridica.nomeFantasia;
-        var doc = (this.tipo === 1) ? this.pessoaFisica.cpf : this.pessoaJuridica.cnpj;
-        var email = (this.tipo === 1) ? this.pessoaFisica.contato.email : this.pessoaJuridica.contato.email;
-        var tipo = (this.tipo === 1) ? "Física" : "Jurídica";
+        let nome = (this.tipo === 1) ? this.pessoaFisica.nome : this.pessoaJuridica.nomeFantasia;
+        let doc = (this.tipo === 1) ? this.pessoaFisica.cpf : this.pessoaJuridica.cnpj;
+        let email = (this.tipo === 1) ? this.pessoaFisica.contato.email : this.pessoaJuridica.contato.email;
+        let tipo = (this.tipo === 1) ? "Física" : "Jurídica";
         txt +=
             '<tr>\
                 <td class="hidden">' + this.id + '</td>\
@@ -21,11 +21,11 @@ function preencherTabela(dados) {
 }
 
 function ordenar() {
-    var ord = $("#cbord").val();
+    let ord = $("#cbord").val();
 
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/cliente/ordenar.php',
+        url: '/representacoes/gerenciar/cliente/ordenar.php',
         async: false,
         data: { col : ord },
         success: function (response) { preencherTabela(response); },
@@ -48,7 +48,7 @@ function get(url_i) {
 }
 
 function obter() {
-    var data = get("/gerenciar/cliente/obter.php");
+    let data = get("/representacoes/gerenciar/cliente/obter.php");
     preencherTabela(data);
 }
 
@@ -57,8 +57,8 @@ $(document).ready(function (event) {
 });
 
 function filtrar() {
-    var filtro = $("#filtro").val();
-    var cadastro = $("#filtro_cad").val();
+    let filtro = $("#filtro").val();
+    let cadastro = $("#filtro_cad").val();
 
     if (filtro === "" && cadastro === "") {
         obter();
@@ -66,7 +66,7 @@ function filtrar() {
         if (filtro !== "" && cadastro !== "") {
             $.ajax({
                 type: 'POST',
-                url: '/gerenciar/cliente/obter-por-chave-cad.php',
+                url: '/representacoes/gerenciar/cliente/obter-por-chave-cad.php',
                 data: { chave: filtro, cad: cadastro },
                 success: function (response) {
                     if (response != null && response !== ""){
@@ -81,7 +81,7 @@ function filtrar() {
             if (filtro !== "") {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/cliente/obter-por-chave.php',
+                    url: '/representacoes/gerenciar/cliente/obter-por-chave.php',
                     data: { chave: filtro },
                     success: function (response) {
                         if (response != null && response !== ""){
@@ -96,7 +96,7 @@ function filtrar() {
                 if (cadastro !== ""){
                     $.ajax({
                         type: 'POST',
-                        url: '/gerenciar/cliente/obter-por-cadastro.php',
+                        url: '/representacoes/gerenciar/cliente/obter-por-cadastro.php',
                         data: { cad: cadastro },
                         success: function (response) {
                             if (response != null && response !== ""){
@@ -130,7 +130,7 @@ function excluir(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/cliente/excluir.php',
+                    url: '/representacoes/gerenciar/cliente/excluir.php',
                     data: {id: id},
                     success: function (result) {
                         if (result === "") {
@@ -152,7 +152,7 @@ function excluir(id) {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/cliente/enviar.php',
+        url: '/representacoes/gerenciar/cliente/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);

@@ -9,13 +9,17 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err.d);}
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
+            alert(thrown);
+        }
     });
+
     return res;
 }
 
 $(document).ready(function (event) {
-    var dados = get("/gerenciar/formapagamento/detalhes/obter.php");
+    let dados = get("/representacoes/gerenciar/formapagamento/detalhes/obter.php");
     if (dados !== "") {
         _forma = dados.id;
         $("#desc").val(dados.descricao);
@@ -24,10 +28,10 @@ $(document).ready(function (event) {
 });
 
 function gravar() {
-    var desc = $("#desc").val();
-    var prazo = $("#prazo").val();
+    let desc = $("#desc").val();
+    let prazo = $("#prazo").val();
     
-    var erros = 0;
+    let erros = 0;
 
     if (desc === "") {
         erros++;
@@ -44,14 +48,14 @@ function gravar() {
     }
     
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("forma", _forma);
         form.append("desc", desc);
         form.append("prazo", prazo);
 
         $.ajax({
             type: "POST",
-            url: "/gerenciar/formapagamento/detalhes/alterar.php",
+            url: "/representacoes/gerenciar/formapagamento/detalhes/alterar.php",
             data: form,
             contentType: false,
             processData: false,

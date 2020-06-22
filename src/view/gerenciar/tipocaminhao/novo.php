@@ -38,7 +38,7 @@
 
 <div class="row">
     <div class="col-sm-2">
-        <a role="button" class="btn btn-default" style="width: 100%;" href="/gerenciar/tipocaminhao">VOLTAR</a>
+        <a role="button" class="btn btn-default" style="width: 100%;" href="/representacoes/gerenciar/tipocaminhao">VOLTAR</a>
     </div>
 
     <div class="col-sm-6"></div>

@@ -1,5 +1,5 @@
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
         txt += 
             '<tr>\
@@ -23,13 +23,17 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err.d);}
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
+            alert(thrown);
+        }
     });
+
     return res;
 }
 
 function obterTipos() {
-    var dados = get("/gerenciar/tipocaminhao/obter.php");
+    let dados = get("/representacoes/gerenciar/tipocaminhao/obter.php");
 
     preencherTabela(dados);
 }
@@ -39,14 +43,14 @@ $(document).ready(function (event) {
 });
 
 function filtrarTipos() {
-    var filtro = $("#filtro").val();
+    let filtro = $("#filtro").val();
     
     if (filtro === "") {
         obterTipos();
     } else {
         $.ajax({
             type: "POST",
-            url: "/gerenciar/tipocaminhao/obter-por-chave.php",
+            url: "/representacoes/gerenciar/tipocaminhao/obter-por-chave.php",
             data: { filtro: filtro },
             async: false,
             success: function (result) {
@@ -65,11 +69,11 @@ function filtrarTipos() {
 }
 
 function ordenarTipos() {
-    var ord = $("#cbord").val();
+    let ord = $("#cbord").val();
 
     $.ajax({
         type: "POST",
-        url: "/gerenciar/tipocaminhao/ordenar.php",
+        url: "/representacoes/gerenciar/tipocaminhao/ordenar.php",
         data: { col: ord },
         async: false,
         success: function (result) {
@@ -89,7 +93,7 @@ function ordenarTipos() {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/tipocaminhao/enviar.php',
+        url: '/representacoes/gerenciar/tipocaminhao/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);
@@ -125,7 +129,7 @@ function excluir(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/tipocaminhao/excluir.php',
+                    url: '/representacoes/gerenciar/tipocaminhao/excluir.php',
                     data: { id: id },
                     success: function (result) {
                         if (result === "") {

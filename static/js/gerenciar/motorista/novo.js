@@ -1,23 +1,23 @@
-var cbestado = document.getElementById("cbestado");
-var cbcidade = document.getElementById("cbcidade");
+const cbestado = document.getElementById("cbestado");
+const cbcidade = document.getElementById("cbcidade");
 
 var lista_estados = [];
 var lista_cidades = [];
 var erros = 0;
 
 function limparEstados() {
-    for (var i = cbestado.childElementCount - 1; i > 0; i--) {
+    for (let i = cbestado.childElementCount - 1; i > 0; i--) {
         cbestado.children.item(i).remove();
     }
 }
 
 function carregarCidades() {
-    var form = new FormData();
+    let form = new FormData();
     form.append("estado", cbestado.value);
 
     $.ajax({
         type: 'POST',
-        url: '/cidade/obter-por-estado.php',
+        url: '/representacoes/cidade/obter-por-estado.php',
         data: form,
         contentType: false,
         processData: false,
@@ -35,8 +35,8 @@ function carregarCidades() {
 
     limparCidades();
     if (lista_cidades !== "") {
-        for (var i = 0; i < lista_cidades.length; i++) {
-            var option = document.createElement("option");
+        for (let i = 0; i < lista_cidades.length; i++) {
+            let option = document.createElement("option");
             option.value = lista_cidades[i].id;
             option.text = lista_cidades[i].nome;
             cbcidade.appendChild(option);
@@ -55,7 +55,7 @@ function onCbEstadoChange() {
 }
 
 function limparCidades() {
-    for (var i = cbcidade.childElementCount - 1; i > 0; i--) {
+    for (let i = cbcidade.childElementCount - 1; i > 0; i--) {
         cbcidade.children.item(i).remove();
     }
 }
@@ -90,11 +90,11 @@ $(document).ready(function () {
     $("#tel").mask('(00) 0000-0000', {reverse: false});
     $("#cel").mask('(00) 00000-0000', {reverse: false});
 
-    lista_estados = get('/estado/obter.php');
+    lista_estados = get('/representacoes/estado/obter.php');
     limparEstados();
     if (lista_estados !== "") {
-        for (var i = 0; i < lista_estados.length; i++) {
-            var option = document.createElement("option");
+        for (let i = 0; i < lista_estados.length; i++) {
+            let option = document.createElement("option");
             option.value = lista_estados[i].id;
             option.text = lista_estados[i].nome;
             cbestado.appendChild(option);
@@ -126,7 +126,7 @@ function limpar() {
 function verificarCpf(cpf) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/motorista/novo/verificar-cpf.php',
+        url: '/representacoes/gerenciar/motorista/novo/verificar-cpf.php',
         data: { cpf: cpf },
         async: false,
         success: function (response) {
@@ -154,76 +154,75 @@ function validarCpf(cpf) {
         return false;
     }
     // Elimina CPFs invalidos conhecidos
-    if (cpf.length != 11 || cpf == "00000000000" || cpf == "11111111111" || cpf == "22222222222" || cpf == "33333333333" || cpf == "44444444444" || cpf == "55555555555" || cpf == "66666666666" || cpf == "77777777777" || cpf == "88888888888" || cpf == "99999999999") {
+    if (
+        cpf.length !== 11 || cpf === "00000000000" || cpf === "11111111111" || cpf === "22222222222"
+        || cpf === "33333333333" || cpf === "44444444444" || cpf === "55555555555" || cpf === "66666666666"
+        || cpf === "77777777777" || cpf === "88888888888" || cpf === "99999999999"
+    ) {
         return false;
     }
     // Valida 1o digito
-    add = 0;
-    for (i = 0; i < 9; i++) {
+    let add = 0;
+    for (let i = 0; i < 9; i++) {
         add += parseInt(cpf.charAt(i)) * (10 - i);
     }
-    rev = 11 - (add % 11);
-    if (rev == 10 || rev == 11) {
+    let rev = 11 - (add % 11);
+    if (rev === 10 || rev === 11) {
         rev = 0;
     }
-    if (rev != parseInt(cpf.charAt(9))) {
+    if (rev !== parseInt(cpf.charAt(9))) {
         return false;
     }
     // Valida 2o digito
     add = 0;
-    for (i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i++) {
         add += parseInt(cpf.charAt(i)) * (11 - i);
     }
     rev = 11 - (add % 11);
-    if (rev == 10 || rev == 11) {
+    if (rev === 10 || rev === 11) {
         rev = 0;
     }
-    if (rev != parseInt(cpf.charAt(10))) {
-        return false;
-    }
-    return true;
+
+    return rev === parseInt(cpf.charAt(10));
 }
 
 function validacaoEmail(email) {
-    usuario = email.substring(0, email.indexOf("@"));
-    dominio = email.substring(email.indexOf("@")+ 1, email.length);
-    if (
-        (usuario.length >=1) &&
-        (dominio.length >=3) &&
-        (usuario.search("@")===-1) &&
-        (dominio.search("@")===-1) &&
-        (usuario.search(" ")===-1) &&
-        (dominio.search(" ")===-1) &&
-        (dominio.search(".")!==-1) &&
-        (dominio.indexOf(".") >=1)&&
+    let usuario = email.substring(0, email.indexOf("@"));
+    let dominio = email.substring(email.indexOf("@")+ 1, email.length);
+
+    return (
+        (usuario.length >= 1) &&
+        (dominio.length >= 3) &&
+        (usuario.search("@") === -1) &&
+        (dominio.search("@") === -1) &&
+        (usuario.search(" ") === -1) &&
+        (dominio.search(" ") === -1) &&
+        (dominio.search(".") !== -1) &&
+        (dominio.indexOf(".") >= 1) &&
         (dominio.lastIndexOf(".") < dominio.length - 1)
-    ) {
-        return true;
-    } else {
-        return false;
-    }
+    );
 }
 
 function gravar() {
-    var nome = $("#nome").val();
-    var nasc = $("#nasc").val();
-    var rg = $("#rg").val();
-    var cpf = $("#cpf").val();
-    var banco = $("#banco").val();
-    var agencia = $("#agencia").val();
-    var conta = $("#conta").val();
-    var tipo = $("#tipo").val();
-    var rua = $("#rua").val();
-    var numero = $("#numero").val();
-    var bairro = $("#bairro").val();
-    var complemento = $("#complemento").val();
-    var cep = $("#cep").val();
+    let nome = $("#nome").val();
+    let nasc = $("#nasc").val();
+    let rg = $("#rg").val();
+    let cpf = $("#cpf").val();
+    let banco = $("#banco").val();
+    let agencia = $("#agencia").val();
+    let conta = $("#conta").val();
+    let tipo = $("#tipo").val();
+    let rua = $("#rua").val();
+    let numero = $("#numero").val();
+    let bairro = $("#bairro").val();
+    let complemento = $("#complemento").val();
+    let cep = $("#cep").val();
     let cidade = cbcidade.value;
-    var telefone = $("#tel").val();
-    var celular = $("#cel").val();
-    var email = $("#email").val();
+    let telefone = $("#tel").val();
+    let celular = $("#cel").val();
+    let email = $("#email").val();
 
-    var dataNasc = new Date(nasc);
+    let dataNasc = new Date(nasc);
 
     erros = 0;
 
@@ -376,7 +375,7 @@ function gravar() {
     }
 
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("nome", nome);
         form.append("nasc", nasc);
         form.append("rg", rg);
@@ -397,7 +396,7 @@ function gravar() {
 
         $.ajax({
             type: 'POST',
-            url: '/gerenciar/motorista/novo/gravar.php',
+            url: '/representacoes/gerenciar/motorista/novo/gravar.php',
             data: form,
             contentType: false,
             processData: false,

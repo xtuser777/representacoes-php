@@ -7,13 +7,14 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err.d);}
+        error: function (xhr, status, thrown) {alert(thrown);}
     });
+
     return res;
 }
 
 $(document).ready(function (event) {
-    var representacoes = get("/gerenciar/produto/novo/obter-representacoes.php");
+    let representacoes = get("/representacoes/gerenciar/produto/novo/obter-representacoes.php");
     if (representacoes.length === 0) {
         alert("Não há representações cadastradas.");
         location.href = "../../inicio";
@@ -23,10 +24,10 @@ $(document).ready(function (event) {
     $('#preco').mask('00,000,000.00', { reverse: true });
     $('#preco_out').mask('00,000,000.00', { reverse: true });
 
-    var representacao = document.getElementById("representacao");
-    if (representacoes != null && representacoes !== "") {
-        for (var i = 0; i < representacoes.length; i++) {
-            var option = document.createElement("option");
+    let representacao = document.getElementById("representacao");
+    if (representacoes !== null && representacoes.length > 0) {
+        for (let i = 0; i < representacoes.length; i++) {
+            let option = document.createElement("option");
             option.value = representacoes[i].id;
             option.text = representacoes[i].pessoa.nomeFantasia + " (" + representacoes[i].unidade + ")";
             representacao.appendChild(option);
@@ -90,7 +91,7 @@ function gravar() {
 
         $.ajax({
             type: "POST",
-            url: "/gerenciar/produto/novo/gravar.php",
+            url: "/representacoes/gerenciar/produto/novo/gravar.php",
             data: form,
             contentType: false,
             processData: false,

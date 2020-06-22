@@ -1,5 +1,5 @@
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
         txt +=
             '<tr>\
@@ -31,7 +31,7 @@ function get(url_i) {
 }
 
 function obter() {
-    var dados = get("/gerenciar/caminhao/obter.php");
+    var dados = get("/representacoes/gerenciar/caminhao/obter.php");
 
     preencherTabela(dados);
 }
@@ -41,14 +41,14 @@ $(document).ready(function (event) {
 });
 
 function filtrar() {
-    var filtro = $("#filtro").val();
+    let filtro = $("#filtro").val();
 
     if (filtro === "") {
         obter();
     } else {
         $.ajax({
             type: "POST",
-            url: "/gerenciar/caminhao/obter-por-chave.php",
+            url: "/representacoes/gerenciar/caminhao/obter-por-chave.php",
             data: { chave: filtro },
             async: false,
             success: function (result) {
@@ -71,7 +71,7 @@ function ordenar() {
 
     $.ajax({
         type: "POST",
-        url: "/gerenciar/caminhao/ordenar.php",
+        url: "/representacoes/gerenciar/caminhao/ordenar.php",
         data: { col: coluna },
         async: false,
         success: function (result) {
@@ -91,7 +91,7 @@ function ordenar() {
 function alterar(id) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/caminhao/enviar.php',
+        url: '/representacoes/gerenciar/caminhao/enviar.php',
         data: { id: id },
         success: function (result) {
             if (result.length > 0) alert(result);
@@ -127,7 +127,7 @@ function excluir(id) {
             if (result) {
                 $.ajax({
                     type: 'POST',
-                    url: '/gerenciar/caminhao/excluir.php',
+                    url: '/representacoes/gerenciar/caminhao/excluir.php',
                     data: { id: id },
                     success: function (result) {
                         if (result === "") {

@@ -3,7 +3,7 @@
 require_once '../../header.php';
 
 if (!isset($_SESSION['USER_ID'])) {
-    header('Location: /login');
+    header('Location: /representacoes/login');
 }
 
 ?>
@@ -14,13 +14,13 @@ if (!isset($_SESSION['USER_ID'])) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link rel="icon" type="image/png" href="/static/images/logo.png">
+        <link rel="icon" type="image/png" href="/representacoes/static/images/logo.png">
 
         <title>Gerenciar Orçamentos de Vendas - Sistema de Controle de Representações</title>
 
-        <link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" type="text/css" href="/static/lib/fancybox/jquery.fancybox.min.css"/>
-        <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+        <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/fancybox/jquery.fancybox.min.css"/>
+        <link rel="stylesheet" type="text/css" href="/representacoes/static/css/style.css" />
     </head>
 
     <body>
@@ -40,7 +40,7 @@ if (!isset($_SESSION['USER_ID'])) {
                             <span class="icon-bar"></span>
                         </button>
 
-                        <a style="color: #fff; font-weight: bold;" class="navbar-brand" href="/inicio">SCR</a>
+                        <a style="color: #fff; font-weight: bold;" class="navbar-brand" href="/representacoes/inicio">SCR</a>
 
                     </div>
 
@@ -52,7 +52,7 @@ if (!isset($_SESSION['USER_ID'])) {
 
                             <!-- Botao inicio -->
                             <li>
-                                <a style="color: #fff;" class="font-navbar" href="/inicio">Início</a>
+                                <a style="color: #fff;" class="font-navbar" href="/representacoes/inicio">Início</a>
                             </li>
                             <!-- Fim botao inicio -->
                             <!-- Botao gerenciar -->
@@ -61,17 +61,17 @@ if (!isset($_SESSION['USER_ID'])) {
                                 <!-- Popup botao gerenciar -->
                                 <ul class="dropdown-menu">
                                     <?php if ($_SESSION['USER_LEVEL'] == '1'): ?>
-                                        <li><a href="/gerenciar/funcionario">Funcionários</a></li>
+                                        <li><a href="/representacoes/gerenciar/funcionario">Funcionários</a></li>
                                     <?php endif ?>
-                                    <li><a href="/gerenciar/cliente">Clientes</a></li>
-                                    <li><a href="/gerenciar/motorista">Motoristas</a></li>
-                                    <li><a href="/gerenciar/proprietario">Proprietários de Caminhões</a></li>
-                                    <li><a href="/gerenciar/caminhao">Caminhões</a></li>
-                                    <li><a href="/gerenciar/representacao">Representações</a></li>
-                                    <li><a href="/gerenciar/produto">Produtos</a></li>
-                                    <li><a href="/gerenciar/tipocaminhao">Tipos de Caminhão</a></li>
-                                    <li><a href="/gerenciar/categoria">Categorias de Contas</a></li>
-                                    <li><a href="/gerenciar/formapagamento">Formas de Pagamento</a></li>
+                                    <li><a href="/representacoes/gerenciar/cliente">Clientes</a></li>
+                                    <li><a href="/representacoes/gerenciar/motorista">Motoristas</a></li>
+                                    <li><a href="/representacoes/gerenciar/proprietario">Proprietários de Caminhões</a></li>
+                                    <li><a href="/representacoes/gerenciar/caminhao">Caminhões</a></li>
+                                    <li><a href="/representacoes/gerenciar/representacao">Representações</a></li>
+                                    <li><a href="/representacoes/gerenciar/produto">Produtos</a></li>
+                                    <li><a href="/representacoes/gerenciar/tipocaminhao">Tipos de Caminhão</a></li>
+                                    <li><a href="/representacoes/gerenciar/categoria">Categorias de Contas</a></li>
+                                    <li><a href="/representacoes/gerenciar/formapagamento">Formas de Pagamento</a></li>
                                 </ul>
                                 <!-- Fim popup botao gerenciar -->
                             </li>
@@ -81,8 +81,8 @@ if (!isset($_SESSION['USER_ID'])) {
                                 <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Orçamento <span class="caret"></span></a>
                                 <!-- Popup botao orcamento -->
                                 <ul class="dropdown-menu">
-                                    <li><a href="/orcamento/venda">Venda</a></li>
-                                    <li><a href="/orcamento/frete">Frete</a></li>
+                                    <li><a href="/representacoes/orcamento/venda">Venda</a></li>
+                                    <li><a href="/representacoes/orcamento/frete">Frete</a></li>
                                 </ul>
                                 <!-- Fim popup botao orcamento -->
                             </li>
@@ -153,7 +153,7 @@ if (!isset($_SESSION['USER_ID'])) {
                         <ul class="nav navbar-nav navbar-right">
                             <!-- Botao sobre -->
                             <li>
-                                <a style="color: #fff;" href="/inicio/sobre">Sobre</a>
+                                <a style="color: #fff;" href="/representacoes/inicio/sobre">Sobre</a>
                             </li>
                             <!-- Fim botao sobre -->
                             <!-- Botao de usuario -->
@@ -166,11 +166,11 @@ if (!isset($_SESSION['USER_ID'])) {
                                 <ul class="dropdown-menu">
                                     <li class="dropdown-header">Configurações</li>
                                     <?php if ($_SESSION['USER_LEVEL'] == '1') : ?>
-                                        <li><a href="/configuracao/parametrizacao">Parametrização</a></li>
+                                        <li><a href="/representacoes/configuracao/parametrizacao">Parametrização</a></li>
                                     <?php endif; ?>
-                                    <li><a href="/configuracao/dados">Meus Dados</a></li>
+                                    <li><a href="/representacoes/configuracao/dados">Meus Dados</a></li>
                                     <li role="separator" class="divider"></li>
-                                    <li><a href="/login/logout.php">Sair</a></li>
+                                    <li><a href="/representacoes/login/logout.php">Sair</a></li>
                                 </ul>
                                 <!-- Fim popup usuario -->
                             </li>
@@ -246,7 +246,7 @@ if (!isset($_SESSION['USER_ID'])) {
 
                         <div class="col-sm-2">
                             <label for="novo">&nbsp;</label>
-                            <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/orcamento/venda/novo">NOVO</a>
+                            <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/representacoes/orcamento/venda/novo">NOVO</a>
                         </div>
                     </div>
 
@@ -272,10 +272,10 @@ if (!isset($_SESSION['USER_ID'])) {
         </div>
         <!-- Fim conteudo da pagina -->
 
-        <script src="/static/lib/jquery/dist/jquery.js"></script>
-        <script src="/static/lib/bootstrap/dist/js/bootstrap.js"></script>
-        <script src="/static/js/site.js"></script>
-        <script src="/static/lib/bootbox/bootbox.min.js"></script>
-        <script src="/static/js/orcamento/venda/index.js"></script>
+        <script src="/representacoes/static/lib/jquery/dist/jquery.js"></script>
+        <script src="/representacoes/static/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="/representacoes/static/js/site.js"></script>
+        <script src="/representacoes/static/lib/bootbox/bootbox.min.js"></script>
+        <script src="/representacoes/static/js/orcamento/venda/index.js"></script>
     </body>
 </html>

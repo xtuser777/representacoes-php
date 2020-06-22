@@ -1,7 +1,7 @@
-var cbestado = document.getElementById("cbestado");
-var cbcidade = document.getElementById("cbcidade");
-var fisica = document.getElementById("fisica");
-var juridica = document.getElementById("juridica");
+const cbestado = document.getElementById("cbestado");
+const cbcidade = document.getElementById("cbcidade");
+const fisica = document.getElementById("fisica");
+const juridica = document.getElementById("juridica");
 
 var _tipo = 0;
 var lista_estados = [];
@@ -16,18 +16,18 @@ var idcliente = 0;
 var _cadastro = "";
 
 function limparEstados() {
-    for (var i = cbestado.childElementCount - 1; i > 0; i--) {
+    for (let i = cbestado.childElementCount - 1; i > 0; i--) {
         cbestado.children.item(i).remove();
     }
 }
 
 function carregarCidades() {
-    var form = new FormData();
+    let form = new FormData();
     form.append("estado", cbestado.value);
 
     $.ajax({
         type: 'POST',
-        url: '/cidade/obter-por-estado.php',
+        url: '/representacoes/cidade/obter-por-estado.php',
         data: form,
         contentType: false,
         processData: false,
@@ -65,7 +65,7 @@ function onCbEstadoChange() {
 }
 
 function limparCidades() {
-    for (var i = cbcidade.childElementCount - 1; i > 0; i--) {
+    for (let i = cbcidade.childElementCount - 1; i > 0; i--) {
         cbcidade.children.item(i).remove();
     }
 }
@@ -98,20 +98,20 @@ $(document).ready(function () {
     $("#tel").mask('(00) 0000-0000', {reverse: false});
     $("#cel").mask('(00) 00000-0000', {reverse: false});
 
-    lista_estados = get('/estado/obter.php');
+    lista_estados = get('/representacoes/estado/obter.php');
     limparEstados();
     if (lista_estados !== "") {
-        for (var i = 0; i < lista_estados.length; i++) {
-            var option = document.createElement("option");
+        for (let i = 0; i < lista_estados.length; i++) {
+            let option = document.createElement("option");
             option.value = lista_estados[i].id;
             option.text = lista_estados[i].nome;
             cbestado.appendChild(option);
         }
     }
 
-    var response = get("/gerenciar/cliente/detalhes/obter.php");
+    let response = get("/representacoes/gerenciar/cliente/detalhes/obter.php");
     if (response != null && response !== "") {
-        var pessoa = (response.tipo === 1) ? response.pessoaFisica : response.pessoaJuridica;
+        let pessoa = (response.tipo === 1) ? response.pessoaFisica : response.pessoaJuridica;
         idendereco = pessoa.contato.endereco.id;
         idcontato = pessoa.contato.id;
         idpessoa = pessoa.id;
@@ -182,7 +182,7 @@ function limparCampos() {
 function verificarCpf(cpf) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/cliente/detalhes/verificar-cpf.php',
+        url: '/representacoes/gerenciar/cliente/detalhes/verificar-cpf.php',
         data: { cpf: cpf },
         async: false,
         success: function (response) {
@@ -207,7 +207,7 @@ function verificarCpf(cpf) {
 function verificarCnpj(cnpj) {
     $.ajax({
         type: 'POST',
-        url: '/gerenciar/cliente/detalhes/verificar-cnpj.php',
+        url: '/representacoes/gerenciar/cliente/detalhes/verificar-cnpj.php',
         data: { cnpj: cnpj },
         async: false,
         success: function (response) {
@@ -235,34 +235,36 @@ function validarCpf(cpf) {
         return false;
     }
     // Elimina CPFs invalidos conhecidos
-    if (cpf.length != 11 || cpf == "00000000000" || cpf == "11111111111" || cpf == "22222222222" || cpf == "33333333333" || cpf == "44444444444" || cpf == "55555555555" || cpf == "66666666666" || cpf == "77777777777" || cpf == "88888888888" || cpf == "99999999999") {
+    if (
+        cpf.length !== 11 || cpf === "00000000000" || cpf === "11111111111" || cpf === "22222222222"
+        || cpf === "33333333333" || cpf === "44444444444" || cpf === "55555555555" || cpf === "66666666666"
+        || cpf === "77777777777" || cpf === "88888888888" || cpf === "99999999999"
+    ) {
         return false;
     }
     // Valida 1o digito
-    add = 0;
-    for (i = 0; i < 9; i++) {
+    let add = 0;
+    for (let i = 0; i < 9; i++) {
         add += parseInt(cpf.charAt(i)) * (10 - i);
     }
-    rev = 11 - (add % 11);
-    if (rev == 10 || rev == 11) {
+    let rev = 11 - (add % 11);
+    if (rev === 10 || rev === 11) {
         rev = 0;
     }
-    if (rev != parseInt(cpf.charAt(9))) {
+    if (rev !== parseInt(cpf.charAt(9))) {
         return false;
     }
     // Valida 2o digito
     add = 0;
-    for (i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i++) {
         add += parseInt(cpf.charAt(i)) * (11 - i);
     }
     rev = 11 - (add % 11);
-    if (rev == 10 || rev == 11) {
+    if (rev === 10 || rev === 11) {
         rev = 0;
     }
-    if (rev != parseInt(cpf.charAt(10))) {
-        return false;
-    }
-    return true;
+
+    return rev === parseInt(cpf.charAt(10));
 }
 
 function validarCNPJ(cnpj) {
@@ -275,7 +277,8 @@ function validarCNPJ(cnpj) {
         return false;
 
     // Elimina CNPJs invalidos conhecidos
-    if (cnpj === "00000000000000" ||
+    if (
+        cnpj === "00000000000000" ||
         cnpj === "11111111111111" ||
         cnpj === "22222222222222" ||
         cnpj === "33333333333333" ||
@@ -284,21 +287,22 @@ function validarCNPJ(cnpj) {
         cnpj === "66666666666666" ||
         cnpj === "77777777777777" ||
         cnpj === "88888888888888" ||
-        cnpj === "99999999999999")
+        cnpj === "99999999999999"
+    )
         return false;
 
     // Valida DVs
-    tamanho = cnpj.length - 2;
-    numeros = cnpj.substring(0,tamanho);
-    digitos = cnpj.substring(tamanho);
-    soma = 0;
-    pos = tamanho - 7;
-    for (i = tamanho; i >= 1; i--) {
+    let tamanho = cnpj.length - 2;
+    let numeros = cnpj.substring(0,tamanho);
+    let digitos = cnpj.substring(tamanho);
+    let soma = 0;
+    let pos = tamanho - 7;
+    for (let i = tamanho; i >= 1; i--) {
         soma += numeros.charAt(tamanho - i) * pos--;
         if (pos < 2)
             pos = 9;
     }
-    resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+    let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
     if (resultado.toString().charAt(0) !== digitos.charAt(0))
         return false;
 
@@ -306,58 +310,53 @@ function validarCNPJ(cnpj) {
     numeros = cnpj.substring(0,tamanho);
     soma = 0;
     pos = tamanho - 7;
-    for (i = tamanho; i >= 1; i--) {
+    for (let i = tamanho; i >= 1; i--) {
         soma += numeros.charAt(tamanho - i) * pos--;
         if (pos < 2)
             pos = 9;
     }
     resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
-    if (resultado.toString().charAt(0) !== digitos.charAt(1))
-        return false;
 
-    return true;
+    return resultado.toString().charAt(0) === digitos.charAt(1);
 }
 
 function validacaoEmail(email) {
-    usuario = email.substring(0, email.indexOf("@"));
-    dominio = email.substring(email.indexOf("@")+ 1, email.length);
-    if (
-        (usuario.length >=1) &&
-        (dominio.length >=3) &&
-        (usuario.search("@")===-1) &&
-        (dominio.search("@")===-1) &&
-        (usuario.search(" ")===-1) &&
-        (dominio.search(" ")===-1) &&
-        (dominio.search(".")!==-1) &&
-        (dominio.indexOf(".") >=1)&&
+    let usuario = email.substring(0, email.indexOf("@"));
+    let dominio = email.substring(email.indexOf("@")+ 1, email.length);
+
+    return (
+        (usuario.length >= 1) &&
+        (dominio.length >= 3) &&
+        (usuario.search("@") === -1) &&
+        (dominio.search("@") === -1) &&
+        (usuario.search(" ") === -1) &&
+        (dominio.search(" ") === -1) &&
+        (dominio.search(".") !== -1) &&
+        (dominio.indexOf(".") >= 1) &&
         (dominio.lastIndexOf(".") < dominio.length - 1)
-    ) {
-        return true;
-    } else {
-        return false;
-    }
+    );
 }
 
 function gravar() {
-        var nome = $("#nome").val();
-        var nasc = $("#nasc").val();
-        var rg = $("#rg").val();
-        var cpf = $("#cpf").val();
-        var razaosocial = $("#razao_social").val();
-        var nomefantasia = $("#nome_fantasia").val();
-        var cnpj = $("#cnpj").val();
-    var tipo = _tipo.toString();
-    var rua = $("#rua").val();
-    var numero = $("#numero").val();
-    var bairro = $("#bairro").val();
-    var complemento = $("#complemento").val();
-    var cep = $("#cep").val();
+    let nome = $("#nome").val();
+    let nasc = $("#nasc").val();
+    let rg = $("#rg").val();
+    let cpf = $("#cpf").val();
+    let razaosocial = $("#razao_social").val();
+    let nomefantasia = $("#nome_fantasia").val();
+    let cnpj = $("#cnpj").val();
+    let tipo = _tipo.toString();
+    let rua = $("#rua").val();
+    let numero = $("#numero").val();
+    let bairro = $("#bairro").val();
+    let complemento = $("#complemento").val();
+    let cep = $("#cep").val();
     let cidade = cbcidade.value;
-    var telefone = $("#tel").val();
-    var celular = $("#cel").val();
-    var email = $("#email").val();
+    let telefone = $("#tel").val();
+    let celular = $("#cel").val();
+    let email = $("#email").val();
 
-    var dataNasc = new Date(nasc);
+    let dataNasc = new Date(nasc);
 
     erros = 0;
 
@@ -512,19 +511,19 @@ function gravar() {
     }
 
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("endereco", idendereco);
         form.append("contato", idcontato);
         form.append("pessoa", idpessoa);
         form.append("cliente", idcliente);
         form.append("cadastro", _cadastro);
-            form.append("nome", nome);
-            form.append("nasc", nasc);
-            form.append("rg", rg);
-            form.append("cpf", cpf);
-            form.append("razaosocial", razaosocial);
-            form.append("nomefantasia", nomefantasia);
-            form.append("cnpj", cnpj);
+        form.append("nome", nome);
+        form.append("nasc", nasc);
+        form.append("rg", rg);
+        form.append("cpf", cpf);
+        form.append("razaosocial", razaosocial);
+        form.append("nomefantasia", nomefantasia);
+        form.append("cnpj", cnpj);
         form.append("tipo", tipo);
         form.append("rua", rua);
         form.append("numero", numero);
@@ -538,7 +537,7 @@ function gravar() {
 
         $.ajax({
             type: 'POST',
-            url: '/gerenciar/cliente/detalhes/alterar.php',
+            url: '/representacoes/gerenciar/cliente/detalhes/alterar.php',
             data: form,
             contentType: false,
             processData: false,

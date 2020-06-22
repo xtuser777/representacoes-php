@@ -9,23 +9,26 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err.d);}
+        error: function (xhr, status, thrown) {
+            console.error(thrown);
+            alert(thrown);
+        }
     });
     return res;
 }
 
 $(document).ready(function (event) {
-    var dados = get("/gerenciar/categoria/detalhes/obter.php");
+    let dados = get("/representacoes/gerenciar/categoria/detalhes/obter.php");
     if (dados !== "") {
-        _cat= dados.id;
+        _cat = dados.id;
         $("#desc").val(dados.descricao);
     }
 });
 
 function gravar() {
-    var desc = $("#desc").val();
+    let desc = $("#desc").val();
     
-    var erros = 0;
+    let erros = 0;
 
     if (desc === "") {
         erros++;
@@ -35,13 +38,13 @@ function gravar() {
     }
     
     if (erros === 0) {
-        var form = new FormData();
+        let form = new FormData();
         form.append("categoria", _cat);
         form.append("desc", desc);
 
         $.ajax({
             type: "POST",
-            url: "/gerenciar/categoria/detalhes/alterar.php",
+            url: "/representacoes/gerenciar/categoria/detalhes/alterar.php",
             data: form,
             contentType: false,
             processData: false,
