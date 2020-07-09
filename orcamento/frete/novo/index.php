@@ -17,7 +17,7 @@ if (!isset($_SESSION['USER_ID'])) {
 
         <link rel="icon" type="image/png" href="/representacoes/static/images/logo.png">
 
-        <title>Novo Orçaemento de Venda - Sistema de Controle de Representações</title>
+        <title>Novo Orçaemento de Frete - Sistema de Controle de Representações</title>
 
         <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/fancybox/jquery.fancybox.min.css"/>
@@ -192,94 +192,35 @@ if (!isset($_SESSION['USER_ID'])) {
             <!-- Card titulo pagina -->
             <div class="card-title">
                 <div class="card-title-container" style="text-align: center;">
-                    <h4><b>SCR - Abrir Orçamento de Venda</b></h4>
+                    <h4><b>SCR - Abrir Orçamento de Frete</b></h4>
                 </div>
             </div>
             <!-- Fim card titulo pagina -->
 
             <div class="fieldset-card">
-                <div class="fieldset-card-legend">Dados do cliente</div>
-                <div class="fieldset-card-container">
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <label for="select_cliente">Sel. Cliente:</label>
-                            <select id="select_cliente" class="form-control input-sm" onchange="selectClienteChange();">
-                                <option value="0">SELECIONAR</option>
-                            </select>
-                        </div>
-
-                        <div class="col-sm-6">
-                            <label for="text_nome_cli">Nome <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_nome_cli" class="form-control input-sm" style="width: 100%;" onblur="textNomeClienteBlur();" />
-                            <div id="msnomecli"></div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <label for="text_doc_cli">Documento (CPF ou CNPJ) <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_doc_cli" class="form-control input-sm" style="width: 100%;" onblur="textDocClienteBlur();" />
-                            <div id="msdoccli"></div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <label for="text_tel_cli">Telefone <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_tel_cli" class="form-control input-sm" style="width: 100%;" data-mask="(00) 0000-0000" data-mask-clearifnotmatch="true" onblur="textTelCliBlur();" />
-                            <div id="mstelcli"></div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <label for="text_cel_cli">Celular <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_cel_cli" class="form-control input-sm" style="width: 100%;" data-mask="(00) 00000-0000" data-mask-clearifnotmatch="true" onblur="textCelCliBlur();" />
-                            <div id="mscelcli"></div>
-                        </div>
-
-                        <div class="col-sm-6">
-                            <label for="text_email_cli">E-Mail <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_email_cli" class="form-control input-sm" style="width: 100%;" onblur="textEmailCliBlur();" />
-                            <div id="msemailcli"></div>
-                        </div>
-                    </div>
-
-                    <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
-                </div>
-            </div>
-
-            <div class="fieldset-card">
-                <div class="fieldset-card-legend">Dados do Orçamento</div>
-
+                <div class="fieldset-card-legend">Dados do orçamento</div>
                 <div class="fieldset-card-container">
                     <div class="row">
                         <div class="col-sm-12">
-                            <label for="text_desc">Descrição <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_desc" class="form-control input-sm" style="width: 100%;" onblur="textDescBlur();" />
+                            <label for="txDescricao">Descrição <span style="color: red;">*</span>:</label>
+                            <input id="txDescricao" class="form-control input-sm" style="width: 100%;" value="" onblur="textDescBlur();" />
                             <div id="msdesc"></div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-sm-5">
-                            <label for="select_vendedor">Vendedor:</label>
-                            <select id="select_vendedor" class="form-control input-sm">
+                        <div class="col-sm-6">
+                            <label for="selOrcamentoVenda">Orçamento de Venda:</label>
+                            <select id="selOrcamentoVenda" class="form-control input-sm" style="width: 100%;" onchange="selectOrcVendaChange();">
                                 <option value="0">SELECIONAR</option>
                             </select>
-                            <div id="msvend"></div>
                         </div>
 
-                        <div class="col-sm-3">
-                            <label for="select_est_dest">Estado de Destino <span style="color: red;">*</span>:</label>
-                            <select id="select_est_dest" class="form-control input-sm" onblur="selectEstadoBlur();" onchange="selectEstadoChange();">
-                                <option value="0">SELECIONE</option>
+                        <div class="col-sm-6">
+                            <label for="selRepresentacao">Representação:</label>
+                            <select id="selRepresentacao" class="form-control input-sm" style="width: 100%;" onchange="selectRepresentacaoChange();">
+                                <option value="0">SELECIONAR</option>
                             </select>
-                            <div id="msest"></div>
-                        </div>
-
-                        <div class="col-sm-4">
-                            <label for="select_cid_dest">Cidade de Destino <span style="color: red;">*</span>:</label>
-                            <select id="select_cid_dest" class="form-control input-sm" onblur="selectCidadeBlur();">
-                                <option value="0">SELECIONE</option>
-                            </select>
-                            <div id="mscid"></div>
                         </div>
                     </div>
 
@@ -298,9 +239,9 @@ if (!isset($_SESSION['USER_ID'])) {
                                 <tr>
                                     <th>DESCRIÇÃO</th>
                                     <th>REPRESENTAÇÃO</th>
-                                    <th>VALOR (R$)</th>
+                                    <th>PESO (Kg)</th>
                                     <th>QTDE.</th>
-                                    <th>TOTAL (R$)</th>
+                                    <th>TOTAL (Kg)</th>
                                     <th>&nbsp;</th>
                                 </tr>
                             </thead>
@@ -326,29 +267,79 @@ if (!isset($_SESSION['USER_ID'])) {
             </div>
 
             <div class="fieldset-card">
+                <div class="fieldset-card-legend">Dados do transporte</div>
+
+                <div class="fieldset-card-container">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label for="selEstadoDestino">Estado <span style="color: red;">*</span>:</label>
+                            <select id="selEstadoDestino" class="form-control input-sm" style="width: 100%;" onchange="selectEstadoChange();" onblur="selectEstadoBlur();">
+                                <option value="0">SELECIONAR</option>
+                            </select>
+                            <div id="msest"></div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="selCidadeDestino">Cidade <span style="color: red;">*</span>:</label>
+                            <select id="selCidadeDestino" class="form-control input-sm" style="width: 100%;" onblur="selectCidadeBlur();">
+                                <option value="0">SELECIONAR</option>
+                            </select>
+                            <div id="mscid"></div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="selTipoCaminhao">Tipo Caminhão <span style="color: red;">*</span>:</label>
+                            <select id="selTipoCaminhao" class="form-control input-sm" style="width: 100%;" onblur="selectTipoCaminhaoBlur();">
+                                <option value="0">SELECIONAR</option>
+                            </select>
+                            <div id="mstipo"></div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="txDistancia">Distância <span style="color: red;">*</span>:</label>
+                            <div class="input-group">
+                                <input type="number" id="txDistancia" class="form-control input-sm" style="width: 100%;" onblur="textDistanciaBlur();" />
+                                <div class="input-group-addon">KM</div>
+                            </div>
+                            <div id="msdist"></div>
+                        </div>
+                    </div>
+
+                    <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
+                </div>
+            </div>
+
+            <div class="fieldset-card">
                 <div class="fieldset-card-legend">Valores do Orçamento</div>
 
                 <div class="fieldset-card-container">
                     <div class="row">
-                        <div class="col-sm-4">
-                            <label for="text_peso_itens">Peso Total <span style="color: red;">*</span>:</label>
+                        <div class="col-sm-3">
+                            <label for="txPesoProdutos">Peso Total dos Produtos:</label>
                             <div class="input-group">
-                                <input type="text" id="text_peso_itens" class="form-control input-sm" style="width: 100%;" value="" readonly />
+                                <input type="text" id="txPesoProdutos" class="form-control input-sm" style="width: 100%;" value="1.800" readonly />
                                 <div class="input-group-addon">KG</div>
                             </div>
                         </div>
 
-                        <div class="col-sm-4">
-                            <label for="text_valor_itens">Valor Orçado dos Itens <span style="color: red;">*</span>:</label>
+                        <div class="col-sm-3">
+                            <label for="txValorFrete">Valor Orçado do Frete:</label>
                             <div class="input-group">
                                 <div class="input-group-addon">R$</div>
-                                <input type="text" id="text_valor_itens" class="form-control input-sm" style="width: 100%;" value="" readonly />
+                                <input type="text" id="txValorFrete" class="form-control input-sm" style="width: 100%;" />
                             </div>
+                            <div id="msvalor"></div>
                         </div>
 
-                        <div class="col-sm-4">
-                            <label for="date_validade">Validade <span style="color: red;">*</span>:</label>
-                            <input type="date" id="date_validade" class="form-control input-sm" style="width: 100%;" onblur="dateValidadeBlur();" />
+                        <div class="col-sm-3">
+                            <label for="dtEntrega">Data Aprox. de Entrega <span style="color: red;">*</span>:</label>
+                            <input type="date" id="dtEntrega" class="form-control input-sm" style="width: 100%;" onblur="dateEntregaBlur();" />
+                            <div id="msentrega"></div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="dtValidade">Validade do Orçamento <span style="color: red;">*</span>:</label>
+                            <input type="date" id="dtValidade" class="form-control input-sm" style="width: 100%;" onblur="dateValidadeBlur();" />
                             <div id="msvalid"></div>
                         </div>
                     </div>
@@ -403,7 +394,7 @@ if (!isset($_SESSION['USER_ID'])) {
                             <th>DESCRIÇÃO</th>
                             <th>UNIDADE</th>
                             <th>REPRESENTAÇÂO</th>
-                            <th>PREÇO</th>
+                            <th>PESO</th>
                             <th>&nbsp;</th>
                         </tr>
                     </thead>
@@ -421,14 +412,7 @@ if (!isset($_SESSION['USER_ID'])) {
                     <div id="msqtdeprod"></div>
                 </div>
 
-                <div class="col-sm-4">
-                    <label for="text_qtde_prod">Valor <span style="color: red;">*</span>:</label>
-                    <div class="input-group">
-                        <div class="input-group-addon">R$</div>
-                        <input type="text" id="text_valor_prod" class="form-control input-sm" style="width: 100%;" />
-                    </div>
-                    <div id="msvalorprod"></div>
-                </div>
+                <div class="col-sm-4"></div>
 
                 <div class="col-sm-4">
                     <label for="text_prod_sel">Produto selecionado <span style="color: red;">*</span>:</label>
@@ -457,8 +441,8 @@ if (!isset($_SESSION['USER_ID'])) {
         <script src="/representacoes/static/js/site.js"></script>
         <script src="/representacoes/static/lib/fancybox/jquery.fancybox.min.js"></script>
         <script src="/representacoes/static/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
-        <script src="/representacoes/static/js/orcamento/venda/novo.js"></script>
-        <script src="/representacoes/static/js/orcamento/venda/novo_add_item.js"></script>
+        <script src="/representacoes/static/js/orcamento/frete/novo.js"></script>
+        <script src="/representacoes/static/js/orcamento/frete/novo_add_item.js"></script>
 
     </body>
 

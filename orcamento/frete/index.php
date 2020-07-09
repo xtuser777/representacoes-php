@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../header.php';
+require '../../header.php';
 
 if (!isset($_SESSION['USER_ID'])) {
     header('Location: /representacoes/login');
@@ -10,14 +10,13 @@ if (!isset($_SESSION['USER_ID'])) {
 
 <!DOCTYPE html>
 <html lang="pt-br">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <link rel="icon" type="image/png" href="/representacoes/static/images/logo.png">
 
-        <title>Novo Orçaemento de Venda - Sistema de Controle de Representações</title>
+        <title>Gerenciar Orçamentos de Frete - Sistema de Controle de Representações</title>
 
         <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/fancybox/jquery.fancybox.min.css"/>
@@ -192,274 +191,91 @@ if (!isset($_SESSION['USER_ID'])) {
             <!-- Card titulo pagina -->
             <div class="card-title">
                 <div class="card-title-container" style="text-align: center;">
-                    <h4><b>SCR - Abrir Orçamento de Venda</b></h4>
+                    <h4>
+                        <b>SCR - Gerenciar Orçamentos de Frete</b>
+                    </h4>
                 </div>
             </div>
             <!-- Fim card titulo pagina -->
 
             <div class="fieldset-card">
-                <div class="fieldset-card-legend">Dados do cliente</div>
-                <div class="fieldset-card-container">
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <label for="select_cliente">Sel. Cliente:</label>
-                            <select id="select_cliente" class="form-control input-sm" onchange="selectClienteChange();">
-                                <option value="0">SELECIONAR</option>
-                            </select>
-                        </div>
-
-                        <div class="col-sm-6">
-                            <label for="text_nome_cli">Nome <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_nome_cli" class="form-control input-sm" style="width: 100%;" onblur="textNomeClienteBlur();" />
-                            <div id="msnomecli"></div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <label for="text_doc_cli">Documento (CPF ou CNPJ) <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_doc_cli" class="form-control input-sm" style="width: 100%;" onblur="textDocClienteBlur();" />
-                            <div id="msdoccli"></div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <label for="text_tel_cli">Telefone <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_tel_cli" class="form-control input-sm" style="width: 100%;" data-mask="(00) 0000-0000" data-mask-clearifnotmatch="true" onblur="textTelCliBlur();" />
-                            <div id="mstelcli"></div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <label for="text_cel_cli">Celular <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_cel_cli" class="form-control input-sm" style="width: 100%;" data-mask="(00) 00000-0000" data-mask-clearifnotmatch="true" onblur="textCelCliBlur();" />
-                            <div id="mscelcli"></div>
-                        </div>
-
-                        <div class="col-sm-6">
-                            <label for="text_email_cli">E-Mail <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_email_cli" class="form-control input-sm" style="width: 100%;" onblur="textEmailCliBlur();" />
-                            <div id="msemailcli"></div>
-                        </div>
-                    </div>
-
-                    <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
-                </div>
-            </div>
-
-            <div class="fieldset-card">
-                <div class="fieldset-card-legend">Dados do Orçamento</div>
+                <div class="fieldset-card-legend">Filtragem de Orçamentos</div>
 
                 <div class="fieldset-card-container">
                     <div class="row">
-                        <div class="col-sm-12">
-                            <label for="text_desc">Descrição <span style="color: red;">*</span>:</label>
-                            <input type="text" id="text_desc" class="form-control input-sm" style="width: 100%;" onblur="textDescBlur();" />
-                            <div id="msdesc"></div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-sm-5">
-                            <label for="select_vendedor">Vendedor:</label>
-                            <select id="select_vendedor" class="form-control input-sm">
-                                <option value="0">SELECIONAR</option>
-                            </select>
-                            <div id="msvend"></div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <label for="select_est_dest">Estado de Destino <span style="color: red;">*</span>:</label>
-                            <select id="select_est_dest" class="form-control input-sm" onblur="selectEstadoBlur();" onchange="selectEstadoChange();">
-                                <option value="0">SELECIONE</option>
-                            </select>
-                            <div id="msest"></div>
-                        </div>
-
-                        <div class="col-sm-4">
-                            <label for="select_cid_dest">Cidade de Destino <span style="color: red;">*</span>:</label>
-                            <select id="select_cid_dest" class="form-control input-sm" onblur="selectCidadeBlur();">
-                                <option value="0">SELECIONE</option>
-                            </select>
-                            <div id="mscid"></div>
-                        </div>
-                    </div>
-
-                    <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
-                </div>
-            </div>
-
-            <div class="fieldset-card">
-                <div class="fieldset-card-legend">Produtos orçados</div>
-
-                <div class="fieldset-card-container">
-                    <div class="table-container" style="height: 150px;">
-                        <table id="table_itens" class="table table-striped table-hover">
-
-                            <thead>
-                                <tr>
-                                    <th>DESCRIÇÃO</th>
-                                    <th>REPRESENTAÇÃO</th>
-                                    <th>VALOR (R$)</th>
-                                    <th>QTDE.</th>
-                                    <th>TOTAL (R$)</th>
-                                    <th>&nbsp;</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="tbody_itens">
-                            </tbody>
-
-                        </table>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-sm-8"></div>
-
-                        <div class="col-sm-2">
-                            <button id="button_clr_itens" class="btn btn-primary btn-sm" style="width: 100%;" onclick="buttonClrItensClick();">LIMPAR</button>
+                        <div class="col-sm-8">
+                            <label for="filtro">Filtro:</label>
+                            <input type="text" id="filtro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por descrição..." />
                         </div>
 
                         <div class="col-sm-2">
-                            <button id="button_add_item" class="btn btn-success btn-sm" onclick="abrirAdicionarItem();" style="width: 100%;">ADICIONAR</button>
+                            <label for="filtro_data">Filtro Data:</label>
+                            <input type="date" id="filtro_data" class="form-control input-sm" style="width: 100%;" />
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="filtrar">&nbsp;</label>
+                            <button id="filtrar" class="btn btn-primary btn-sm" style="width: 100%;" onclick="filtrar();">FILTRAR</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="fieldset-card">
-                <div class="fieldset-card-legend">Valores do Orçamento</div>
+            <div class="fieldset-card" style="margin-bottom: 40px;">
+                <div class="fieldset-card-legend" style="width: 200px;">Orçamentos Abertos</div>
 
                 <div class="fieldset-card-container">
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <label for="text_peso_itens">Peso Total <span style="color: red;">*</span>:</label>
-                            <div class="input-group">
-                                <input type="text" id="text_peso_itens" class="form-control input-sm" style="width: 100%;" value="" readonly />
-                                <div class="input-group-addon">KG</div>
-                            </div>
+                    <div class="row" style="margin-bottom: 10px;">
+                        <div class="col-sm-10">
+                            <label for="cbord">Ordenar por:</label>
+                            <select id="cbord" class="form-control input-sm" onchange="ordenar();">
+                                <option value="1">REGISTRO (CRESCENTE)</option>
+                                <option value="2">REGISTRO (DECRESCENTE)</option>
+                                <option value="3">DESCRIÇÂO (CRESCENTE)</option>
+                                <option value="4">DESCRIÇÂO (DECRESCENTE)</option>
+                                <option value="5">CLIENTE (CRESCENTE)</option>
+                                <option value="6">CLIENTE (DECRESCENTE)</option>
+                                <option value="7">DATA (CRESCENTE)</option>
+                                <option value="8">DATA (DECRESCENTE)</option>
+                                <option value="9">ATOR (CRESCENTE)</option>
+                                <option value="10">ATOR (DECRESCENTE)</option>
+                                <option value="11">VALOR (CRESCENTE)</option>
+                                <option value="12">VALOR (DECRESCENTE)</option>
+                            </select>
                         </div>
 
-                        <div class="col-sm-4">
-                            <label for="text_valor_itens">Valor Orçado dos Itens <span style="color: red;">*</span>:</label>
-                            <div class="input-group">
-                                <div class="input-group-addon">R$</div>
-                                <input type="text" id="text_valor_itens" class="form-control input-sm" style="width: 100%;" value="" readonly />
-                            </div>
-                        </div>
-
-                        <div class="col-sm-4">
-                            <label for="date_validade">Validade <span style="color: red;">*</span>:</label>
-                            <input type="date" id="date_validade" class="form-control input-sm" style="width: 100%;" onblur="dateValidadeBlur();" />
-                            <div id="msvalid"></div>
+                        <div class="col-sm-2">
+                            <label for="novo">&nbsp;</label>
+                            <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/representacoes/orcamento/frete/novo">NOVO</a>
                         </div>
                     </div>
 
-                    <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
-                </div>
-            </div>
+                    <table id="table_orcamentos" class="table table-responsive" style="width: 100%;">
+                        <thead>
+                        <tr>
+                            <th class="hidden">ID</th>
+                            <th>DESCRIÇÃO</th>
+                            <th>CLIENTE</th>
+                            <th>DATA</th>
+                            <th>ATOR</th>
+                            <th>VALOR (R$)</th>
+                            <th style="width: 2%;">&nbsp;</th>
+                            <th style="width: 2%;">&nbsp;</th>
+                        </tr>
+                        </thead>
 
-            <div class="row">
-                <div class="col-sm-2">
-                    <button id="button_cancelar" class="btn btn-danger" style="width: 100%;" onclick="buttonCancelarClick();">CANCELAR</button>
-                </div>
-
-                <div class="col-sm-6"></div>
-
-                <div class="col-sm-2">
-                    <button id="button_limpar" class="btn btn-primary" style="width: 100%;" onclick="buttonLimparClick();">LIMPAR</button>
-                </div>
-
-                <div class="col-sm-2">
-                    <button id="button_salvar" class="btn btn-success" style="width: 100%;" onclick="buttonSalvarClick();">SALVAR</button>
+                        <tbody id="tbody_orcamentos">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
         <!-- Fim conteudo da pagina -->
 
-        <!-- Fancybox Add Produto -->
-        <div style="display: none; min-width: 300px; width: 700px" id="fbFrmAddProduto">
-
-            <h3 style="text-align: center; font-weight: bold;">Adicionar Produto</h3>
-            <hr style="color: grey;" />
-
-            <div class="row">
-                <div class="col-sm-9">
-                    <div class="form-group">
-                        <label for="text_filtro_prod">Filtro:</label>
-                        <input type="text" id="text_filtro_prod" class="form-control input-sm" />
-                    </div>
-                </div>
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <label for="button_filtrar_prod">&nbsp;</label>
-                        <button id="button_filtrar_prod" class="btn btn-primary btn-sm" style="width: 100%;" onclick="buttonFiltrarProdClick();">FILTRAR</button>
-                    </div>
-                </div>
-            </div>
-            <div class="table-container" style="height: 190px;">
-                <table id="table_produtos" class="table table-striped table-hover">
-
-                    <thead>
-                        <tr>
-                            <th>DESCRIÇÃO</th>
-                            <th>UNIDADE</th>
-                            <th>REPRESENTAÇÂO</th>
-                            <th>PREÇO</th>
-                            <th>&nbsp;</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="tbody_produtos">
-                    </tbody>
-
-                </table>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-4">
-                    <label for="text_qtde_prod">Quantidade desejada <span style="color: red;">*</span>:</label>
-                    <input type="number" id="text_qtde_prod" class="form-control input-sm" style="width: 100%;" />
-                    <div id="msqtdeprod"></div>
-                </div>
-
-                <div class="col-sm-4">
-                    <label for="text_qtde_prod">Valor <span style="color: red;">*</span>:</label>
-                    <div class="input-group">
-                        <div class="input-group-addon">R$</div>
-                        <input type="text" id="text_valor_prod" class="form-control input-sm" style="width: 100%;" />
-                    </div>
-                    <div id="msvalorprod"></div>
-                </div>
-
-                <div class="col-sm-4">
-                    <label for="text_prod_sel">Produto selecionado <span style="color: red;">*</span>:</label>
-                    <input type="text" id="text_prod_sel" class="form-control input-sm" disabled style="width: 100%;" />
-                    <div id="msprodsel"></div>
-                </div>
-            </div>
-
-            <div style="height: 20px;"></div>
-
-            <div class="row">
-                <div class="col-sm-3">
-                    <button id="button_canc_prod" class="btn btn-danger" style="width: 100%;" onclick="cancelarAdicao();">Cancelar</button>
-                </div>
-
-                <div class="col-sm-6"></div>
-
-                <div class="col-sm-3">
-                    <button id="button_conf_prod" class="btn btn-success" style="width: 100%;" onclick="adicionarItem();">Confirmar</button>
-                </div>
-            </div>
-        </div>
-
         <script src="/representacoes/static/lib/jquery/dist/jquery.js"></script>
         <script src="/representacoes/static/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="/representacoes/static/js/site.js"></script>
-        <script src="/representacoes/static/lib/fancybox/jquery.fancybox.min.js"></script>
-        <script src="/representacoes/static/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
-        <script src="/representacoes/static/js/orcamento/venda/novo.js"></script>
-        <script src="/representacoes/static/js/orcamento/venda/novo_add_item.js"></script>
-
+        <script src="/representacoes/static/lib/bootbox/bootbox.min.js"></script>
+        <script src="/representacoes/static/js/orcamento/frete/index.js"></script>
     </body>
-
 </html>

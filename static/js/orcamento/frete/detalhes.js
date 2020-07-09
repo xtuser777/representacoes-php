@@ -11,6 +11,8 @@ const textValorFrete = document.getElementById("txValorFrete");
 const dateEntrega = document.getElementById("dtEntrega");
 const dateValidade = document.getElementById("dtValidade");
 
+var orcamento = 0;
+
 var orcamentos = [];
 var tipos = [];
 
@@ -83,7 +85,7 @@ async function selectOrcVendaChange() {
         textValorFrete.value = valorFormat;
         await $.ajax({
             type: "POST",
-            url: "/representacoes/orcamento/frete/novo/item/obter-por-venda.php",
+            url: "/representacoes/orcamento/frete/detalhes/item/obter-por-venda.php",
             data: { venda: ven },
             success: async function (response) {
                 if (response !== null && response !== []) {
@@ -92,7 +94,7 @@ async function selectOrcVendaChange() {
                         peso += response[i].peso;
                         await $.ajax({
                             type: "POST",
-                            url: "/representacoes/orcamento/frete/novo/item/obter-tipos-por-item.php",
+                            url: "/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php",
                             data: { item: response[i].produto.id },
                             success: function (res) {
                                 if (res !== null && res !== []) {
@@ -125,7 +127,7 @@ async function selectOrcVendaChange() {
                             error: function (xhr, status, thrown) {
                                 console.error(thrown);
                                 mostraDialogo(
-                                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/novo/item/obter-tipos-por-item.php",
+                                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php",
                                     "danger",
                                     3000
                                 );
@@ -152,7 +154,7 @@ async function selectOrcVendaChange() {
             error: function (xhr, status, thrown) {
                 console.error(thrown);
                 mostraDialogo(
-                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/novo/item/obter-por-venda.php",
+                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/item/obter-por-venda.php",
                     "danger",
                     3000
                 );
@@ -290,7 +292,7 @@ async function textDistanciaBlur() {
 
         await $.ajax({
             type: "POST",
-            url: "/representacoes/orcamento/frete/novo/calcular-piso-minimo.php",
+            url: "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
             data: { distancia: dist, eixos: tipos[Number.parseInt(selectTipoCam.value)-1].eixos },
             success: function (response) {
                 if (response <= 0) {
@@ -310,7 +312,7 @@ async function textDistanciaBlur() {
             error: function (xhr, status, thrown) {
                 console.error(thrown);
                 mostraDialogo(
-                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/novo/calcular-piso-minimo.php",
+                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
                     "danger",
                     3000
                 );
@@ -486,7 +488,7 @@ async function buttonSalvarClick() {
 
             $.ajax({
                 type: "POST",
-                url: "/representacoes/orcamento/frete/novo/gravar.php",
+                url: "/representacoes/orcamento/frete/detalhes/alterar.php",
                 data: frm,
                 contentType: false,
                 processData: false,
@@ -494,15 +496,14 @@ async function buttonSalvarClick() {
                 success: function(response) {
                     if (response === "") {
                         mostraDialogo(
-                            "<strong>Orçamento de frete gravado com sucesso!</strong>" +
-                            "<br />Os dados do novo orçamento de frete foram salvos com sucesso no banco de dados.",
+                            "<strong>Orçamento de frete alterado com sucesso!</strong>" +
+                            "<br />Os dados do orçamento de frete foram salvos com sucesso no banco de dados.",
                             "success",
                             2000
                         );
-                        buttonLimparClick();
                     } else {
                         mostraDialogo(
-                            "<strong>Problemas ao salvar o novo orçamento...</strong>" +
+                            "<strong>Problemas ao salvar o orçamento...</strong>" +
                             "<br/>"+response,
                             "danger",
                             2000
@@ -541,7 +542,7 @@ $(document).ready((event) => {
         location.href = "../../inicio";
     }
 
-    orcamentos = get("/representacoes/orcamento/frete/novo/obter-vendas.php");
+    orcamentos = get("/representacoes/orcamento/frete/detalhes/obter-vendas.php");
     if (orcamentos !== "" && orcamentos !== [] && orcamentos !== null) {
         for (let i = 0; i < orcamentos.length; i++) {
             let option = document.createElement("option");
@@ -551,7 +552,7 @@ $(document).ready((event) => {
         }
     }
 
-    let representacoes = get('/representacoes/orcamento/frete/novo/obter-representacoes.php');
+    let representacoes = get('/representacoes/orcamento/frete/detalhes/obter-representacoes.php');
     if (representacoes !== "" && representacoes !== [] && representacoes !== null) {
         for (let i = 0; i < representacoes.length; i++) {
             let option = document.createElement("option");
@@ -563,7 +564,7 @@ $(document).ready((event) => {
 
     let estados = get('/representacoes/estado/obter.php');
     limparEstados();
-    if (estados !== null && estados !== []) {
+    if (estados !== null && estados.length !== 0) {
         for (let i = 0; i < estados.length; i++) {
             let option = document.createElement("option");
             option.value = estados[i].id;
@@ -572,15 +573,27 @@ $(document).ready((event) => {
         }
     }
 
-    /*let tipos = get("/representacoes/orcamento/frete/novo/obter-tipos.php");
-    if (tipos !== null && tipos !== []) {
-        for (let i = 0; i < tipos.length; i++) {
-            let option = document.createElement("option");
-            option.value = tipos[i].id;
-            option.text = tipos[i].descricao;
-            selectTipoCam.appendChild(option);
-        }
-    }*/
-
     buttonLimparClick();
+
+    let detalhes = get("/representacoes/orcamento/frete/detalhes/obter.php");
+    if (detalhes !== null) {
+        orcamento = detalhes.id;
+        $(textDesc).val(detalhes.descricao);
+        if (detalhes.orcamentoVenda !== null) {
+            $(selectOrcVenda).val(detalhes.orcamentoVenda.id);
+            selectOrcVendaChange();
+        } else {
+            $(selectRepresentacao).val(detalhes.representacao.id);
+            selectRepresentacaoChange();
+        }
+        $(selectEstado).val(detalhes.destino.estado.id);
+        selectEstadoChange();
+        $(selectCidade).val(detalhes.destino.id);
+        selectTipoCam.value = detalhes.tipoCaminhao.id;
+        $(textDistancia).val(detalhes.distancia);
+        textDistanciaBlur();
+        $(textValorFrete).val(detalhes.valor);
+        $(dateEntrega).val(detalhes.entrega);
+        $(dateValidade).val(detalhes.validade);
+    }
 });

@@ -1,4 +1,8 @@
-<?php namespace scr\model;
+<?php
+
+
+namespace scr\model;
+
 
 use ArrayObject;
 use mysqli_result;

@@ -421,7 +421,14 @@ if (!isset($_SESSION['USER_ID'])) {
                     <div id="msqtdeprod"></div>
                 </div>
 
-                <div class="col-sm-4"></div>
+                <div class="col-sm-4">
+                    <label for="text_qtde_prod">Valor <span style="color: red;">*</span>:</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">R$</div>
+                        <input type="text" id="text_valor_prod" class="form-control input-sm" style="width: 100%;" />
+                    </div>
+                    <div id="msvalorprod"></div>
+                </div>
 
                 <div class="col-sm-4">
                     <label for="text_prod_sel">Produto selecionado:</label>

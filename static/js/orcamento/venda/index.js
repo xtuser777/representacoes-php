@@ -129,7 +129,7 @@ function filtrar() {
 
 function excluir(id) {
     bootbox.confirm({
-        message: "Confirma a exclusão deste cliente?",
+        message: "Confirma a exclusão deste orçamentos?",
         buttons: {
             confirm: {
                 label: 'Sim',
@@ -152,7 +152,7 @@ function excluir(id) {
                         if (result === "") {
                             obter();
                         } else {
-                            alert("Ocorreu um problema ao excluir este cliente...");
+                            alert("Ocorreu um problema ao excluir este orçamento...");
                         }
                     },
                     error: function (XMLHttpRequest, txtStatus, errorThrown) {

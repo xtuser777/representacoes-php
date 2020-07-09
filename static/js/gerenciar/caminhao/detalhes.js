@@ -125,24 +125,34 @@ function gravar() {
         erros++;
         $("#msanofab").html('<span class="label label-danger">O ano deve ser preenchido!</span>');
     } else {
-        $("#msanofab").html('');
+        if (Number.parseInt(anofab) > new Date().getFullYear()) {
+            erros++;
+            $("#msanofab").html('<span class="label label-danger">O ano deve ser menor ou igual ao atual.</span>');
+        } else {
+            $("#msanofab").html('');
+        }
     }
 
     if (anomod === "") {
         erros++;
         $("#msanomod").html('<span class="label label-danger">O ano deve ser preenchido!</span>');
     } else {
-        $("#msanomod").html('');
+        if (anofab.length > 0 && Number.parseInt(anomod) < Number.parseInt(anofab)) {
+            erros++;
+            $("#msanomod").html('<span class="label label-danger">O ano deve ser maior ou igual ao fab.</span>');
+        } else {
+            $("#msanomod").html('');
+        }
     }
 
-    if (tipo === "0"){
+    if (tipo === "0") {
         erros++;
         $("#mstipo").html('<span class="label label-danger">O tipo precisa ser selecionado!</span>');
     } else {
         $("#mstipo").html('');
     }
 
-    if (prop === "0"){
+    if (prop === "0") {
         erros++;
         $("#msprop").html('<span class="label label-danger">O proprietário do caminhão precisa ser selecionado!</span>');
     } else {

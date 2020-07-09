@@ -329,7 +329,7 @@ function validar() {
 
 function buttonCancelarClick() {
     buttonLimparClick();
-    location.href = '../venda';
+    location.href = '../../venda';
 }
 
 function buttonLimparClick() {

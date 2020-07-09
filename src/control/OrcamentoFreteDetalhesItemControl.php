@@ -4,20 +4,21 @@
 namespace scr\control;
 
 
+use scr\model\ItemOrcamentoFrete;
 use scr\model\ItemOrcamentoVenda;
 use scr\model\Produto;
 use scr\model\TipoCaminhao;
 use scr\util\Banco;
 
-class OrcamentoVendaDetalhesItemControl
+class OrcamentoFreteDetalhesItemControl
 {
-    public function obter()
+    public function obter(int $orc)
     {
         if (!Banco::getInstance()->open()) return json_encode([]);
-        $itens = ItemOrcamentoVenda::findAllItems($_SESSION["ORCVEN"]);
+        $itens = (new ItemOrcamentoFrete())->findAll($orc);
         Banco::getInstance()->getConnection()->close();
         $serial = [];
-        /** @var ItemOrcamentoVenda $item */
+        /** @var ItemOrcamentoFrete $item */
         foreach ($itens as $item) {
             $serial[] = $item->jsonSerialize();
         }
@@ -25,10 +26,10 @@ class OrcamentoVendaDetalhesItemControl
         return json_encode($serial);
     }
 
-    public function obterProdutos()
+    public function obterPorRepresentacao(int $rep)
     {
         if (!Banco::getInstance()->open()) return json_encode([]);
-        $produtos = Produto::findAll();
+        $produtos = Produto::findByRepresentation($rep);
         Banco::getInstance()->getConnection()->close();
         $serial = [];
         /** @var Produto $produto */
@@ -39,15 +40,29 @@ class OrcamentoVendaDetalhesItemControl
         return json_encode($serial);
     }
 
-    public function obterProdutosPorFiltro(string $filtro)
+    public function obterPorRepresentacaoFiltro(int $rep, string $filtro)
     {
         if (!Banco::getInstance()->open()) return json_encode([]);
-        $produtos = Produto::findByKey($filtro);
+        $produtos = Produto::findByKeyRepresentation($filtro, $rep);
         Banco::getInstance()->getConnection()->close();
         $serial = [];
         /** @var Produto $produto */
         foreach ($produtos as $produto) {
             $serial[] = $produto->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorVenda(int $venda)
+    {
+        if (!Banco::getInstance()->open()) return json_encode([]);
+        $itens = ItemOrcamentoVenda::findAllItems($venda);
+        Banco::getInstance()->getConnection()->close();
+        $serial = [];
+        /** @var ItemOrcamentoVenda $item */
+        foreach ($itens as $item) {
+            $serial[] = $item->jsonSerialize();
         }
 
         return json_encode($serial);

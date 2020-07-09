@@ -31,6 +31,8 @@ require ROOT . "/src/model/Caminhao.php";
 require ROOT . "/src/model/Proprietario.php";
 require ROOT . "/src/model/OrcamentoVenda.php";
 require ROOT . "/src/model/ItemOrcamentoVenda.php";
+require ROOT . "/src/model/OrcamentoFrete.php";
+require ROOT . "/src/model/ItemOrcamentoFrete.php";
 
 require ROOT . '/src/util/Singleton.php';
 require ROOT . '/src/util/Banco.php';
@@ -93,3 +95,8 @@ require ROOT . "/src/control/OrcamentoVendaDetalhesItemControl.php";
 require ROOT . "/src/control/ProprietarioControl.php";
 require ROOT . "/src/control/ProprietarioNovoControl.php";
 require ROOT . "/src/control/ProprietarioDetalhesControl.php";
+require ROOT . "/src/control/OrcamentoFreteControl.php";
+require ROOT . "/src/control/OrcamentoFreteNovoControl.php";
+require ROOT . "/src/control/OrcamentoFreteNovoItemControl.php";
+require ROOT . "/src/control/OrcamentoFreteDetalhesControl.php";
+require ROOT . "/src/control/OrcamentoFreteDetalhesItemControl.php";

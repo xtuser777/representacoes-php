@@ -1,6 +1,15 @@
-<?php namespace scr\model;
+<?php
 
-use scr\dao\OrcamentoFreteDAO;
+
+namespace scr\model;
+
+
+use mysqli_result;
+use mysqli_stmt;
+use scr\dao\RepresentacaoDAO;
+use scr\dao\TipoCaminhaoDAO;
+use scr\dao\UsuarioDAO;
+use scr\util\Banco;
 
 class OrcamentoFrete
 {
@@ -18,7 +27,7 @@ class OrcamentoFrete
     private $destino;
     private $autor;
 
-    public function __construct(int $id, string $descricao, string $data, int $distancia, float $peso, float $valor, string $entrega, string $validade, ?OrcamentoVenda $orcamentoVenda, ?Representacao $representacao, TipoCaminhao $tipoCaminhao, Cidade $destino, Usuario $autor)
+    public function __construct(int $id = 0, string $descricao = "", string $data = "", int $distancia = 0, float $peso = 0.0, float $valor = 0.0, string $entrega = "", string $validade = "", ?OrcamentoVenda $orcamentoVenda = null, ?Representacao $representacao = null, TipoCaminhao $tipoCaminhao = null, Cidade $destino = null, Usuario $autor = null)
     {
         $this->id = $id;
         $this->descricao = $descricao;
@@ -38,6 +47,11 @@ class OrcamentoFrete
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function setId(int $id): void
+    {
+        $this->id = $id;
     }
 
     public function getDescricao(): string
@@ -100,29 +114,233 @@ class OrcamentoFrete
         return $this->autor;
     }
 
-    public static function findById(int $id): ?OrcamentoFrete
+    public function calcularPisoMinimo(float $km, int $eixos): float
     {
-        return $id > 0 ? OrcamentoFreteDAO::selectId($id) : null;
+        $piso = 0.0;
+
+        if ($km <= 0.0 || $eixos <= 0)
+            return $piso;
+
+        switch ($eixos) {
+            case 4:
+                $piso = $km * 2.3041;
+                break;
+            case 5:
+                $piso = $km * 2.7446;
+                break;
+            case 6:
+                $piso = $km * 3.1938;
+                break;
+            case 7:
+                $piso = $km * 3.3095;
+                break;
+            case 9:
+                $piso = $km * 3.6542;
+                break;
+        }
+
+        return $piso;
     }
 
-    public static function findByKey(string $key): array
+    public function findById(int $id): ?OrcamentoFrete
     {
-        return strlen(trim($key)) > 0 ? OrcamentoFreteDAO::selectKey($key) : [];
+        if ($id <= 0) return null;
+
+        $sql = "
+            select orc_fre_id,orc_fre_descricao,orc_fre_data,orc_fre_distancia,orc_fre_peso,orc_fre_valor,
+                   orc_fre_entrega,orc_fre_validade,orc_ven_id,rep_id,tip_cam_id,cid_id,usu_id
+            from orcamento_frete
+            where orc_fre_id = ?;
+        ";
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return null;
+        }
+        $stmt->bind_param("i", $id);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return null;
+        }
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return null;
+        }
+        $row = $result->fetch_assoc();
+
+        return new OrcamentoFrete(
+            $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],
+            $row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
+            OrcamentoVenda::findById($row["orc_ven_id"]),
+            RepresentacaoDAO::getById($row["rep_id"]),
+            TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
+            (new Cidade())->getById($row["cid_id"]),
+            UsuarioDAO::getById($row["usu_id"])
+        );
     }
 
-    public static function findByDate(string $date): array
+    public function findByKey(string $key): array
     {
-        return strlen(trim($date)) > 0 ? OrcamentoFreteDAO::selectDate($date) : [];
+        if (strlen(trim($key)) <= 0) return [];
+
+        $sql = "
+            select orc_fre_id,orc_fre_descricao,orc_fre_data,orc_fre_distancia,orc_fre_peso,orc_fre_valor,
+                   orc_fre_entrega,orc_fre_validade,orc_ven_id,rep_id,tip_cam_id,cid_id,usu_id
+            from orcamento_frete
+            where orc_fre_descricao like ?
+            order by orc_fre_id;
+        ";
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $filter = "%".$key."%";
+        $stmt->bind_param("s", $filter);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+        $orcamentos = [];
+        while ($row = $result->fetch_assoc()) {
+            $orcamentos[] = new OrcamentoFrete(
+                $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],$row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
+                OrcamentoVenda::findById($row["orc_ven_id"]),
+                RepresentacaoDAO::getById($row["rep_id"]),
+                TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
+                (new Cidade())->getById($row["cid_id"]),
+                UsuarioDAO::getById($row["usu_id"])
+            );
+        }
+
+        return $orcamentos;
     }
 
-    public static function findByKeyDate(string $key, string $date): array
+    public function findByDate(string $date): array
     {
-        return strlen(trim($key)) > 0 && strlen(trim($date)) > 0 ? OrcamentoFreteDAO::selectKeyDate($key, $date) : [];
+        if (strlen(trim($date)) <= 0) return [];
+
+        $sql = "
+            select orc_fre_id,orc_fre_descricao,orc_fre_data,orc_fre_distancia,orc_fre_peso,orc_fre_valor,
+                   orc_fre_entrega,orc_fre_validade,orc_ven_id,rep_id,tip_cam_id,cid_id,usu_id
+            from orcamento_frete
+            where orc_fre_data = ?
+            order by orc_fre_id;
+        ";
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $stmt->bind_param("s", $date);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+        $orcamentos = [];
+        while ($row = $result->fetch_assoc()) {
+            $orcamentos[] = new OrcamentoFrete(
+                $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],$row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
+                OrcamentoVenda::findById($row["orc_ven_id"]),
+                RepresentacaoDAO::getById($row["rep_id"]),
+                TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
+                (new Cidade())->getById($row["cid_id"]),
+                UsuarioDAO::getById($row["usu_id"])
+            );
+        }
+
+        return $orcamentos;
     }
 
-    public static function findAll(): array
+    public function findByKeyDate(string $key, string $date): array
     {
-        return OrcamentoFreteDAO::select();
+        if (strlen(trim($key)) <= 0 || strlen(trim($date)) <= 0) return [];
+
+        $sql = "
+            select orc_fre_id,orc_fre_descricao,orc_fre_data,orc_fre_distancia,orc_fre_peso,orc_fre_valor,
+                   orc_fre_entrega,orc_fre_validade,orc_ven_id,rep_id,tip_cam_id,cid_id,usu_id
+            from orcamento_frete
+            where orc_fre_descricao like ?
+            and orc_fre_data = ?
+            order by orc_fre_id;
+        ";
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $filter = "%".$key."%";
+        $stmt->bind_param("ss", $filter, $date);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+        $orcamentos = [];
+        while ($row = $result->fetch_assoc()) {
+            $orcamentos[] = new OrcamentoFrete(
+                $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],$row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
+                OrcamentoVenda::findById($row["orc_ven_id"]),
+                RepresentacaoDAO::getById($row["rep_id"]),
+                TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
+                (new Cidade())->getById($row["cid_id"]),
+                UsuarioDAO::getById($row["usu_id"])
+            );
+        }
+
+        return $orcamentos;
+    }
+
+    public function findAll(): array
+    {
+        $sql = "
+            select orc_fre_id,orc_fre_descricao,orc_fre_data,orc_fre_distancia,orc_fre_peso,orc_fre_valor,
+                   orc_fre_entrega,orc_fre_validade,orc_ven_id,rep_id,tip_cam_id,cid_id,usu_id
+            from orcamento_frete
+            order by orc_fre_id;
+        ";
+        /** @var $result mysqli_result */
+        $result = Banco::getInstance()->getConnection()->query($sql);
+        if (!$result || $result->num_rows <= 0) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $orcamentos = [];
+        while ($row = $result->fetch_assoc()) {
+            $orcamentos[] = new OrcamentoFrete(
+                $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],$row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
+                OrcamentoVenda::findById($row["orc_ven_id"]),
+                RepresentacaoDAO::getById($row["rep_id"]),
+                TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
+                (new Cidade())->getById($row["cid_id"]),
+                UsuarioDAO::getById($row["usu_id"])
+            );
+        }
+
+        return $orcamentos;
     }
 
     public function save(): int
@@ -132,11 +350,32 @@ class OrcamentoFrete
             $this->destino == null || $this->tipoCaminhao == null || $this->autor == null
         ) return -5;
 
-        return OrcamentoFreteDAO::insert($this->descricao, $this->data, $this->distancia, $this->peso, $this->valor,
-            $this->entrega, $this->validade, ((!$this->orcamentoVenda) ? 0 : $this->orcamentoVenda->getId()),
-            ((!$this->representacao) ? 0 : $this->representacao->getId()), $this->tipoCaminhao->getId(),
-            $this->destino->getId(), $this->autor->getId()
-        );
+        $sql = "
+            insert 
+            into orcamento_frete(orc_fre_descricao,orc_fre_data,orc_fre_distancia,orc_fre_peso,orc_fre_valor,orc_fre_entrega,orc_fre_validade,orc_ven_id,rep_id,tip_cam_id,cid_id,usu_id)
+            values(?,?,?,?,?,?,?,?,?,?,?,?);
+        ";
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+        $orcamentoVenda = (!$this->orcamentoVenda) ? 0 : $this->orcamentoVenda->getId();
+        $representacao = (!$this->representacao) ? 0 : $this->representacao->getId();
+        $tipoCaminhao = $this->tipoCaminhao->getId();
+        $destino = $this->destino->getId();
+        $autor = $this->autor->getId();
+        $stmt->bind_param(
+            "ssiddssiiiii",
+            $this->descricao, $this->data, $this->distancia, $this->peso, $this->valor, $this->entrega,
+            $this->validade, $orcamentoVenda, $representacao, $tipoCaminhao, $destino, $autor);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->insert_id;
     }
 
     public function update(): int
@@ -146,22 +385,62 @@ class OrcamentoFrete
             $this->destino == null || $this->tipoCaminhao == null || $this->autor == null
         ) return -5;
 
-        return OrcamentoFreteDAO::update($this->id, $this->descricao, $this->data, $this->distancia, $this->peso,
-            $this->valor, $this->entrega, $this->validade, ((!$this->orcamentoVenda) ? 0 : $this->orcamentoVenda->getId()),
-            ((!$this->representacao) ? 0 : $this->representacao->getId()), $this->tipoCaminhao->getId(),
-            $this->destino->getId(), $this->autor->getId()
-        );
+        $sql = "
+            update orcamento_frete
+            set orc_fre_descricao = ?,orc_fre_distancia = ?,orc_fre_peso = ?,orc_fre_valor = ?,orc_fre_entrega = ?,orc_fre_validade = ?,orc_ven_id = ?,rep_id = ?,tip_cam_id = ?,cid_id = ?,usu_id = ?
+            where orc_fre_id = ?;
+        ";
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+        $orcamentoVenda = (!$this->orcamentoVenda) ? 0 : $this->orcamentoVenda->getId();
+        $representacao = (!$this->representacao) ? 0 : $this->representacao->getId();
+        $tipoCaminhao = $this->tipoCaminhao->getId();
+        $destino = $this->destino->getId();
+        $autor = $this->autor->getId();
+        $stmt->bind_param(
+            "siddssiiiiii",
+            $this->descricao, $this->distancia, $this->peso, $this->valor, $this->entrega, $this->validade,
+            $orcamentoVenda, $representacao, $tipoCaminhao, $destino, $autor, $this->id);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
     }
 
     public function delete(): int
     {
-        return $this->id > 0 ? OrcamentoFreteDAO::delete($this->id) : -5;
+        if ($this->id <= 0) return -5;
+
+        $sql = "
+            delete
+            from orcamento_frete
+            where orc_fre_id = ?;
+        ";
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+        $stmt->bind_param("i", $this->id);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
     }
 
     public function jsonSerialize()
     {
-        $this->orcamentoVenda = $this->orcamentoVenda->jsonSerialize();
-        $this->representacao = $this->representacao->jsonSerialize();
+        $this->orcamentoVenda = (!$this->orcamentoVenda) ? null : $this->orcamentoVenda->jsonSerialize();
+        $this->representacao = (!$this->representacao) ? null : $this->representacao->jsonSerialize();
         $this->tipoCaminhao = $this->tipoCaminhao->jsonSerialize();
         $this->destino = $this->destino->jsonSerialize();
         $this->autor = $this->autor->jsonSerialize();

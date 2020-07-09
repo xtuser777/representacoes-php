@@ -2,6 +2,7 @@ const textFiltroProd = document.getElementById("text_filtro_prod");
 const tableProdutos = document.getElementById("table_produtos");
 const tbodyProduto = document.getElementById("tbody_produtos");
 const textQtde = document.getElementById("text_qtde_prod");
+const textValor = document.getElementById("text_valor_prod");
 const textProdSel = document.getElementById("text_prod_sel");
 
 var selecionado = {
@@ -13,6 +14,8 @@ var selecionado = {
     estado: 0,
     representacao: ""
 };
+
+var tipos = [];
 
 function preencheTabelaItens(dados) {
     var txt = "";
@@ -104,6 +107,7 @@ function selecionar(id,desc,peso,preco,precoOut,est,rep) {
         selecionado.estado = est;
         selecionado.representacao = rep;
 
+        textValor.value = (Number.parseInt(selectEstado.value) === Number.parseInt(est)) ? preco : precoOut;
         textProdSel.value = desc;
     }
 }
@@ -127,12 +131,13 @@ function cancelarAdicao() {
     selecionado.representacao = "";
 
     textQtde.value = 0;
+    textValor.value = 0.0;
     textProdSel.value = "";
 
-    erroQtde = true;
     $("#msqtdeprod").html('');
 
-    erroProd = true;
+    $("#msvalorprod").html('');
+
     $("#msprodsel").html('');
 
     $.fancybox.close();
@@ -168,16 +173,37 @@ function excluirItem(id) {
 
 function adicionarItem() {
     let erroQtde = true;
+    let erroValor = true;
     let erroProd = true;
-    let qtde = textQtde.value;
+    let erroTipos = true;
+    let qtde = Number.parseInt(textQtde.value);
+    let valorProd = Number.parseFloat(textValor.value);
     let prod = textProdSel.value;
 
-    if (qtde.toString().trim().length === 0 || qtde.toString() === "0") {
+    if (qtde === 0 || isNaN(qtde)) {
         erroQtde = true;
         $("#msqtdeprod").html('<span class="label label-danger">A quantidade precisa ser preenchida.</span>');
     } else {
-        erroQtde = false;
-        $("#msqtdeprod").html('');
+        if (qtde < 0) {
+            erroQtde = true;
+            $("#msqtdeprod").html('<span class="label label-danger">A quantidade precisa ser maior que 0.</span>');
+        } else {
+            erroQtde = false;
+            $("#msqtdeprod").html('');
+        }
+    }
+
+    if (valorProd === 0.0 || isNaN(valorProd)) {
+        erroValor = true;
+        $("#msvalorprod").html('<span class="label label-danger">O valor unitário deve ser preenchido!</span>');
+    } else {
+        if (valorProd < 0.0) {
+            erroValor = true;
+            $("#msvalorprod").html('<span class="label label-danger">O valor unitário deve ser maior que 0.</span>');
+        } else {
+            erroValor = false;
+            $("#msvalorprod").html('');
+        }
     }
 
     if (prod.toString().trim().length === 0) {
@@ -188,70 +214,122 @@ function adicionarItem() {
         $("#msprodsel").html('');
     }
 
-    if (!erroQtde && !erroProd) {
+    if (!erroQtde && !erroValor && !erroProd) {
         let peso = 0.0;
         let valor = 0.0;
-        if (Number(selectEstado.value) !== selecionado.estado) {
-            peso = selecionado.peso * Number(qtde);
-            valor = selecionado.precoOut * Number(qtde);
-        } else {
-            peso = selecionado.peso * Number(qtde);
-            valor = selecionado.preco * Number(qtde);
-        }
-        itens.push({
-            orcamento: 0,
-            produto: {
-                id: selecionado.id,
-                descricao: selecionado.descricao,
-                peso: selecionado.peso,
-                preco: selecionado.preco,
-                precoOut: selecionado.precoOut,
-                estado: selecionado.estado,
-                representacao: selecionado.representacao
+
+        $.ajax({
+            type: "POST",
+            url: "/representacoes/orcamento/venda/novo/item/obter-tipos-por-item.php",
+            data: { item: selecionado.id },
+            async: false,
+            success: function (res) {
+                if (res !== null && typeof res !== "string" && res.length !== 0) {
+                    if (tipos.length === 0) {
+                        tipos = res;
+                    } else {
+                        let tmp = [];
+
+                        for (let i = 0; i < res.length; i++) {
+                            if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
+                                tmp.push(res[i]);
+                            }
+                        }
+                        if (tmp.length === 0) {
+                            //erroTipos = true;
+                            alert("Este item não poderá ser entregue no mesmo frete por falta de compatibilidade de tipo de caminhão.");
+                        } else {
+                            //erroTipos = false;
+                            tipos = tmp;
+                            if (Number(selectEstado.value) !== selecionado.estado) {
+                                peso = selecionado.peso * qtde;
+                                valor = valorProd * qtde;
+                            } else {
+                                peso = selecionado.peso * qtde;
+                                valor = valorProd * qtde;
+                            }
+                            itens.push({
+                                orcamento: 0,
+                                produto: {
+                                    id: selecionado.id,
+                                    descricao: selecionado.descricao,
+                                    peso: selecionado.peso,
+                                    preco: selecionado.preco,
+                                    precoOut: selecionado.precoOut,
+                                    estado: selecionado.estado,
+                                    representacao: selecionado.representacao
+                                },
+                                quantidade: qtde,
+                                valor: truncate(valor),
+                                peso: peso
+                            });
+
+                            preencheTabelaItens(itens);
+
+                            let valorItens = 0.0;
+                            let pesoItens = 0.0;
+                            for(let i = 0; i < itens.length; i++) {
+                                valorItens += itens[i].valor;
+                                pesoItens += itens[i].peso;
+                            }
+
+                            let valorFormat = valorItens.toString();
+                            valorFormat = valorFormat.replace('.', '#');
+                            if (valorFormat.search('#') === -1) valorFormat += ',00';
+                            else valorFormat = valorFormat.replace('#', ',');
+
+                            let pesoFormat = pesoItens.toString();
+                            pesoFormat = pesoFormat.replace('.', ',');
+
+                            textValorItens.value = valorFormat;
+                            textPesoItens.value = pesoFormat;
+
+                            selecionado.id = 0;
+                            selecionado.descricao = "";
+                            selecionado.peso = 0.0;
+                            selecionado.preco = 0.0;
+                            selecionado.precoOut = 0.0;
+                            selecionado.estado = 0;
+                            selecionado.representacao = "";
+
+                            textQtde.value = 0;
+                            textValor.value = 0.0;
+                            textProdSel.value = "";
+
+                            erroQtde = true;
+                            $("#msqtdeprod").html('');
+
+                            erroValor = true;
+                            $("#msvalorprod").html('');
+
+                            erroProd = true;
+                            $("#msprodsel").html('');
+
+                            $.fancybox.close();
+                        }
+                    }
+
+                } else {
+                    mostraDialogo(
+                        res,
+                        "danger",
+                        3000
+                    );
+                }
             },
-            quantidade: Number(qtde),
-            valor: truncate(valor),
-            peso: peso
+            error: function (xhr, status, thrown) {
+                console.error(thrown);
+                mostraDialogo(
+                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/novo/item/obter-tipos-por-item.php",
+                    "danger",
+                    3000
+                );
+            }
         });
 
-        preencheTabelaItens(itens);
+        /*if (erroTipos === false) {
 
-        let valorItens = 0.0;
-        let pesoItens = 0.0;
-        for(let i = 0; i < itens.length; i++) {
-            valorItens += itens[i].valor;
-            pesoItens += itens[i].peso;
-        }
-
-        let valorFormat = valorItens.toString();
-        valorFormat = valorFormat.replace('.', '#');
-        if (valorFormat.search('#') === -1) valorFormat += ',00';
-        else valorFormat = valorFormat.replace('#', ',');
-
-        let pesoFormat = pesoItens.toString();
-        pesoFormat = pesoFormat.replace('.', ',');
-
-        textValorItens.value = valorFormat;
-        textPesoItens.value = pesoFormat;
-
-        selecionado.id = 0;
-        selecionado.descricao = "";
-        selecionado.peso = 0.0;
-        selecionado.preco = 0.0;
-        selecionado.precoOut = 0.0;
-        selecionado.estado = 0;
-        selecionado.representacao = "";
-
-        textQtde.value = 0;
-        textProdSel.value = "";
-
-        erroQtde = true;
-        $("#msqtdeprod").html('');
-
-        erroProd = true;
-        $("#msprodsel").html('');
-
-        $.fancybox.close();
+        }*/
     }
 }
 

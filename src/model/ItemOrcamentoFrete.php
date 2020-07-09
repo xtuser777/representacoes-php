@@ -1,4 +1,8 @@
-<?php namespace scr\model;
+<?php
+
+
+namespace scr\model;
+
 
 use mysqli_result;
 use mysqli_stmt;
@@ -11,7 +15,7 @@ class ItemOrcamentoFrete
     private $quantidade;
     private $peso;
 
-    public function __construct(OrcamentoFrete $orcamento, Produto $produto, int $quantidade, float $peso)
+    public function __construct(OrcamentoFrete $orcamento = null, Produto $produto = null, int $quantidade = 0, float $peso = 0.0)
     {
         $this->orcamento = $orcamento;
         $this->produto = $produto;
@@ -39,7 +43,7 @@ class ItemOrcamentoFrete
         return $this->peso;
     }
 
-    public static function findById(int $orcamento, int $produto) : ?ItemOrcamentoFrete
+    public function findById(int $orcamento, int $produto) : ?ItemOrcamentoFrete
     {
         if ($orcamento <= 0 || $produto <= 0) return null;
         $sql = "
@@ -67,17 +71,18 @@ class ItemOrcamentoFrete
         $row = $result->fetch_assoc();
 
         return new ItemOrcamentoFrete(
-            OrcamentoFrete::findById($row["orc_fre_id"]),
+            (new OrcamentoFrete())->findById($row["orc_fre_id"]),
             Produto::findById($row["pro_id"]),
             $row["orc_fre_pro_quantidade"], $row["orc_fre_pro_peso"]
         );
     }
 
-    public static function findAll(): array
+    public function findAll(int $orcamento): array
     {
         $sql = "
             select orc_fre_id, pro_id, orc_fre_pro_quantidade, orc_fre_pro_peso
-            from orcamento_frete_produto;
+            from orcamento_frete_produto
+            where orc_fre_id = ?;
         ";
         /** @var $stmt mysqli_stmt */
         $stmt = Banco::getInstance()->getConnection()->prepare($sql);
@@ -85,6 +90,7 @@ class ItemOrcamentoFrete
             echo Banco::getInstance()->getConnection()->error;
             return array();
         }
+        $stmt->bind_param("i", $orcamento);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return array();
@@ -98,7 +104,7 @@ class ItemOrcamentoFrete
         $itens = [];
         while ($row = $result->fetch_assoc()) {
             $itens[] = new ItemOrcamentoFrete(
-                OrcamentoFrete::findById($row["orc_fre_id"]),
+                (new OrcamentoFrete())->findById($row["orc_fre_id"]),
                 Produto::findById($row["pro_id"]),
                 $row["orc_fre_pro_quantidade"], $row["orc_fre_pro_peso"]
             );
@@ -123,7 +129,7 @@ class ItemOrcamentoFrete
         }
         $orcamento = $this->orcamento->getId();
         $produto = $this->produto->getId();
-        $stmt->bind_param("iiif", $orcamento, $produto, $this->quantidade, $this->peso);
+        $stmt->bind_param("iiid", $orcamento, $produto, $this->quantidade, $this->peso);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return -10;
@@ -148,7 +154,7 @@ class ItemOrcamentoFrete
         }
         $orcamento = $this->orcamento->getId();
         $produto = $this->produto->getId();
-        $stmt->bind_param("ifii", $this->quantidade, $this->peso, $orcamento, $produto);
+        $stmt->bind_param("idii", $this->quantidade, $this->peso, $orcamento, $produto);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return -10;

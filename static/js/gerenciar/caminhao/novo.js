@@ -115,14 +115,24 @@ function gravar() {
         erros++;
         $("#msanofab").html('<span class="label label-danger">O ano deve ser preenchido!</span>');
     } else {
-        $("#msanofab").html('');
+        if (Number.parseInt(anofab) > new Date().getFullYear()) {
+            erros++;
+            $("#msanofab").html('<span class="label label-danger">O ano deve ser menor ou igual ao atual.</span>');
+        } else {
+            $("#msanofab").html('');
+        }
     }
 
     if (anomod === "") {
         erros++;
         $("#msanomod").html('<span class="label label-danger">O ano deve ser preenchido!</span>');
     } else {
-        $("#msanomod").html('');
+        if (anofab.length > 0 && Number.parseInt(anomod) < Number.parseInt(anofab)) {
+            erros++;
+            $("#msanomod").html('<span class="label label-danger">O ano deve ser maior ou igual ao fab.</span>');
+        } else {
+            $("#msanomod").html('');
+        }
     }
 
     if (tipo === "0"){
