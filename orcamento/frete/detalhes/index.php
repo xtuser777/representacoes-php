@@ -353,11 +353,7 @@ if (!isset($_SESSION['USER_ID'])) {
                     <button id="button_cancelar" class="btn btn-danger" style="width: 100%;" onclick="buttonCancelarClick();">CANCELAR</button>
                 </div>
 
-                <div class="col-sm-6"></div>
-
-                <div class="col-sm-2">
-                    <button id="button_limpar" class="btn btn-primary" style="width: 100%;" onclick="buttonLimparClick();">LIMPAR</button>
-                </div>
+                <div class="col-sm-8"></div>
 
                 <div class="col-sm-2">
                     <button id="button_salvar" class="btn btn-success" style="width: 100%;" onclick="buttonSalvarClick();">SALVAR</button>

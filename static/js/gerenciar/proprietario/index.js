@@ -13,13 +13,13 @@ function preencherTabela(dados) {
         txt +=
             '<tr>\
                 <td class="hidden">' + this.id + '</td>\
-                        <td>' + nome + '</td>\
-                        <td>' + doc + '</td>\
-                        <td>' + FormatarData(this.cadastro) + '</td>\
-                        <td>'+ email +'</td>\
-                        <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
-                        <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
-                    </tr>';
+                <td>' + nome + '</td>\
+                <td>' + doc + '</td>\
+                <td>' + FormatarData(this.cadastro) + '</td>\
+                <td>'+ email +'</td>\
+                <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
+                <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
+            </tr>';
     });
     $(tbodyProprietarios).html(txt);
 }

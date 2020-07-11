@@ -275,6 +275,7 @@ if (!isset($_SESSION["USER_ID"])) {
         <script src="/representacoes/static/lib/jquery/dist/jquery.js"></script>
         <script src="/representacoes/static/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="/representacoes/static/js/site.js"></script>
+        <script src="/representacoes/static/lib/bootbox/bootbox.min.js"></script>
         <script src="/representacoes/static/js/gerenciar/proprietario/index.js"></script>
 
     </body>

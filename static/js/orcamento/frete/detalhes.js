@@ -293,7 +293,7 @@ async function textDistanciaBlur() {
         await $.ajax({
             type: "POST",
             url: "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
-            data: { distancia: dist, eixos: tipos[Number.parseInt(selectTipoCam.value)-1].eixos },
+            data: { distancia: dist, eixos: tipos[tipos.findIndex((element) => { return (element.id === Number.parseInt(selectTipoCam.value)); })].eixos },
             success: function (response) {
                 if (response <= 0) {
                     mostraDialogo(
@@ -336,9 +336,57 @@ async function textDistanciaBlur() {
     }
 }
 
+async function textDistanciaValid() {
+    let dist = Number.parseFloat(textDistancia.value);
+    if (dist <= 0 || isNaN(dist)) {
+        erroDistancia = true;
+        $("#msdist").html('<span class="label label-danger">A distância a percorrer deve ser preenchida.</span>');
+
+        piso = 0.0;
+        let valorFormat = piso.toString();
+        valorFormat = valorFormat.replace('.', '#');
+        if (valorFormat.search('#') === -1) valorFormat += ',00';
+        else valorFormat = valorFormat.replace('#', ',');
+
+        textValorFrete.value = valorFormat;
+    } else {
+        erroDistancia = false;
+        $("#msdist").html('');
+
+        await $.ajax({
+            type: "POST",
+            url: "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
+            data: { distancia: dist, eixos: tipos[tipos.findIndex((element) => { return (element.id === Number.parseInt(selectTipoCam.value)); })].eixos },
+            success: function (response) {
+                if (response <= 0) {
+                    mostraDialogo(
+                        "Erro ao processar a requisição",
+                        "danger",
+                        3000
+                    );
+                } else {
+                    let tmp = response.toString();
+                    tmp = tmp.replace('.', '#');
+                    tmp = tmp.substring(0, tmp.indexOf('#')+3);
+                    tmp = tmp.replace('#', '.');
+                    piso = Number.parseFloat(tmp);
+                }
+            },
+            error: function (xhr, status, thrown) {
+                console.error(thrown);
+                mostraDialogo(
+                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
+                    "danger",
+                    3000
+                );
+            }
+        });
+    }
+}
+
 function textValorFreteBlur() {
-    let valor = $("#txValorFrete").val();
-    if (valor.length === 0 || valor === "0,00") {
+    let valor = $(textValorFrete).val();
+    if (valor.length === 0 || valor === "0,00" || valor === 0 || valor === 0.0) {
         erroValor = true;
         $("#msvalor").html('<span class="label label-danger">O valor do orçamento deve ser preenchido.</span>');
     } else {
@@ -363,8 +411,8 @@ function dateEntregaBlur() {
         erroEntrega = true;
         $("#msentrega").html('<span class="label label-danger">A data aproximada de entrega precisa ser preenchida.</span>');
     } else {
-        let dateEntrega = new Date(entrega);
-        if (dateEntrega < Date.now()) {
+        let dateEntrega = new Date(entrega + " 23:59:00");
+        if (dateEntrega < new Date()) {
             erroEntrega = true;
             $("#msentrega").html('<span class="label label-danger">A data é inválida (menor que a atual).</span>');
         } else {
@@ -380,8 +428,8 @@ function dateValidadeBlur() {
         erroValidade = true;
         $("#msvalid").html("<span class='label label-danger'>A data de vencimento do orçamento precisa ser preenchida.</span>");
     } else {
-        let dateVal = new Date(validade);
-        if (dateVal < Date.now()) {
+        let dateVal = new Date(validade + " 23:59:00");
+        if (dateVal < new Date()) {
             erroValidade = true;
             $("#msvalid").html("<span class='label label-danger'>A data de vencimento é inválida (menor que a atual).</span>");
         } else {
@@ -403,7 +451,7 @@ async function validar() {
     selectEstadoBlur();
     selectCidadeBlur();
     selectTipoCaminhaoBlur();
-    await textDistanciaBlur();
+    await textDistanciaValid();
     textValorFreteBlur();
     dateEntregaBlur();
     dateValidadeBlur();
@@ -474,6 +522,7 @@ async function buttonSalvarClick() {
             venc = dateValidade.value;
 
             let frm = new FormData();
+            frm.append("orc", orcamento);
             frm.append("desc", desc);
             frm.append("ven", ven);
             frm.append("rep", rep);
@@ -535,7 +584,7 @@ async function buttonSalvarClick() {
     }
 }
 
-$(document).ready((event) => {
+$(document).ready(async (event) => {
     let prods = get("/representacoes/gerenciar/produto/obter.php");
     if (prods === null || prods.length === 0) {
         alert("Não existem produtos cadastrados!");
@@ -581,7 +630,7 @@ $(document).ready((event) => {
         $(textDesc).val(detalhes.descricao);
         if (detalhes.orcamentoVenda !== null) {
             $(selectOrcVenda).val(detalhes.orcamentoVenda.id);
-            selectOrcVendaChange();
+            await selectOrcVendaChange();
         } else {
             $(selectRepresentacao).val(detalhes.representacao.id);
             selectRepresentacaoChange();
@@ -591,7 +640,7 @@ $(document).ready((event) => {
         $(selectCidade).val(detalhes.destino.id);
         selectTipoCam.value = detalhes.tipoCaminhao.id;
         $(textDistancia).val(detalhes.distancia);
-        textDistanciaBlur();
+        await textDistanciaBlur();
         $(textValorFrete).val(detalhes.valor);
         $(dateEntrega).val(detalhes.entrega);
         $(dateValidade).val(detalhes.validade);
