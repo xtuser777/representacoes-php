@@ -182,6 +182,23 @@ async function selectOrcVendaChange() {
 function selectRepresentacaoChange() {
     let rep = Number.parseInt($(selectRepresentacao).val());
     selectOrcVenda.disabled = rep !== 0;
+
+    let nome = selectRepresentacao.innerText;
+
+    if (itens.length !== 0 && itens[0].produto.representacao !== nome) {
+        itens = [];
+        preencheTabelaItens(itens);
+        tipos = [];
+        limparSelectTipo();
+        textPesoItens.value = "0,0";
+        piso = 0.0;
+        let valorFormat = piso.toString();
+        valorFormat = valorFormat.replace('.', '#');
+        if (valorFormat.search('#') === -1) valorFormat += ',00';
+        else valorFormat = valorFormat.replace('#', ',');
+
+        textValorFrete.value = valorFormat;
+    }
 }
 
 function selectEstadoBlur() {
@@ -290,10 +307,12 @@ async function textDistanciaBlur() {
         erroDistancia = false;
         $("#msdist").html('');
 
+        let tipo = tipos.findIndex((element) => { return (element.id === Number.parseInt(selectTipoCam.value)); });
+
         await $.ajax({
             type: "POST",
             url: "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
-            data: { distancia: dist, eixos: tipos[tipos.findIndex((element) => { return (element.id === Number.parseInt(selectTipoCam.value)); })].eixos },
+            data: { distancia: dist, eixos: tipos[tipo].eixos },
             success: function (response) {
                 if (response <= 0) {
                     mostraDialogo(
@@ -312,7 +331,8 @@ async function textDistanciaBlur() {
             error: function (xhr, status, thrown) {
                 console.error(thrown);
                 mostraDialogo(
-                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
+                    "Erro ao processar a requisição: <br/>" +
+                    "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
                     "danger",
                     3000
                 );
@@ -631,18 +651,108 @@ $(document).ready(async (event) => {
         if (detalhes.orcamentoVenda !== null) {
             $(selectOrcVenda).val(detalhes.orcamentoVenda.id);
             await selectOrcVendaChange();
+
+            $(selectEstado).val(detalhes.destino.estado.id);
+            selectEstadoChange();
+            $(selectCidade).val(detalhes.destino.id);
+            selectTipoCam.value = detalhes.tipoCaminhao.id;
+            $(textDistancia).val(detalhes.distancia);
+            await textDistanciaBlur();
+            $(textValorFrete).val(detalhes.valor);
+            $(dateEntrega).val(detalhes.entrega);
+            $(dateValidade).val(detalhes.validade);
         } else {
             $(selectRepresentacao).val(detalhes.representacao.id);
             selectRepresentacaoChange();
+
+            await $.ajax({
+                type: "POST",
+                url: "/representacoes/orcamento/frete/detalhes/item/obter.php",
+                data: { orcamento: detalhes.id },
+                success: async function (response) {
+                    if (response !== null && response.length !== 0) {
+                        let peso = 0.0;
+                        for (let i = 0; i < response.length; i++) {
+                            peso += response[i].peso;
+                            await $.ajax({
+                                type: "POST",
+                                url: "/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php",
+                                data: { item: response[i].produto.id },
+                                success: function (res) {
+                                    if (res !== null && res !== []) {
+                                        if (tipos.length === 0) {
+                                            tipos = res;
+                                            for (let i = 0; i < res.length; i++) {
+                                                let option = document.createElement("option");
+                                                option.value = res[i].id;
+                                                option.text = res[i].descricao;
+                                                selectTipoCam.appendChild(option);
+                                            }
+                                        } else {
+                                            let tmp = [];
+                                            limparSelectTipo();
+
+                                            for (let i = 0; i < res.length; i++) {
+                                                if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
+                                                    tmp.push(res[i]);
+                                                    let option = document.createElement("option");
+                                                    option.value = res[i].id;
+                                                    option.text = res[i].descricao;
+                                                    selectTipoCam.appendChild(option);
+                                                }
+                                            }
+                                            tipos = tmp;
+                                        }
+
+                                    }
+                                },
+                                error: function (xhr, status, thrown) {
+                                    console.error(thrown);
+                                    mostraDialogo(
+                                        "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php",
+                                        "danger",
+                                        3000
+                                    );
+                                }
+                            });
+                            let item = {
+                                orcamento: 0,
+                                produto: {
+                                    id: response[i].produto.id,
+                                    descricao: response[i].produto.descricao,
+                                    peso: response[i].produto.peso,
+                                    estado: response[i].produto.representacao.pessoa.contato.endereco.cidade.estado.id,
+                                    representacao: response[i].produto.representacao.pessoa.nomeFantasia
+                                },
+                                quantidade: Number(response[i].quantidade),
+                                peso: response[i].peso
+                            };
+                            itens.push(item);
+                            preencheTabelaItens(itens);
+                        }
+                        textPesoItens.value = peso;
+
+                        $(selectEstado).val(detalhes.destino.estado.id);
+                        selectEstadoChange();
+                        $(selectCidade).val(detalhes.destino.id);
+                        selectTipoCam.value = detalhes.tipoCaminhao.id;
+                        $(textDistancia).val(detalhes.distancia);
+                        await textDistanciaBlur();
+                        $(textValorFrete).val(detalhes.valor);
+                        $(dateEntrega).val(detalhes.entrega);
+                        $(dateValidade).val(detalhes.validade);
+                    }
+                },
+                error: function (xhr, status, thrown) {
+                    console.error(thrown);
+                    mostraDialogo(
+                        "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/item/obter-por-venda.php",
+                        "danger",
+                        3000
+                    );
+                }
+            });
         }
-        $(selectEstado).val(detalhes.destino.estado.id);
-        selectEstadoChange();
-        $(selectCidade).val(detalhes.destino.id);
-        selectTipoCam.value = detalhes.tipoCaminhao.id;
-        $(textDistancia).val(detalhes.distancia);
-        await textDistanciaBlur();
-        $(textValorFrete).val(detalhes.valor);
-        $(dateEntrega).val(detalhes.entrega);
-        $(dateValidade).val(detalhes.validade);
+
     }
 });

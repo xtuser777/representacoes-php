@@ -225,9 +225,22 @@ class ProprietarioControl
 
     public function excluir(int $id)
     {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
+        if (!Banco::getInstance()->open())
+            return json_encode("Erro ao conectar-se ao banco de dados.");
         $prop = (new Proprietario())->findById($id);
-        if (!$prop) return json_encode("Registro não encontrado.");
+        if (!$prop)
+            return json_encode("Registro não encontrado.");
+        $prp = $prop->delete();
+        if ($prp === -10 || $prp === -1) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("");
+        }
+        if ($prp === -5) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("");
+        }
         if ($prop->getTipo() === 1) {
             $end = Endereco::delete($prop->getPessoaFisica()->getContato()->getEndereco()->getId());
             if ($end === -10 || $end === -1) {
@@ -297,17 +310,7 @@ class ProprietarioControl
                 return json_encode("Registro inválido.");
             }
         }
-        $prp = $prop->delete();
-        if ($prp === -10 || $prp === -1) {
-            Banco::getInstance()->getConnection()->rollback();
-            Banco::getInstance()->getConnection()->close();
-            return json_encode("");
-        }
-        if ($prp === -5) {
-            Banco::getInstance()->getConnection()->rollback();
-            Banco::getInstance()->getConnection()->close();
-            return json_encode("");
-        }
+
         Banco::getInstance()->getConnection()->rollback();
         Banco::getInstance()->getConnection()->close();
 

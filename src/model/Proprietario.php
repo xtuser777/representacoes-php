@@ -541,9 +541,63 @@ class Proprietario
     public function delete(): int
     {
         if ($this->id <= 0) return -5;
+
+        $ret = 0;
+        if ($this->tipo === 1) {
+            $ret = $this->deletePF();
+        } else {
+            $ret = $this->deletePJ();
+        }
+
+        if ($ret < 0) return $ret;
+
         $sql = "
             DELETE
             FROM proprietario
+            WHERE prp_id = ?;
+        ";
+        /** @var mysqli_stmt $stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+        $stmt->bind_param("i", $this->id);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
+    }
+
+    public function deletePF(): int
+    {
+        $sql = "
+            DELETE
+            FROM proprietario_pessoa_fisica
+            WHERE prp_id = ?;
+        ";
+        /** @var mysqli_stmt $stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+        $stmt->bind_param("i", $this->id);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
+    }
+
+    public function deletePJ(): int
+    {
+        $sql = "
+            DELETE
+            FROM proprietario_pessoa_juridica
             WHERE prp_id = ?;
         ";
         /** @var mysqli_stmt $stmt */

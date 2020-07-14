@@ -180,6 +180,23 @@ async function selectOrcVendaChange() {
 function selectRepresentacaoChange() {
     let rep = Number.parseInt($(selectRepresentacao).val());
     selectOrcVenda.disabled = rep !== 0;
+
+    let nome = selectRepresentacao.innerText;
+
+    if (itens.length !== 0 && itens[0].produto.representacao !== nome) {
+        itens = [];
+        preencheTabelaItens(itens);
+        tipos = [];
+        limparSelectTipo();
+        textPesoItens.value = "0,0";
+        piso = 0.0;
+        let valorFormat = piso.toString();
+        valorFormat = valorFormat.replace('.', '#');
+        if (valorFormat.search('#') === -1) valorFormat += ',00';
+        else valorFormat = valorFormat.replace('#', ',');
+
+        textValorFrete.value = valorFormat;
+    }
 }
 
 function selectEstadoBlur() {
@@ -291,7 +308,7 @@ async function textDistanciaBlur() {
         await $.ajax({
             type: "POST",
             url: "/representacoes/orcamento/frete/novo/calcular-piso-minimo.php",
-            data: { distancia: dist, eixos: tipos[Number.parseInt(selectTipoCam.value)-1].eixos },
+            data: { distancia: dist, eixos: tipos[tipos.findIndex((element) => { return (element.id === Number.parseInt(selectTipoCam.value)); })].eixos},
             success: function (response) {
                 if (response <= 0) {
                     mostraDialogo(
@@ -331,6 +348,54 @@ async function textDistanciaBlur() {
         }
 
         textValorFrete.value = valorFormat;
+    }
+}
+
+async function textDistanciaValid() {
+    let dist = Number.parseFloat(textDistancia.value);
+    if (dist <= 0 || isNaN(dist)) {
+        erroDistancia = true;
+        $("#msdist").html('<span class="label label-danger">A distância a percorrer deve ser preenchida.</span>');
+
+        piso = 0.0;
+        let valorFormat = piso.toString();
+        valorFormat = valorFormat.replace('.', '#');
+        if (valorFormat.search('#') === -1) valorFormat += ',00';
+        else valorFormat = valorFormat.replace('#', ',');
+
+        textValorFrete.value = valorFormat;
+    } else {
+        erroDistancia = false;
+        $("#msdist").html('');
+
+        await $.ajax({
+            type: "POST",
+            url: "/representacoes/orcamento/frete/novo/calcular-piso-minimo.php",
+            data: { distancia: dist, eixos: tipos[tipos.findIndex((element) => { return (element.id === Number.parseInt(selectTipoCam.value)); })].eixos},
+            success: function (response) {
+                if (response <= 0) {
+                    mostraDialogo(
+                        "Erro ao processar a requisição",
+                        "danger",
+                        3000
+                    );
+                } else {
+                    let tmp = response.toString();
+                    tmp = tmp.replace('.', '#');
+                    tmp = tmp.substring(0, tmp.indexOf('#')+3);
+                    tmp = tmp.replace('#', '.');
+                    piso = Number.parseFloat(tmp);
+                }
+            },
+            error: function (xhr, status, thrown) {
+                console.error(thrown);
+                mostraDialogo(
+                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/novo/calcular-piso-minimo.php",
+                    "danger",
+                    3000
+                );
+            }
+        });
     }
 }
 
@@ -401,7 +466,7 @@ async function validar() {
     selectEstadoBlur();
     selectCidadeBlur();
     selectTipoCaminhaoBlur();
-    await textDistanciaBlur();
+    await textDistanciaValid();
     textValorFreteBlur();
     dateEntregaBlur();
     dateValidadeBlur();

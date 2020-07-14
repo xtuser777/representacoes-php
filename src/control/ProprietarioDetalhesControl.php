@@ -66,7 +66,7 @@ class ProprietarioDetalhesControl
         return json_encode($valid);
     }
 
-    public function alterar($mot, $tipo, $prp, $pes, $ctt, $end, $nome, $rg, $cpf, $nasc, $rs, $nf, $cnpj, $rua, $num, $bairro, $comp, $cep, $cid, $tel, $cel, $email)
+    public function alterar(int $mot, int $tipo, int $prp, int $pes, int $ctt, int $end, string $nome, string $rg, string $cpf, string $nasc, string $rs, string $nf, string $cnpj, string $rua, string $num, string $bairro, string $comp, string $cep, int $cid, string $tel, string $cel, string $email)
     {
         if (!Banco::getInstance()->open())
             return json_encode("Erro ao conectar-se ao banco de dados.");

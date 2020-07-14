@@ -131,23 +131,31 @@ function cancelarAdicao() {
 }
 
 function excluirItem(id) {
-    let temp = [];
-    let x = 0;
-    for (let i = 0; i < itens.length; i++) {
-        if (itens[i].produto.id !== id) {
-            temp.push(itens[i]);
-        } else {
-            x = i;
+    if (Number.parseInt(selectOrcVenda.value) !== 0) {
+        mostraDialogo(
+            "Não é possível remover este item.",
+            "warning",
+            3000
+        );
+    } else {
+        let temp = [];
+        let x = 0;
+        for (let i = 0; i < itens.length; i++) {
+            if (itens[i].produto.id !== id) {
+                temp.push(itens[i]);
+            } else {
+                x = i;
+            }
         }
-    }
-    let pesoFormat = textPesoItens.value;
-    let peso = Number.parseFloat(pesoFormat.replace(',', '.'));
-    peso -= itens[x].peso;
-    pesoFormat = peso.toString().replace('.', ',');
+        let pesoFormat = textPesoItens.value;
+        let peso = Number.parseFloat(pesoFormat.replace(',', '.'));
+        peso -= itens[x].peso;
+        pesoFormat = peso.toString().replace('.', ',');
 
-    textPesoItens.value = pesoFormat;
-    itens = temp;
-    preencheTabelaItens(itens);
+        textPesoItens.value = pesoFormat;
+        itens = temp;
+        preencheTabelaItens(itens);
+    }
 }
 
 async function adicionarItem() {
