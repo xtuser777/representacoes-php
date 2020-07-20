@@ -291,6 +291,36 @@ if (!isset($_SESSION['USER_ID'])) {
                 <div class="fieldset-card-legend">Produtos orçados</div>
 
                 <div class="fieldset-card-container">
+                    <div class="row" style="margin-bottom: 20px;">
+                        <div class="col-sm-4">
+                            <label for="slProdutos">Produto:</label>
+                            <select id="slProdutos" class="form-control input-sm" onchange="slProdutosChange();">
+                                <option value="0">SELECIONE</option>
+                            </select>
+                            <div id="msprodsel"></div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="txValorProd">Valor (R$)</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">R$</div>
+                                <input type="text" id="txValorProd" class="form-control input-sm" style="width: 100%;" value="0,00">
+                            </div>
+                            <div id="msvalorprod"></div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="txQtdeProd">Quantidade</label>
+                            <input type="number" id="txQtdeProd" class="form-control input-sm" style="width: 100%;" value="0">
+                            <div id="msqtdeprod"></div>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="btAddProd">&nbsp;</label>
+                            <button id="btAddProd" class="btn btn-success btn-sm" style="width: 100%;" onclick="adicionarItem();">ADICIONAR</button>
+                        </div>
+                    </div>
+
                     <div class="table-container" style="height: 150px;">
                         <table id="table_itens" class="table table-striped table-hover">
 
@@ -312,15 +342,13 @@ if (!isset($_SESSION['USER_ID'])) {
                     </div>
 
                     <div class="row">
-                        <div class="col-sm-8"></div>
+                        <div class="col-sm-5"></div>
 
                         <div class="col-sm-2">
                             <button id="button_clr_itens" class="btn btn-primary btn-sm" style="width: 100%;" onclick="buttonClrItensClick();">LIMPAR</button>
                         </div>
 
-                        <div class="col-sm-2">
-                            <button id="button_add_item" class="btn btn-success btn-sm" onclick="abrirAdicionarItem();" style="width: 100%;">ADICIONAR</button>
-                        </div>
+                        <div class="col-sm-5"></div>
                     </div>
                 </div>
             </div>

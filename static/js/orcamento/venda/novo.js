@@ -8,13 +8,14 @@ const textDesc = document.getElementById("text_desc");
 const selectVendedor = document.getElementById("select_vendedor");
 const selectCidade = document.getElementById("select_cid_dest");
 const selectEstado = document.getElementById("select_est_dest");
-const tableItens = document.getElementById("table_itens");
 const tbodyItens = document.getElementById("tbody_itens");
 const textPesoItens = document.getElementById("text_peso_itens");
 const textValorItens = document.getElementById("text_valor_itens");
 const dateValidade = document.getElementById("date_validade");
 
 var clientes = [];
+
+var produtos = [];
 
 var itens = [];
 
@@ -493,6 +494,8 @@ $(document).ready((event) => {
             selectEstado.appendChild(option);
         }
     }
+
+    obterProdutos();
 
     buttonLimparClick();
 });

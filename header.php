@@ -2,7 +2,8 @@
 
 if (session_status() !== PHP_SESSION_ACTIVE) //Verifica se sessão foi iniciada, senão inicia
 {
-    session_cache_expire(1440); //Define o limite de sessão para 1 dia (60*24)
+    //session_cache_limiter("private_no_expire");
+    session_cache_expire(87000); //Define o limite de sessão para 1 dia (60*24)
     session_start();
 }
 
@@ -34,7 +35,6 @@ require ROOT . "/src/model/ItemOrcamentoVenda.php";
 require ROOT . "/src/model/OrcamentoFrete.php";
 require ROOT . "/src/model/ItemOrcamentoFrete.php";
 
-require ROOT . '/src/util/Singleton.php';
 require ROOT . '/src/util/Banco.php';
 
 require ROOT . '/src/dao/EnderecoDAO.php';

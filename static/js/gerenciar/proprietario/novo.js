@@ -127,11 +127,13 @@ function selectMotoristaChange() {
 
 function selectTipoChange() {
     if ($(selectTipo).val() === "1") {
+        selectMotorista.disabled = false;
         if (!juridica.classList.contains("hidden"))
             juridica.classList.add("hidden");
         if (fisica.classList.contains("hidden"))
             fisica.classList.remove("hidden");
     } else {
+        selectMotorista.disabled = true;
         if (juridica.classList.contains("hidden"))
             juridica.classList.remove("hidden");
         if (!fisica.classList.contains("hidden"))
@@ -506,6 +508,7 @@ function limparCidades() {
 
 function limpar() {
     $(selectMotorista).val(0);
+    selectMotoristaChange();
     selectTipo.disabled = false;
     $(selectTipo).val(1);
     selectTipoChange();

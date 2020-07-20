@@ -187,21 +187,6 @@ CREATE OR REPLACE TABLE motorista
     FOREIGN KEY (dad_ban_id) REFERENCES dados_bancarios(dad_ban_id)
 );
 
-CREATE OR REPLACE TABLE caminhao
-(
-    cam_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    cam_placa VARCHAR(10) NOT NULL,
-    cam_marca VARCHAR(30) NOT NULL,
-    cam_modelo VARCHAR(50) NOT NULL,
-    cam_cor VARCHAR(30) NOT NULL,
-    cam_ano_fabricacao VARCHAR(4) NOT NULL,
-    cam_ano_modelo VARCHAR(4) NOT NULL,
-    tip_cam_id INTEGER NOT NULL,
-    prp_id INTEGER NOT NULL,
-    FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
-    FOREIGN KEY (prp_id) REFERENCES proprietario(prp_id)
-);
-
 CREATE OR REPLACE TABLE orcamento_venda
 (
     orc_ven_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -290,4 +275,19 @@ CREATE OR REPLACE TABLE proprietario_pessoa_juridica
     PRIMARY KEY (prp_id, pj_id),
     FOREIGN KEY (prp_id) REFERENCES proprietario(prp_id),
     FOREIGN KEY (pj_id) REFERENCES pessoa_juridica(pj_id)
+);
+
+CREATE OR REPLACE TABLE caminhao
+(
+    cam_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    cam_placa VARCHAR(10) NOT NULL,
+    cam_marca VARCHAR(30) NOT NULL,
+    cam_modelo VARCHAR(50) NOT NULL,
+    cam_cor VARCHAR(30) NOT NULL,
+    cam_ano_fabricacao VARCHAR(4) NOT NULL,
+    cam_ano_modelo VARCHAR(4) NOT NULL,
+    tip_cam_id INTEGER NOT NULL,
+    prp_id INTEGER NOT NULL,
+    FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
+    FOREIGN KEY (prp_id) REFERENCES proprietario(prp_id)
 );

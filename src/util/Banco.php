@@ -1,17 +1,35 @@
-<?php namespace scr\util;
+<?php
+
+
+namespace scr\util;
+
 
 use mysqli;
 
-class Banco extends Singleton
+class Banco
 {
+    private static $instances = [];
     /** @var mysqli */
     private $conn = null;
-    
-    /**
-     * The Singleton's constructor should always be private to prevent direct
-     * construction calls with the `new` operator.
-     */
-    protected function __construct() { }
+
+    private function __construct() { }
+
+    private function __clone() { }
+
+    public function __wakeup()
+    {
+        throw new \Exception("Cannot unserialize singleton");
+    }
+
+    public static function getInstance()
+    {
+        $session_id = session_id();
+        if (!isset(self::$instances[$session_id])) {
+            self::$instances[$session_id] = new Banco();
+        }
+
+        return self::$instances[$session_id];
+    }
 
     public function open(): bool
     {

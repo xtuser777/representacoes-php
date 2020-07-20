@@ -218,115 +218,111 @@ async function adicionarItem() {
         let peso = 0.0;
         let valor = 0.0;
 
-        await $.ajax({
-            type: "POST",
-            url: "/representacoes/orcamento/venda/detalhes/item/obter-tipos-por-item.php",
-            data: { item: selecionado.id },
-            success: function (res) {
-                if (res !== null && typeof res !== "string" && res.length !== 0) {
-                    if (tipos.length === 0) {
-                        tipos = res;
-                    } else {
-                        let tmp = [];
+        let request = new XMLHttpRequest();
+        request.open('POST', '/representacoes/orcamento/venda/novo/item/obter-tipos-por-item.php', false);
+        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        request.send(encodeURI('item='+selecionado.id));
 
-                        for (let i = 0; i < res.length; i++) {
-                            if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
-                                tmp.push(res[i]);
-                            }
-                        }
-                        if (tmp.length === 0) {
-                            erroTipos = true;
-                            alert("Este item não poderá ser entregue no mesmo frete por falta de compatibilidade de tipo de caminhão.");
-                        } else {
-                            erroTipos = false;
-                            tipos = tmp;
+        if (request.DONE === 4 && request.status === 200) {
+            let res = JSON.parse(request.responseText);
+            if (res !== null && typeof res !== "string" && res.length !== 0) {
+                let tmp = [];
+
+                if (tipos.length === 0) {
+                    tmp = res;
+                } else {
+                    for (let i = 0; i < res.length; i++) {
+                        if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
+                            tmp.push(res[i]);
                         }
                     }
-
-                } else {
-                    mostraDialogo(
-                        res,
-                        "danger",
-                        3000
-                    );
                 }
-            },
-            error: function (xhr, status, thrown) {
-                console.error(thrown);
+
+                if (tmp.length === 0) {
+                    alert("Este item não poderá ser entregue no mesmo frete por falta de compatibilidade de tipo de caminhão.");
+                } else {
+                    tipos = tmp;
+
+                    if (Number(selectEstado.value) !== selecionado.estado) {
+                        peso = selecionado.peso * qtde;
+                        valor = valorProd * qtde;
+                    } else {
+                        peso = selecionado.peso * qtde;
+                        valor = valorProd * qtde;
+                    }
+                    itens.push({
+                        orcamento: 0,
+                        produto: {
+                            id: selecionado.id,
+                            descricao: selecionado.descricao,
+                            peso: selecionado.peso,
+                            preco: selecionado.preco,
+                            precoOut: selecionado.precoOut,
+                            estado: selecionado.estado,
+                            representacao: selecionado.representacao
+                        },
+                        quantidade: qtde,
+                        valor: truncate(valor),
+                        peso: peso
+                    });
+
+                    preencheTabelaItens(itens);
+
+                    let valorItens = 0.0;
+                    let pesoItens = 0.0;
+                    for(let i = 0; i < itens.length; i++) {
+                        valorItens += itens[i].valor;
+                        pesoItens += itens[i].peso;
+                    }
+
+                    let valorFormat = valorItens.toString();
+                    valorFormat = valorFormat.replace('.', '#');
+                    if (valorFormat.search('#') === -1) valorFormat += ',00';
+                    else valorFormat = valorFormat.replace('#', ',');
+
+                    let pesoFormat = pesoItens.toString();
+                    pesoFormat = pesoFormat.replace('.', ',');
+
+                    textValorItens.value = valorFormat;
+                    textPesoItens.value = pesoFormat;
+
+                    selecionado.id = 0;
+                    selecionado.descricao = "";
+                    selecionado.peso = 0.0;
+                    selecionado.preco = 0.0;
+                    selecionado.precoOut = 0.0;
+                    selecionado.estado = 0;
+                    selecionado.representacao = "";
+
+                    textQtde.value = 0;
+                    textValor.value = 0.0;
+                    textProdSel.value = "";
+
+                    erroQtde = true;
+                    $("#msqtdeprod").html('');
+
+                    erroValor = true;
+                    $("#msvalorprod").html('');
+
+                    erroProd = true;
+                    $("#msprodsel").html('');
+
+                    $.fancybox.close();
+                }
+            } else {
                 mostraDialogo(
-                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/novo/item/obter-tipos-por-item.php",
+                    res,
                     "danger",
                     3000
                 );
             }
-        });
-
-        if (erroTipos === false) {
-            if (Number(selectEstado.value) !== selecionado.estado) {
-                peso = selecionado.peso * qtde;
-                valor = valorProd * qtde;
-            } else {
-                peso = selecionado.peso * qtde;
-                valor = valorProd * qtde;
-            }
-            itens.push({
-                orcamento: 0,
-                produto: {
-                    id: selecionado.id,
-                    descricao: selecionado.descricao,
-                    peso: selecionado.peso,
-                    preco: selecionado.preco,
-                    precoOut: selecionado.precoOut,
-                    estado: selecionado.estado,
-                    representacao: selecionado.representacao
-                },
-                quantidade: qtde,
-                valor: truncate(valor),
-                peso: peso
-            });
-
-            preencheTabelaItens(itens);
-
-            let valorItens = 0.0;
-            let pesoItens = 0.0;
-            for(let i = 0; i < itens.length; i++) {
-                valorItens += itens[i].valor;
-                pesoItens += itens[i].peso;
-            }
-
-            let valorFormat = valorItens.toString();
-            valorFormat = valorFormat.replace('.', '#');
-            if (valorFormat.search('#') === -1) valorFormat += ',00';
-            else valorFormat = valorFormat.replace('#', ',');
-
-            let pesoFormat = pesoItens.toString();
-            pesoFormat = pesoFormat.replace('.', ',');
-
-            textValorItens.value = valorFormat;
-            textPesoItens.value = pesoFormat;
-
-            selecionado.id = 0;
-            selecionado.descricao = "";
-            selecionado.peso = 0.0;
-            selecionado.preco = 0.0;
-            selecionado.precoOut = 0.0;
-            selecionado.estado = 0;
-            selecionado.representacao = "";
-
-            textQtde.value = 0;
-            textValor.value = 0.0;
-            textProdSel.value = "";
-
-            erroQtde = true;
-            $("#msqtdeprod").html('');
-
-            erroValor = true;
-            $("#msvalorprod").html('');
-
-            erroProd = true;
-            $("#msprodsel").html('');
-
-            $.fancybox.close();
+        } else {
+            mostraDialogo(
+                "Erro na requisição da URL /representacoes/orcamento/venda/novo/item/obter-tipos-por-item.php. <br />" +
+                "Status: "+request.status+" "+request.statusText,
+                "danger",
+                3000
+            );
         }
     }
 }
