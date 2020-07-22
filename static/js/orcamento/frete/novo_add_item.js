@@ -158,7 +158,7 @@ function excluirItem(id) {
     }
 }
 
-async function adicionarItem() {
+function adicionarItem() {
     let erroQtde = true;
     let erroProd = true;
     let erroTipos = true;
@@ -189,62 +189,75 @@ async function adicionarItem() {
     if (!erroQtde && !erroProd) {
         let peso = 0.0;
 
-        await $.ajax({
-            type: "POST",
-            url: "/representacoes/orcamento/frete/novo/item/obter-tipos-por-item.php",
-            data: { item: selecionado.id },
-            success: function (res) {
-                if (res !== null && typeof res !== "string" && res.length !== 0) {
-                    if (tipos.length === 0) {
-                        tipos = res;
-                        for (let i = 0; i < res.length; i++) {
-                            let option = document.createElement("option");
-                            option.value = res[i].id;
-                            option.text = res[i].descricao;
-                            selectTipoCam.appendChild(option);
-                        }
-                    } else {
-                        let tmp = [];
-                        //limparSelectTipo();
+        let request = new XMLHttpRequest();
+        request.open('POST', '/representacoes/orcamento/venda/novo/item/obter-tipos-por-item.php', false);
+        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        request.send(encodeURI('item='+selecionado.id));
 
-                        for (let i = 0; i < res.length; i++) {
-                            if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
-                                tmp.push(res[i]);
-                            }
-                        }
-                        if (tmp.length === 0) {
-                            erroTipos = true;
-                            alert("Este item não poderá ser entregue no mesmo frete por falta de compatibilidade de tipo de caminhão.");
-                        } else {
-                            erroTipos = false;
-                            tipos = tmp;
-                            limparSelectTipo();
-                            for (let i = 0; i < tmp.length; i++) {
-                                let option = document.createElement("option");
-                                option.value = tmp[i].id;
-                                option.text = tmp[i].descricao;
-                                selectTipoCam.appendChild(option);
-                            }
+        if (request.DONE === 4 && request.status === 200) {
+            let res = JSON.parse(request.responseText);
+            if (res !== null && typeof res !== "string" && res.length !== 0) {
+                let tmp = [];
+
+                if (tipos.length === 0) {
+                    tmp = res;
+                } else {
+                    for (let i = 0; i < res.length; i++) {
+                        if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
+                            tmp.push(res[i]);
                         }
                     }
-
-                } else {
-                    mostraDialogo(
-                        res,
-                        "danger",
-                        3000
-                    );
                 }
-            },
-            error: function (xhr, status, thrown) {
-                console.error(thrown);
+
+                if (tmp.length === 0) {
+                    //erroTipos = true;
+                    alert("Este item não poderá ser entregue no mesmo frete por falta de compatibilidade de tipo de caminhão.");
+                } else {
+                    //erroTipos = false;
+                    tipos = tmp;
+                }
+
+                if (tipos.length === 0) {
+                    tipos = res;
+                    for (let i = 0; i < res.length; i++) {
+                        let option = document.createElement("option");
+                        option.value = res[i].id;
+                        option.text = res[i].descricao;
+                        selectTipoCam.appendChild(option);
+                    }
+                } else {
+                    let tmp = [];
+                    //limparSelectTipo();
+
+                    for (let i = 0; i < res.length; i++) {
+                        if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
+                            tmp.push(res[i]);
+                        }
+                    }
+                    if (tmp.length === 0) {
+                        erroTipos = true;
+                        alert("Este item não poderá ser entregue no mesmo frete por falta de compatibilidade de tipo de caminhão.");
+                    } else {
+                        erroTipos = false;
+                        tipos = tmp;
+                        limparSelectTipo();
+                        for (let i = 0; i < tmp.length; i++) {
+                            let option = document.createElement("option");
+                            option.value = tmp[i].id;
+                            option.text = tmp[i].descricao;
+                            selectTipoCam.appendChild(option);
+                        }
+                    }
+                }
+
+            } else {
                 mostraDialogo(
-                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/novo/item/obter-tipos-por-item.php",
+                    res,
                     "danger",
                     3000
                 );
             }
-        });
+        }
 
         if (erroTipos === false) {
             if (Number(selectEstado.value) !== selecionado.estado) {

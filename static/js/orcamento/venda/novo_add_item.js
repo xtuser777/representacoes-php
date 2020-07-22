@@ -1,14 +1,14 @@
-/*const textFiltroProd = document.getElementById("text_filtro_prod");
+const textFiltroProd = document.getElementById("text_filtro_prod");
 const tableProdutos = document.getElementById("table_produtos");
 const tbodyProduto = document.getElementById("tbody_produtos");
 const textQtde = document.getElementById("text_qtde_prod");
 const textValor = document.getElementById("text_valor_prod");
-const textProdSel = document.getElementById("text_prod_sel");*/
+const textProdSel = document.getElementById("text_prod_sel");
 
-const slProdutos = document.getElementById("slProdutos");
+/*const slProdutos = document.getElementById("slProdutos");
 const txValorProd = document.getElementById("txValorProd");
 const txQtdeProd = document.getElementById("txQtdeProd");
-const btAddProd = document.getElementById("btAddProd");
+const btAddProd = document.getElementById("btAddProd");*/
 
 var selecionado = {
     id: 0,
@@ -47,7 +47,7 @@ function preencheTabelaItens(dados) {
     $(tbodyItens).html(txt);
 }
 
-/*function preencheTabelaProd(dados) {
+function preencheTabelaProd(dados) {
     var txt = "";
     $.each(dados, function () {
         let valorFormat = this.preco.toString();
@@ -64,7 +64,7 @@ function preencheTabelaItens(dados) {
             </tr>';
     });
     $(tbodyProduto).html(txt);
-}*/
+}
 
 function get(url_i) {
     let res;
@@ -84,7 +84,7 @@ function get(url_i) {
     return res;
 }
 
-/*function buttonFiltrarProdClick() {
+function buttonFiltrarProdClick() {
     let filtro = textFiltroProd.value.toString();
     if (filtro.trim().length === 0) {
         obterProdutos();
@@ -98,7 +98,7 @@ function get(url_i) {
             error: (XMLHttpRequest, txtStatus, thrown) => { alert("Código: "+txtStatus+"\n Erro: "+thrown); }
         });
     }
-}*/
+}
 
 function selecionar(id,desc,peso,preco,precoOut,est,rep) {
     if (itens.findIndex((element) => { return (element.produto.id === id); }) >= 0) {
@@ -112,12 +112,12 @@ function selecionar(id,desc,peso,preco,precoOut,est,rep) {
         selecionado.estado = est;
         selecionado.representacao = rep;
 
-        txValorProd.value = (Number.parseInt(selectEstado.value) === Number.parseInt(est)) ? preco : precoOut;
-        //textProdSel.value = desc;
+        textValor.value = (Number.parseInt(selectEstado.value) === Number.parseInt(est)) ? preco : precoOut;
+        textProdSel.value = desc;
     }
 }
 
-function slProdutosChange(event) {
+/*function slProdutosChange(event) {
     if (Number.parseInt(selectEstado.value) === 0) {
         mostraDialogo(
             "Selecione um estado de destino primeiro.",
@@ -145,18 +145,18 @@ function slProdutosChange(event) {
             );
         }
     }
-}
+}*/
 
-/*function abrirAdicionarItem() {
+function abrirAdicionarItem() {
     if (selectEstado.value === "0") {
         alert("Selecione o estado de destino primeiro.");
     } else {
         $.fancybox.open({ src : '#fbFrmAddProduto', type : 'inline' });
         obterProdutos();
     }
-}*/
+}
 
-/*function cancelarAdicao() {
+function cancelarAdicao() {
     selecionado.id = 0;
     selecionado.descricao = "";
     selecionado.peso = 0.0;
@@ -176,7 +176,7 @@ function slProdutosChange(event) {
     $("#msprodsel").html('');
 
     $.fancybox.close();
-}*/
+}
 
 function excluirItem(id) {
     let temp = [];
@@ -211,9 +211,9 @@ function adicionarItem() {
     let erroValor = true;
     let erroProd = true;
     let erroTipos = true;
-    let qtde = Number.parseInt(txQtdeProd.value);
-    let valorProd = Number.parseFloat(txValorProd.value);
-    let prod = Number.parseInt(slProdutos.value);
+    let qtde = Number.parseInt(textQtde.value);
+    let valorProd = Number.parseFloat(textValor.value);
+    let prod = textProdSel.value;
 
     if (qtde === 0 || isNaN(qtde)) {
         erroQtde = true;
@@ -241,7 +241,7 @@ function adicionarItem() {
         }
     }
 
-    if (prod === 0 || isNaN(prod)) {
+    if (prod.toString().trim().length === 0) {
         erroProd = true;
         $("#msprodsel").html('<span class="label label-danger">Um produto precisa ser selecionado.</span>');
     } else {
@@ -330,9 +330,9 @@ function adicionarItem() {
                     selecionado.estado = 0;
                     selecionado.representacao = "";
 
-                    txQtdeProd.value = 0;
-                    txValorProd.value = 0.0;
-                    slProdutos.value = 0;
+                    textQtde.value = 0;
+                    textValor.value = 0.0;
+                    textProdSel.value = "";
 
                     erroQtde = true;
                     $("#msqtdeprod").html('');
@@ -343,7 +343,7 @@ function adicionarItem() {
                     erroProd = true;
                     $("#msprodsel").html('');
 
-                    //$.fancybox.close();
+                    $.fancybox.close();
                 }
             } else {
                 mostraDialogo(
@@ -364,16 +364,8 @@ function adicionarItem() {
 }
 
 function obterProdutos() {
-    produtos = get("/representacoes/orcamento/venda/novo/item/obter.php");
-    //preencheTabelaProd(produtos);
-    if (produtos !== null && produtos.length > 0) {
-        for (let i = 0; i < produtos.length; i++) {
-            let option = document.createElement("option");
-            option.value = produtos[i].id;
-            option.text = produtos[i].descricao;
-            slProdutos.appendChild(option);
-        }
-    }
+    let produtos = get("/representacoes/orcamento/venda/novo/item/obter.php");
+    preencheTabelaProd(produtos);
 }
 
 function truncate(valor) {

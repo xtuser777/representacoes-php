@@ -15,8 +15,6 @@ const dateValidade = document.getElementById("date_validade");
 
 var clientes = [];
 
-var produtos = [];
-
 var itens = [];
 
 var erroNomeCli = true;
@@ -494,8 +492,6 @@ $(document).ready((event) => {
             selectEstado.appendChild(option);
         }
     }
-
-    obterProdutos();
 
     buttonLimparClick();
 });
