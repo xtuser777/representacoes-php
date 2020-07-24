@@ -137,7 +137,7 @@
 
 <div class="row">
     <div class="col-sm-2">
-        <a role="button" id="voltar" class="btn btn-default" style="width: 100%;" href="/inicio">VOLTAR</a>
+        <a role="button" id="voltar" class="btn btn-default" style="width: 100%;" href="/representacoes/inicio">VOLTAR</a>
     </div>
 
     <div class="col-sm-8"></div>

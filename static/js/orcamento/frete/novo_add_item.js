@@ -201,6 +201,12 @@ function adicionarItem() {
 
                 if (tipos.length === 0) {
                     tmp = res;
+                    for (let i = 0; i < res.length; i++) {
+                        let option = document.createElement("option");
+                        option.value = res[i].id;
+                        option.text = res[i].descricao;
+                        selectTipoCam.appendChild(option);
+                    }
                 } else {
                     for (let i = 0; i < res.length; i++) {
                         if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
@@ -215,39 +221,60 @@ function adicionarItem() {
                 } else {
                     //erroTipos = false;
                     tipos = tmp;
-                }
-
-                if (tipos.length === 0) {
-                    tipos = res;
-                    for (let i = 0; i < res.length; i++) {
+                    limparSelectTipo();
+                    for (let i = 0; i < tmp.length; i++) {
                         let option = document.createElement("option");
-                        option.value = res[i].id;
-                        option.text = res[i].descricao;
+                        option.value = tmp[i].id;
+                        option.text = tmp[i].descricao;
                         selectTipoCam.appendChild(option);
                     }
-                } else {
-                    let tmp = [];
-                    //limparSelectTipo();
 
-                    for (let i = 0; i < res.length; i++) {
-                        if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
-                            tmp.push(res[i]);
-                        }
-                    }
-                    if (tmp.length === 0) {
-                        erroTipos = true;
-                        alert("Este item não poderá ser entregue no mesmo frete por falta de compatibilidade de tipo de caminhão.");
+                    if (Number(selectEstado.value) !== selecionado.estado) {
+                        peso = selecionado.peso * Number(qtde);
                     } else {
-                        erroTipos = false;
-                        tipos = tmp;
-                        limparSelectTipo();
-                        for (let i = 0; i < tmp.length; i++) {
-                            let option = document.createElement("option");
-                            option.value = tmp[i].id;
-                            option.text = tmp[i].descricao;
-                            selectTipoCam.appendChild(option);
-                        }
+                        peso = selecionado.peso * Number(qtde);
                     }
+                    itens.push({
+                        orcamento: 0,
+                        produto: {
+                            id: selecionado.id,
+                            descricao: selecionado.descricao,
+                            peso: selecionado.peso,
+                            estado: selecionado.estado,
+                            representacao: selecionado.representacao
+                        },
+                        quantidade: Number(qtde),
+                        peso: peso
+                    });
+
+                    preencheTabelaItens(itens);
+
+                    let pesoItens = 0.0;
+                    for(let i = 0; i < itens.length; i++) {
+                        pesoItens += itens[i].peso;
+                    }
+
+                    let pesoFormat = pesoItens.toString();
+                    pesoFormat = pesoFormat.replace('.', ',');
+
+                    textPesoItens.value = pesoFormat;
+
+                    selecionado.id = 0;
+                    selecionado.descricao = "";
+                    selecionado.peso = 0.0;
+                    selecionado.estado = 0;
+                    selecionado.representacao = "";
+
+                    textQtde.value = 0;
+                    textProdSel.value = "";
+
+                    erroQtde = true;
+                    $("#msqtdeprod").html('');
+
+                    erroProd = true;
+                    $("#msprodsel").html('');
+
+                    $.fancybox.close();
                 }
 
             } else {
@@ -257,76 +284,43 @@ function adicionarItem() {
                     3000
                 );
             }
-        }
-
-        if (erroTipos === false) {
-            if (Number(selectEstado.value) !== selecionado.estado) {
-                peso = selecionado.peso * Number(qtde);
-            } else {
-                peso = selecionado.peso * Number(qtde);
-            }
-            itens.push({
-                orcamento: 0,
-                produto: {
-                    id: selecionado.id,
-                    descricao: selecionado.descricao,
-                    peso: selecionado.peso,
-                    estado: selecionado.estado,
-                    representacao: selecionado.representacao
-                },
-                quantidade: Number(qtde),
-                peso: peso
-            });
-
-            preencheTabelaItens(itens);
-
-            let pesoItens = 0.0;
-            for(let i = 0; i < itens.length; i++) {
-                pesoItens += itens[i].peso;
-            }
-
-            let pesoFormat = pesoItens.toString();
-            pesoFormat = pesoFormat.replace('.', ',');
-
-            textPesoItens.value = pesoFormat;
-
-            selecionado.id = 0;
-            selecionado.descricao = "";
-            selecionado.peso = 0.0;
-            selecionado.estado = 0;
-            selecionado.representacao = "";
-
-            textQtde.value = 0;
-            textProdSel.value = "";
-
-            erroQtde = true;
-            $("#msqtdeprod").html('');
-
-            erroProd = true;
-            $("#msprodsel").html('');
-
-            $.fancybox.close();
-        }
-    }
-}
-
-async function obterProdutos(representacao) {
-    await $.ajax({
-        type: "POST",
-        url: "/representacoes/orcamento/frete/novo/item/obter.php",
-        data: { representacao: representacao },
-        success: function (response) {
-            preencheTabelaProd(response);
-        },
-        error: function (xhr, status, thrown) {
-            console.error(thrown);
+        } else {
             mostraDialogo(
-                "Erro ao processar a requisição...",
+                "Erro na requisição da URL /representacoes/orcamento/venda/novo/item/obter-tipos-por-item.php. <br />" +
+                "Status: "+request.status+" "+request.statusText,
                 "danger",
                 3000
             );
         }
-    });
+
+    }
+}
+
+function obterProdutos(representacao) {
+    let request = new XMLHttpRequest();
+    request.open('POST', '/representacoes/orcamento/frete/novo/item/obter.php', false);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(encodeURI('representacao='+representacao));
+
+    if (request.DONE === 4 && request.status === 200) {
+        let response = JSON.parse(request.responseText);
+        if (response !== null && typeof response !== "string") {
+            preencheTabelaProd(response);
+        } else {
+            mostraDialogo(
+                response,
+                "danger",
+                3000
+            );
+        }
+    } else {
+        mostraDialogo(
+            "Erro na requisição da URL /representacoes/orcamento/venda/novo/item/obter-tipos-por-item.php. <br />" +
+            "Status: "+request.status+" "+request.statusText,
+            "danger",
+            3000
+        );
+    }
 }
 
 function truncate(valor) {
