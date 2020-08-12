@@ -2,7 +2,7 @@
 
 require_once '../header.php';
 
-if (!isset($_SESSION['USER_ID'])) {
+if (!isset($_COOKIE['USER_ID'])) {
     header('Location: /representacoes/login');
 } else {
     $page_title = 'Eventos do Sistema';

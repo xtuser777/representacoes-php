@@ -50,31 +50,19 @@ function validarAcesso() {
             type: 'POST',
             url: '../login/autenticar.php',
             data: { login : txLogin, senha : txSenha },
-            success: function (result)
-            {
-                if(result != null && typeof result !== "string")
-                {
-                    if(result.login === "first")
-                    {
+            success: function (result) {
+                if(result != null && result.status === true) {
+                    if(result.login === "first") {
                         window.location.href = "../configuracao/parametrizacao";
-                    }
-                    else
-                    {
+                    } else {
                         window.location.href = "../inicio";
                     }
-                }
-                else if (typeof result === "string")
-                {
-                    alert(result);
-                }
-                else
-                {
+                } else {
                     msgAutenticacao.innerHTML = "Usuário ou senha inválidos...";
                     msgAutenticacao.classList.remove("hidden");
                 }
             },
-            error: function ()
-            {
+            error: function () {
                 alert("Houve um problema no processamento desta requisição...\nSe o problema persistir, entre em contato com o suporte.");
             }
         });

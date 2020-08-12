@@ -1,12 +1,5 @@
 <?php
 
-if (session_status() !== PHP_SESSION_ACTIVE) //Verifica se sessão foi iniciada, senão inicia
-{
-    //session_cache_limiter("private_no_expire");
-    session_cache_expire(87000); //Define o limite de sessão para 1 dia (60*24)
-    session_start();
-}
-
 //Diretório raiz do projeto para todas as pastas
 define('ROOT', __DIR__);
 
