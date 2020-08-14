@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\FormaPagamento;
 use scr\util\Banco;
@@ -7,9 +11,9 @@ class FormaPagamentoDetalhesControl
 {
     public function obter()
     {
-        if (!isset($_SESSION["FORMA"])) return json_encode(null);
+        if (!isset($_COOKIE["FORMA"])) return json_encode(null);
         if (!Banco::getInstance()->open()) return json_encode(null);
-        $forma = FormaPagamento::findById($_SESSION["FORMA"]);
+        $forma = FormaPagamento::findById($_COOKIE["FORMA"]);
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($forma !== null ? $forma->jsonSerialize() : null);

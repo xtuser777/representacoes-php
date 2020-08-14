@@ -1,20 +1,17 @@
 <?php
 
-require_once '../../../header.php';
+use scr\control\ClienteNovoControl;
 
-if (!isset($_SESSION['USER_ID']))
-{
-    header('Location: /login/index.php');
-}
-elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0)
-{
+require '../../../header.php';
+
+if (!isset($_COOKIE['USER_ID'])) {
+    header('Location: /representacoes/login/index.php');
+} elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
     header('Content-type: application/json');
     echo json_encode('Método inválido.');
-}
-else
-{
+} else {
     $cnpj = $_POST['cnpj'];
-    $control = new \scr\control\ClienteNovoControl();
+    $control = new ClienteNovoControl();
 
     header('Content-type: application/json');
     echo $control->verificar_cnpj($cnpj);

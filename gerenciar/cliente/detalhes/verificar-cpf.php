@@ -1,20 +1,17 @@
 <?php
 
-require_once '../../../header.php';
+use scr\control\ClienteDetalhesControl;
 
-if (!isset($_SESSION['USER_ID']))
-{
-    header('Location: /login/index.php');
-}
-elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0)
-{
+require '../../../header.php';
+
+if (!isset($_COOKIE['USER_ID'])) {
+    header('Location: /representacoes/login/index.php');
+} elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
     header('Content-type: application/json');
     echo json_encode('Método inválido.');
-}
-else
-{
+} else {
     $cpf = $_POST['cpf'];
-    $control = new \scr\control\ClienteDetalhesControl();
+    $control = new ClienteDetalhesControl();
 
     header('Content-type: application/json');
     echo $control->verificar_cpf($cpf);

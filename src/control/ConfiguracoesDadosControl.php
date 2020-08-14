@@ -17,9 +17,9 @@ class ConfiguracoesDadosControl
 {
     public function obterDados()
     {
-        if (!Banco::getInstance()->open() || !isset($_SESSION['USER_ID'])) return json_encode(null);
+        if (!Banco::getInstance()->open() || !isset($_COOKIE['USER_ID'])) return json_encode(null);
 
-        $res = Usuario::getById($_SESSION['USER_ID'])->jsonSerialize();
+        $res = Usuario::getById($_COOKIE['USER_ID'])->jsonSerialize();
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($res);

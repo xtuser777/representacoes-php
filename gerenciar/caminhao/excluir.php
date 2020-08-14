@@ -1,20 +1,17 @@
 <?php
 
-require_once '../../header.php';
+use scr\control\CaminhaoControl;
 
-if (!isset($_SESSION['USER_ID']))
-{
-    header('Location: /login');
-}
-elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0)
-{
+require '../../header.php';
+
+if (!isset($_COOKIE['USER_ID'])) {
+    header('Location: /representacoes/login');
+} elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
     header('Content-type: application/json');
     echo json_encode('Método inválido.');
-}
-else
-{
+} else {
     $id = $_POST['id'];
-    $control = new \scr\control\CaminhaoControl();
+    $control = new CaminhaoControl();
 
     header('Content-type: application/json');
     echo $control->excluir($id);

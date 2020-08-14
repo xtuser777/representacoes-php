@@ -19,7 +19,7 @@ class FuncionarioDetalhesControl
     public function getDetails()
     {
         if (!Banco::getInstance()->open()) return json_encode(null);
-        $usuario = Usuario::getById($_SESSION['FUNC'])->jsonSerialize();
+        $usuario = Usuario::getById($_COOKIE['FUNC'])->jsonSerialize();
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($usuario);

@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\Produto;
 use scr\model\Representacao;
@@ -23,10 +27,10 @@ class ProdutoDetalhesControl
 
     public function obter()
     {
-        if (!isset($_SESSION["PRODUTO"])) return json_encode(null);
+        if (!isset($_COOKIE["PRODUTO"])) return json_encode(null);
         if (!Banco::getInstance()->open()) return json_encode(null);
         /** @var Produto $produto */
-        $produto = Produto::findById($_SESSION["PRODUTO"]);
+        $produto = Produto::findById($_COOKIE["PRODUTO"]);
         Banco::getInstance()->getConnection()->close();
 
         return json_encode(($produto !== null) ? $produto->jsonSerialize() : null);

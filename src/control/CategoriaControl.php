@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\dao\CategoriaDAO;
 use scr\model\Categoria;
@@ -83,7 +87,7 @@ class CategoriaControl
     public function enviar(int $id)
     {
         if ($id <= 0) return json_encode('Parâmetro inválido.');
-        $_SESSION['CAT'] = $id;
+        setcookie('CAT', $id, time() + (3600), "/", "", 0, 1);
 
         return json_encode('');
     }

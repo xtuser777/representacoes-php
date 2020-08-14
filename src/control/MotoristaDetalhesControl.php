@@ -16,9 +16,9 @@ class MotoristaDetalhesControl
 {
     public function obter()
     {
-        if (!isset($_SESSION["MOTORISTA"])) return json_encode(null);
+        if (!isset($_COOKIE["MOTORISTA"])) return json_encode(null);
         if (!Banco::getInstance()->open()) return json_encode(null);
-        $motorista = Motorista::findById($_SESSION["MOTORISTA"]);
+        $motorista = Motorista::findById($_COOKIE["MOTORISTA"]);
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($motorista !== null ? $motorista->jsonSerialize() : null);

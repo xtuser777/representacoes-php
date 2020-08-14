@@ -10,9 +10,9 @@ class CaminhaoDetalhesControl
 {
     public function obter()
     {
-        if (!isset($_SESSION["CAMINHAO"])) return json_encode(null);
+        if (!isset($_COOKIE["CAMINHAO"])) return json_encode(null);
         if (!Banco::getInstance()->open()) return json_encode(null);
-        $caminhao = Caminhao::findById($_SESSION["CAMINHAO"]);
+        $caminhao = Caminhao::findById($_COOKIE["CAMINHAO"]);
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($caminhao != null ? $caminhao->jsonSerialize() : null);

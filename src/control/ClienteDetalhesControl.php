@@ -17,7 +17,7 @@ class ClienteDetalhesControl
     public function obter_detalhes()
     {
         if (!Banco::getInstance()->open()) return json_encode(null);
-        $id = $_SESSION['CLIENTE'];
+        $id = $_COOKIE['CLIENTE'];
         $cliente = Cliente::getById($id)->jsonSerialize();
         Banco::getInstance()->getConnection()->close();
         

@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\Categoria;
 use scr\util\Banco;
@@ -7,9 +11,9 @@ class CategoriaDetalhesControl
 {
     public function obter()
     {
-        if (!isset($_SESSION["CAT"])) return json_encode(null);
+        if (!isset($_COOKIE["CAT"])) return json_encode(null);
         if (!Banco::getInstance()->open()) return json_encode(null);
-        $categoria = Categoria::findById($_SESSION["CAT"]);
+        $categoria = Categoria::findById($_COOKIE["CAT"]);
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($categoria != null ? $categoria->jsonSerialize() : null);

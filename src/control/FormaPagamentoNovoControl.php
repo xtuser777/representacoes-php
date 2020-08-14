@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\FormaPagamento;
 use scr\util\Banco;

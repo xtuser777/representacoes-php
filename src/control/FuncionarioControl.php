@@ -282,7 +282,7 @@ class FuncionarioControl
     {
         if ($id <= 0) { return json_encode('Parâmetro inválido.'); }
         
-        $_SESSION['FUNC'] = $id;
+        setcookie('FUNC', $id, time() + (3600), "/", "", 0, 1);
         
         return json_encode('');
     }

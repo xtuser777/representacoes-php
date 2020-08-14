@@ -1,18 +1,13 @@
 <?php
 
-require_once '../../../header.php';
+require '../../../header.php';
 
-if (!isset($_SESSION['USER_ID']))
-{
-    header('Location: /login');
-}
-elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0)
-{
+if (!isset($_COOKIE['USER_ID'])) {
+    header('Location: /representacoes/login');
+} elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
     header('Content-type: application/json');
     echo json_encode('Método inválido.');
-}
-else
-{
+} else {
     header('Content-type: application/json');
     echo (new scr\control\CaminhaoDetalhesControl())->alterar(
         $_POST['caminhao'],$_POST['placa'],$_POST['marca'],$_POST['modelo'],$_POST['cor'],

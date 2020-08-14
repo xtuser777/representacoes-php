@@ -1,9 +1,9 @@
 <?php
 
-require_once '../../../header.php';
+require '../../../header.php';
 
-if (!isset($_SESSION['USER_ID'])) {
-    header('Location: /login/index.php');
+if (!isset($_COOKIE['USER_ID'])) {
+    header('Location: /representacoes/login/index.php');
 } else {
     $page_title = 'Nova Forma de Pagamento';
     $section_container = '/src/view/gerenciar/formapagamento/novo.php';

@@ -16,10 +16,10 @@ class RepresentacaoAddUnidadeControl
     public function obter()
     {
         $json = null;
-        if (Banco::getInstance()->open() && isset($_SESSION['REPRESENTACAO']))
+        if (Banco::getInstance()->open() && isset($_COOKIE['REPRESENTACAO']))
         {
             /** @var Representacao $rep */
-            $rep = Representacao::getById($_SESSION['REPRESENTACAO']);
+            $rep = Representacao::getById($_COOKIE['REPRESENTACAO']);
             Banco::getInstance()->getConnection()->close();
             if ($rep != null) $json = $rep->jsonSerialize();
         }

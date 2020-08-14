@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\Produto;
 use scr\model\Representacao;
@@ -164,7 +168,7 @@ class ProdutoControl
     public function enviar(int $id)
     {
         if ($id <= 0) { return json_encode('Parâmetro inválido.'); }
-        $_SESSION['PRODUTO'] = $id;
+        setcookie('PRODUTO', $id, time() + (3600), "/", "", 0, 1);
 
         return json_encode('');
     }

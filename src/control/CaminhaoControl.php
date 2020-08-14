@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\Caminhao;
 use scr\util\Banco;
@@ -116,7 +120,7 @@ class CaminhaoControl
     public function enviar(int $id)
     {
         if ($id <= 0) { return json_encode('Parâmetro inválido.'); }
-        $_SESSION['CAMINHAO'] = $id;
+        setcookie('CAMINHAO', $id, time() + (3600), "/", "", 0, 1);
 
         return json_encode('');
     }

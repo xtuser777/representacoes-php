@@ -1,4 +1,7 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
 
 
 use scr\model\TipoCaminhao;
@@ -8,9 +11,9 @@ class TipoCaminhaoDetalhesControl
 {
     public function obter()
     {
-        if (!isset($_SESSION["TIPO"])) return json_encode(null);
+        if (!isset($_COOKIE["TIPO"])) return json_encode(null);
         if (!Banco::getInstance()->open()) return json_encode(null);
-        $tipo = TipoCaminhao::findById($_SESSION["TIPO"]);
+        $tipo = TipoCaminhao::findById($_COOKIE["TIPO"]);
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($tipo ? $tipo->jsonSerialize() : null);

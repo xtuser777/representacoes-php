@@ -2,7 +2,7 @@
 
 use scr\control\LoginControl;
 
-require_once '../header.php';
+require '../header.php';
 
 if (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
     header('Content-type: application/json');

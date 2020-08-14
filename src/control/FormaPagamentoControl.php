@@ -1,4 +1,8 @@
-<?php namespace scr\control;
+<?php
+
+
+namespace scr\control;
+
 
 use scr\model\FormaPagamento;
 use scr\util\Banco;
@@ -94,7 +98,7 @@ class FormaPagamentoControl
     public function enviar(int $id)
     {
         if ($id <= 0) { return json_encode('Parâmetro inválido.'); }
-        $_SESSION['FORMA'] = $id;
+        setcookie('FORMA', $id, time() + (3600), "/", "", 0, 1);
 
         return json_encode('');
     }

@@ -218,7 +218,7 @@ class ProprietarioControl
     public function enviar(int $id)
     {
         if ($id <= 0) return json_encode("Parâmetro inválido.");
-        $_SESSION["PROP"] = $id;
+        setcookie("PROP", $id, time() + (3600), "/", "", 0, 1);
 
         return json_encode("");
     }

@@ -19,7 +19,7 @@ class ProprietarioDetalhesControl
     {
         if (!Banco::getInstance()->open())
             return json_encode(null);
-        $prop = (new Proprietario())->findById($_SESSION["PROP"]);
+        $prop = (new Proprietario())->findById($_COOKIE["PROP"]);
         Banco::getInstance()->getConnection()->close();
 
         return json_encode(($prop !== null) ? $prop->jsonSerialize() : null);

@@ -187,7 +187,7 @@ class RepresentacaoControl
     public function enviar(int $id)
     {
         if ($id <= 0) return json_encode('Parâmetro inválido.');
-        $_SESSION['REPRESENTACAO'] = $id;
+        setcookie('REPRESENTACAO', $id, time() + (3600), "/", "", 0, 1);
 
         return json_encode('');
     }

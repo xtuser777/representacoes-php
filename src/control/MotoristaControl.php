@@ -151,7 +151,7 @@ class MotoristaControl
     public function enviar(int $id)
     {
         if ($id <= 0) { return json_encode('Parâmetro inválido.'); }
-        $_SESSION['MOTORISTA'] = $id;
+        setcookie('MOTORISTA', $id, time() + (3600), "/", "", 0, 1);
 
         return json_encode('');
     }

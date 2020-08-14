@@ -1,9 +1,9 @@
 <?php
 
-require_once '../../header.php';
+require '../../header.php';
 
-if (!isset($_SESSION['USER_ID'])) {
-    header('Location: /login');
+if (!isset($_COOKIE['USER_ID'])) {
+    header('Location: /representacoes/login');
 } else {
     $page_title = 'Gerenciar Caminhões';
     $section_container = '/src/view/gerenciar/caminhao/index.php';

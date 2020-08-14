@@ -2,13 +2,12 @@
 
 require '../../../header.php';
 
-if (!isset($_SESSION['USER_ID'])) {
-    header('Location: /login');
+if (!isset($_COOKIE['USER_ID'])) {
+    header('Location: /representacoes/login');
 } elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
     header('Content-type: application/json');
     echo json_encode('Método inválido.');
-}
-else {
+} else {
     $prod = $_POST['produto'];
     $desc = $_POST["descricao"];
     $med = $_POST["medida"];

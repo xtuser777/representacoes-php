@@ -1,15 +1,14 @@
 <?php
 
-require_once '../../header.php';
+use scr\control\MotoristaControl;
 
-if (!isset($_SESSION['USER_ID']))
-{
-    header('Location: /login/index.php');
-}
-else
-{
+require '../../header.php';
+
+if (!isset($_COOKIE['USER_ID'])) {
+    header('Location: /representacoes/login/index.php');
+} else {
     $id = $_POST['id'];
-    $control = new \scr\control\MotoristaControl();
+    $control = new MotoristaControl();
 
     header('Content-type: application/json');
     echo $control->enviar($id);
