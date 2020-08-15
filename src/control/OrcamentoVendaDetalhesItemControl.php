@@ -14,7 +14,7 @@ class OrcamentoVendaDetalhesItemControl
     public function obter()
     {
         if (!Banco::getInstance()->open()) return json_encode([]);
-        $itens = ItemOrcamentoVenda::findAllItems($_SESSION["ORCVEN"]);
+        $itens = ItemOrcamentoVenda::findAllItems($_COOKIE["ORCVEN"]);
         Banco::getInstance()->getConnection()->close();
         $serial = [];
         /** @var ItemOrcamentoVenda $item */

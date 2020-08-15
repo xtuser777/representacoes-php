@@ -1,6 +1,8 @@
 <?php
 
+
 namespace scr\control;
+
 
 use scr\model\Produto;
 use scr\model\TipoCaminhao;

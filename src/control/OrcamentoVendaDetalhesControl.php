@@ -21,7 +21,7 @@ class OrcamentoVendaDetalhesControl
     public function obter()
     {
         if (!Banco::getInstance()->open()) return json_encode(null);
-        $orcamento = OrcamentoVenda::findById($_SESSION["ORCVEN"]);
+        $orcamento = OrcamentoVenda::findById($_COOKIE["ORCVEN"]);
         Banco::getInstance()->getConnection()->close();
 
         return json_encode(($orcamento !== null) ? $orcamento->jsonSerialize() : null);
@@ -77,7 +77,7 @@ class OrcamentoVendaDetalhesControl
         $vendedor = ($vdd > 0) ? Funcionario::getById($vdd) : null;
         $cidade = (new Cidade())->getById($cid);
         if (!$cidade) return json_encode("Cidade não encontrada no cadastro.");
-        $usuario = Usuario::getById($_SESSION["USER_ID"]);
+        $usuario = Usuario::getById($_COOKIE["USER_ID"]);
         Banco::getInstance()->getConnection()->begin_transaction();
         $orcamento = new OrcamentoVenda(
             $orc, $desc, date('Y-m-d'), $nc, $dc, $tc, $cc, $ec, $peso, $valor, $venc,

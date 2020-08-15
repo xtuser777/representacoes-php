@@ -58,7 +58,7 @@ class OrcamentoFreteNovoControl
         $representacao = Representacao::getById($rep);
         $cidade = (new Cidade())->getById($cid);
         $tipo = TipoCaminhao::findById($tip);
-        $usuario = Usuario::getById($_SESSION["USER_ID"]);
+        $usuario = Usuario::getById($_COOKIE["USER_ID"]);
         Banco::getInstance()->getConnection()->begin_transaction();
         $orcamento = new OrcamentoFrete(
             0, $desc, date('Y-m-d'), $dist, $peso, $valor, $entrega, $venc, $venda, $representacao, $tipo, $cidade, $usuario

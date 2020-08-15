@@ -1,6 +1,8 @@
 <?php
 
+
 namespace scr\control;
+
 
 use scr\model\ItemOrcamentoVenda;
 use scr\model\OrcamentoVenda;
@@ -157,7 +159,7 @@ class OrcamentoVendaControl
     public function enviar(int $id)
     {
         if ($id <= 0) return json_encode("Parâmetro inválido.");
-        $_SESSION["ORCVEN"] = $id;
+        setcookie("ORCVEN", $id, time() + 3600, "/", "", 0 , 1);
 
         return json_encode("");
     }

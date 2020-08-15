@@ -76,8 +76,8 @@ function selectMotoristaChange() {
         textNumero.readOnly = true;
         textBairro.readOnly = true;
         textComplemento.readOnly = true;
-        selectEstado.readOnly = true;
-        selectCidade.readOnly = true;
+        selectEstado.disabled = true;
+        selectCidade.disabled = true;
         textCep.readOnly = true;
         textTelefone.readOnly = true;
         textCelular.readOnly = true;
@@ -107,8 +107,8 @@ function selectMotoristaChange() {
         textNumero.readOnly = false;
         textBairro.readOnly = false;
         textComplemento.readOnly = false;
-        selectEstado.readOnly = false;
-        selectCidade.readOnly = false;
+        selectEstado.disabled = false;
+        selectCidade.disabled = false;
         textCep.readOnly = false;
         textTelefone.readOnly = false;
         textCelular.readOnly = false;

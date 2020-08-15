@@ -1,15 +1,14 @@
 <?php
 
-require_once '../../header.php';
+use scr\control\OrcamentoVendaControl;
 
-if (!isset($_SESSION['USER_ID']))
-{
-    header('Location: /login');
-}
-else
-{
+require '../../header.php';
+
+if (!isset($_COOKIE['USER_ID'])) {
+    header('Location: /representacoes/login');
+} else {
     $id = $_POST['id'];
-    $control = new \scr\control\OrcamentoVendaControl();
+    $control = new OrcamentoVendaControl();
 
     header('Content-type: application/json');
     echo $control->enviar($id);

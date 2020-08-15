@@ -1,6 +1,8 @@
 <?php
 
+
 namespace scr\control;
+
 
 use scr\model\Cidade;
 use scr\model\Cliente;
@@ -66,7 +68,7 @@ class OrcamentoVendaNovoControl
         $vendedor = ($vdd > 0) ? Funcionario::getById($vdd) : null;
         $cidade = (new Cidade())->getById($cid);
         if (!$cidade) return json_encode("Cidade não encontrada no cadastro.");
-        $usuario = Usuario::getById($_SESSION["USER_ID"]);
+        $usuario = Usuario::getById($_COOKIE["USER_ID"]);
         Banco::getInstance()->getConnection()->begin_transaction();
         $orcamento = new OrcamentoVenda(
             0, $desc, date('Y-m-d'), $nc, $dc, $tc, $cc, $ec, $peso, $valor, $venc,

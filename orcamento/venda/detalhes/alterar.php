@@ -2,8 +2,8 @@
 
 require '../../../header.php';
 
-if (!isset($_SESSION["USER_ID"])) {
-    header('Location: /login');
+if (!isset($_COOKIE["USER_ID"])) {
+    header('Location: /representacoes/login');
 } elseif ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo "Método não suportado.";
 } else {

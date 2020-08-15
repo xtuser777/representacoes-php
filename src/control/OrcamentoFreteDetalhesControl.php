@@ -19,7 +19,7 @@ class OrcamentoFreteDetalhesControl
     public function obter()
     {
         if (!Banco::getInstance()->open()) return json_encode(null);
-        $orcamento = (new OrcamentoFrete())->findById($_SESSION["ORCFRE"]);
+        $orcamento = (new OrcamentoFrete())->findById($_COOKIE["ORCFRE"]);
         Banco::getInstance()->getConnection()->close();
 
         return json_encode(($orcamento !== null) ? $orcamento->jsonSerialize() : null);
@@ -67,7 +67,7 @@ class OrcamentoFreteDetalhesControl
         $representacao = Representacao::getById($rep);
         $destino = (new Cidade())->getById($cid);
         $tipo = TipoCaminhao::findById($tip);
-        $autor = Usuario::getById($_SESSION["USER_ID"]);
+        $autor = Usuario::getById($_COOKIE["USER_ID"]);
 
         Banco::getInstance()->getConnection()->begin_transaction();
         $orcamento = new OrcamentoFrete($orc, $desc, date("y-m-d"), $dist, $peso, $valor, $entrega, $venc, $venda, $representacao, $tipo, $destino, $autor);

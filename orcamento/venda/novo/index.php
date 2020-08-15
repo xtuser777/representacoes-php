@@ -1,8 +1,8 @@
 <?php
 
-require_once '../../../header.php';
+require '../../../header.php';
 
-if (!isset($_SESSION['USER_ID'])) {
+if (!isset($_COOKIE['USER_ID'])) {
     header('Location: /representacoes/login');
 }
 
@@ -61,7 +61,7 @@ if (!isset($_SESSION['USER_ID'])) {
                                 <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Gerenciar <span class="caret"></span></a>
                                 <!-- Popup botao gerenciar -->
                                 <ul class="dropdown-menu">
-                                    <?php if ($_SESSION['USER_LEVEL'] == '1'): ?>
+                                    <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
                                         <li><a href="/representacoes/gerenciar/funcionario">Funcionários</a></li>
                                     <?php endif ?>
                                     <li><a href="/representacoes/gerenciar/cliente">Clientes</a></li>
@@ -96,14 +96,14 @@ if (!isset($_SESSION['USER_ID'])) {
                                     <li><a href="/pedido/venda/index">Venda</a></li>
                                     <li><a href="/pedido/frete/index">Frete</a></li>
                                     <li><a href="/pedido/status/index">Alterar status</a></li>
-                                    <?php if ($_SESSION['USER_LEVEL'] == '1'): ?>
+                                    <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
                                         <li><a href="/pedido/autorizar/index">Autorizar Carregamento</a></li>
                                     <?php endif; ?>
                                 </ul>
                                 <!-- Fim popup botao pedido -->
                             </li>
                             <!-- Fim botao pedido -->
-                            <?php if ($_SESSION['USER_LEVEL'] == '1' || $_SESSION['USER_LEVEL'] == '2'): ?>
+                            <?php if ($_COOKIE['USER_LEVEL'] == '1' || $_COOKIE['USER_LEVEL'] == '2'): ?>
                                 <!-- Botao controlar -->
                                 <li class="dropdown">
                                     <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -115,7 +115,7 @@ if (!isset($_SESSION['USER_ID'])) {
                                         <li><a href="/controlar/contas/pagar/index">Contas a Pagar</a></li>
                                         <li><a href="/controlar/contas/receber/index">Contas a Receber</a></li>
                                         <li><a href="/controlar/lancar/despezas/index">Lançar Despesas</a></li>
-                                        <?php if ($_SESSION['USER_LEVEL'] == '1'): ?>
+                                        <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
                                             <li><a href="/controlar/comissao/index">Comissões</a></li>
                                         <?php endif; ?>
                                     </ul>
@@ -124,7 +124,7 @@ if (!isset($_SESSION['USER_ID'])) {
                                 <!-- Fim botao controlar -->
                             <?php endif; ?>
 
-                            <?php if ($_SESSION['USER_LEVEL'] == '1'): ?>
+                            <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
                                 <!-- Botao relatorio -->
                                 <li class="dropdown">
                                     <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -160,13 +160,13 @@ if (!isset($_SESSION['USER_ID'])) {
                             <!-- Botao de usuario -->
                             <li class="dropdown">
                                 <a href="#" style="color: #fff; font-weight: bold;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <?php echo $_SESSION['USER_LOGIN']; ?>
+                                    <?php echo strtoupper($_COOKIE['USER_LOGIN']); ?>
                                     <span class="caret"></span>
                                 </a>
                                 <!-- Popup usuario -->
                                 <ul class="dropdown-menu">
                                     <li class="dropdown-header">Configurações</li>
-                                    <?php if ($_SESSION['USER_LEVEL'] == '1') : ?>
+                                    <?php if ($_COOKIE['USER_LEVEL'] == '1') : ?>
                                         <li><a href="/representacoes/configuracao/parametrizacao">Parametrização</a></li>
                                     <?php endif; ?>
                                     <li><a href="/representacoes/configuracao/dados">Meus Dados</a></li>

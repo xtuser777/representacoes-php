@@ -2,7 +2,7 @@
 
 require '../../../../header.php';
 
-if (!isset($_SESSION['USER_ID'])) {
+if (!isset($_COOKIE['USER_ID'])) {
     header('Location: /representacoes/login');
 } elseif ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Content-type: application/json');

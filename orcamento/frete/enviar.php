@@ -1,13 +1,10 @@
 <?php
 
-require_once '../../header.php';
+require '../../header.php';
 
-if (!isset($_SESSION['USER_ID']))
-{
+if (!isset($_COOKIE['USER_ID'])) {
     header('Location: /representacoes/login');
-}
-else
-{
+} else {
     $id = $_POST['id'];
 
     header('Content-type: application/json');
