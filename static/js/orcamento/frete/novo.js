@@ -490,6 +490,8 @@ function buttonLimparClick() {
     selectCidade.value = 0;
     itens = [];
     $(tbodyItens).html("");
+    $("#button_clr_itens").prop("disabled", false);
+    $("#button_add_item").prop("disabled", false);
     textPesoItens.value = "0,0";
     piso = 0.0;
     textValorFrete.value = "0,00";

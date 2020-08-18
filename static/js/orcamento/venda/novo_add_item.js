@@ -3,6 +3,7 @@ const tableProdutos = document.getElementById("table_produtos");
 const tbodyProduto = document.getElementById("tbody_produtos");
 const textQtde = document.getElementById("text_qtde_prod");
 const textValor = document.getElementById("text_valor_prod");
+const textValorTotal = document.getElementById("text_total_prod");
 const textProdSel = document.getElementById("text_prod_sel");
 
 /*const slProdutos = document.getElementById("slProdutos");
@@ -112,7 +113,21 @@ function selecionar(id,desc,peso,preco,precoOut,est,rep) {
         selecionado.estado = est;
         selecionado.representacao = rep;
 
-        textValor.value = (Number.parseInt(selectEstado.value) === Number.parseInt(est)) ? preco : precoOut;
+        if (Number.parseInt(selectEstado.value) !== Number.parseInt(est)) {
+            $("#msvalorout").html('<span class="label label-info">Preço fora do estado.</span>');
+        } else {
+            $("#msvalorout").html('');
+        }
+
+        let valor = (Number.parseInt(selectEstado.value) === Number.parseInt(est)) ? preco : precoOut;
+        let valorBR = valor.toString();
+        valorBR = valorBR.replace(".", "#");
+        if (valorBR.split("#")[1].length === 1) {
+            valorBR = valorBR + "0";
+        }
+        valorBR = valorBR.replace("#", ",");
+
+        textValor.value = valorBR;
         textProdSel.value = desc;
     }
 }
@@ -206,6 +221,51 @@ function excluirItem(id) {
     preencheTabelaItens(itens);
 }
 
+function calcularTotalItem() {
+    let valorText = textValor.value.toString();
+    let qtdeText = textQtde.value.toString();
+
+    valorText = valorText.replace(",", ".");
+    let un = Number.parseFloat(valorText);
+
+    if (textProdSel.value === null || textProdSel.value === "") {
+        $("#msprodsel").html('<span class="label label-danger">Selecione um produto.</span>');
+    } else {
+        $("#msprodsel").html('');
+
+        if (un === 0 || isNaN(un)) {
+            $("#msvalorprod").html('<span class="label label-danger">Informe um valor válido.</span>');
+        } else {
+            $("#msvalorprod").html('');
+
+            if (qtdeText.search("e") > -1) {
+                $("#msqtdeprod").html('<span class="label label-danger">Informe uma quantidade válida.</span>');
+            } else {
+                $("#msqtdeprod").html('');
+
+                let qtde = Number.parseInt(qtdeText);
+                if (qtde === 0 || isNaN(qtde)) {
+                    $("#msqtdeprod").html('<span class="label label-danger">Informe uma quantidade válida.</span>');
+                } else {
+                    $("#msqtdeprod").html('');
+
+                    let total = un * qtde;
+                    total = truncate(total);
+                    let totalText = total.toString();
+                    totalText = totalText.replace(".", "#");
+                    if (totalText.split("#")[1].length === 1) {
+                        totalText = totalText.concat("0");
+                    }
+                    totalText = totalText.replace("#", ",");
+
+                    textValorTotal.value = totalText;
+                }
+            }
+        }
+    }
+
+}
+
 function adicionarItem() {
     let erroQtde = true;
     let erroValor = true;
@@ -279,13 +339,10 @@ function adicionarItem() {
                 } else {
                     //erroTipos = false;
                     tipos = tmp;
-                    if (Number(selectEstado.value) !== selecionado.estado) {
-                        peso = selecionado.peso * qtde;
-                        valor = valorProd * qtde;
-                    } else {
-                        peso = selecionado.peso * qtde;
-                        valor = valorProd * qtde;
-                    }
+
+                    peso = selecionado.peso * qtde;
+                    valor = Number.parseFloat(textValorTotal.value.replace(",", "."));
+
                     itens.push({
                         orcamento: 0,
                         produto: {
@@ -298,7 +355,7 @@ function adicionarItem() {
                             representacao: selecionado.representacao
                         },
                         quantidade: qtde,
-                        valor: truncate(valor),
+                        valor: valor,
                         peso: peso
                     });
 

@@ -64,7 +64,7 @@ function limparSelectTipo() {
     }
 }
 
-async function selectOrcVendaChange() {
+function selectOrcVendaChange() {
     let ven = Number.parseInt(selectOrcVenda.value);
     if (ven > 0) {
         let orc = orcamentos[ven-1];
@@ -83,83 +83,96 @@ async function selectOrcVendaChange() {
         else valorFormat = valorFormat.replace('#', ',');
 
         textValorFrete.value = valorFormat;
-        await $.ajax({
-            type: "POST",
-            url: "/representacoes/orcamento/frete/detalhes/item/obter-por-venda.php",
-            data: { venda: ven },
-            success: async function (response) {
-                if (response !== null && response !== []) {
-                    let peso = 0.0;
-                    for (let i = 0; i < response.length; i++) {
-                        peso += response[i].peso;
-                        await $.ajax({
-                            type: "POST",
-                            url: "/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php",
-                            data: { item: response[i].produto.id },
-                            success: function (res) {
-                                if (res !== null && res !== []) {
-                                    if (tipos.length === 0) {
-                                        tipos = res;
-                                        for (let i = 0; i < res.length; i++) {
-                                            let option = document.createElement("option");
-                                            option.value = res[i].id;
-                                            option.text = res[i].descricao;
-                                            selectTipoCam.appendChild(option);
-                                        }
-                                    } else {
-                                        let tmp = [];
-                                        limparSelectTipo();
 
-                                        for (let i = 0; i < res.length; i++) {
-                                            if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
-                                                tmp.push(res[i]);
-                                                let option = document.createElement("option");
-                                                option.value = res[i].id;
-                                                option.text = res[i].descricao;
-                                                selectTipoCam.appendChild(option);
-                                            }
-                                        }
-                                        tipos = tmp;
-                                    }
+        let request = new XMLHttpRequest();
+        request.open('POST', '/representacoes/orcamento/frete/detalhes/item/obter-por-venda.php', false);
+        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        request.send(encodeURI('venda='+ven));
 
+        if (request.DONE === 4 && request.status === 200) {
+            let response = JSON.parse(request.responseText);
+            if (response !== null && typeof response !== "string" && response.length !== 0) {
+                let peso = 0.0;
+                for (let i = 0; i < response.length; i++) {
+                    peso += response[i].peso;
+                    let request = new XMLHttpRequest();
+                    request.open('POST', '/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php', false);
+                    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    request.send(encodeURI('item='+response[i].produto.id));
+
+                    if (request.DONE === 4 && request.status === 200) {
+                        let res = JSON.parse(request.responseText);
+                        if (res !== null && typeof res !== "string" && res.length !== 0) {
+                            if (tipos.length === 0) {
+                                tipos = res;
+                                for (let i = 0; i < res.length; i++) {
+                                    let option = document.createElement("option");
+                                    option.value = res[i].id;
+                                    option.text = res[i].descricao;
+                                    selectTipoCam.appendChild(option);
                                 }
-                            },
-                            error: function (xhr, status, thrown) {
-                                console.error(thrown);
-                                mostraDialogo(
-                                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php",
-                                    "danger",
-                                    3000
-                                );
+                            } else {
+                                let tmp = [];
+                                limparSelectTipo();
+
+                                for (let i = 0; i < res.length; i++) {
+                                    if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
+                                        tmp.push(res[i]);
+                                        let option = document.createElement("option");
+                                        option.value = res[i].id;
+                                        option.text = res[i].descricao;
+                                        selectTipoCam.appendChild(option);
+                                    }
+                                }
+                                tipos = tmp;
                             }
-                        });
-                        let item = {
-                            orcamento: 0,
-                            produto: {
-                                id: response[i].produto.id,
-                                descricao: response[i].produto.descricao,
-                                peso: response[i].produto.peso,
-                                estado: response[i].produto.representacao.pessoa.contato.endereco.cidade.estado.id,
-                                representacao: response[i].produto.representacao.pessoa.nomeFantasia
-                            },
-                            quantidade: Number(response[i].quantidade),
-                            peso: response[i].peso
-                        };
-                        itens.push(item);
-                        preencheTabelaItens(itens);
+                        } else {
+                            mostraDialogo(
+                                res,
+                                "danger",
+                                3000
+                            );
+                        }
+                    } else {
+                        mostraDialogo(
+                            "Erro na requisição da URL /representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php. <br />" +
+                            "Status: "+request.status+" "+request.statusText,
+                            "danger",
+                            3000
+                        );
                     }
-                    textPesoItens.value = peso;
+
+                    let item = {
+                        orcamento: 0,
+                        produto: {
+                            id: response[i].produto.id,
+                            descricao: response[i].produto.descricao,
+                            peso: response[i].produto.peso,
+                            estado: response[i].produto.representacao.pessoa.contato.endereco.cidade.estado.id,
+                            representacao: response[i].produto.representacao.pessoa.nomeFantasia
+                        },
+                        quantidade: Number(response[i].quantidade),
+                        peso: response[i].peso
+                    };
+                    itens.push(item);
+                    preencheTabelaItens(itens);
                 }
-            },
-            error: function (xhr, status, thrown) {
-                console.error(thrown);
+                textPesoItens.value = peso;
+            } else {
                 mostraDialogo(
-                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/item/obter-por-venda.php",
+                    res,
                     "danger",
                     3000
                 );
             }
-        });
+        } else {
+            mostraDialogo(
+                "Erro na requisição da URL /representacoes/orcamento/frete/detalhes/item/obter-por-venda.php. <br />" +
+                "Status: "+request.status+" "+request.statusText,
+                "danger",
+                3000
+            );
+        }
     } else {
         selectRepresentacao.disabled = false;
         itens = [];
@@ -495,6 +508,8 @@ function buttonLimparClick() {
     selectCidade.value = 0;
     itens = [];
     $(tbodyItens).html("");
+    $("#button_clr_itens").prop("disabled", false);
+    $("#button_add_item").prop("disabled", false);
     textPesoItens.value = "0,0";
     piso = 0.0;
     textValorFrete.value = "0,00";
@@ -650,7 +665,7 @@ $(document).ready(async (event) => {
         $(textDesc).val(detalhes.descricao);
         if (detalhes.orcamentoVenda !== null) {
             $(selectOrcVenda).val(detalhes.orcamentoVenda.id);
-            await selectOrcVendaChange();
+            selectOrcVendaChange();
 
             $(selectEstado).val(detalhes.destino.estado.id);
             selectEstadoChange();
@@ -665,94 +680,105 @@ $(document).ready(async (event) => {
             $(selectRepresentacao).val(detalhes.representacao.id);
             selectRepresentacaoChange();
 
-            await $.ajax({
-                type: "POST",
-                url: "/representacoes/orcamento/frete/detalhes/item/obter.php",
-                data: { orcamento: detalhes.id },
-                success: async function (response) {
-                    if (response !== null && response.length !== 0) {
-                        let peso = 0.0;
-                        for (let i = 0; i < response.length; i++) {
-                            peso += response[i].peso;
-                            await $.ajax({
-                                type: "POST",
-                                url: "/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php",
-                                data: { item: response[i].produto.id },
-                                success: function (res) {
-                                    if (res !== null && res !== []) {
-                                        if (tipos.length === 0) {
-                                            tipos = res;
-                                            for (let i = 0; i < res.length; i++) {
-                                                let option = document.createElement("option");
-                                                option.value = res[i].id;
-                                                option.text = res[i].descricao;
-                                                selectTipoCam.appendChild(option);
-                                            }
-                                        } else {
-                                            let tmp = [];
-                                            limparSelectTipo();
+            let request = new XMLHttpRequest();
+            request.open('POST', '/representacoes/orcamento/frete/detalhes/item/obter.php', false);
+            request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            request.send(encodeURI('orcamento='+detalhes.id));
 
-                                            for (let i = 0; i < res.length; i++) {
-                                                if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
-                                                    tmp.push(res[i]);
-                                                    let option = document.createElement("option");
-                                                    option.value = res[i].id;
-                                                    option.text = res[i].descricao;
-                                                    selectTipoCam.appendChild(option);
-                                                }
-                                            }
-                                            tipos = tmp;
-                                        }
+            if (request.DONE === 4 && request.status === 200) {
+                let response = JSON.parse(request.responseText);
+                if (response !== null && typeof response !== "string" && response.length !== 0) {
+                    let peso = 0.0;
+                    for (let i = 0; i < response.length; i++) {
+                        peso += response[i].peso;
+                        let request = new XMLHttpRequest();
+                        request.open('POST', '/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php', false);
+                        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                        request.send(encodeURI('item='+response[i].produto.id));
 
+                        if (request.DONE === 4 && request.status === 200) {
+                            let res = JSON.parse(request.responseText);
+                            if (res !== null && typeof res !== "string" && res.length !== 0) {
+                                if (tipos.length === 0) {
+                                    tipos = res;
+                                    for (let i = 0; i < res.length; i++) {
+                                        let option = document.createElement("option");
+                                        option.value = res[i].id;
+                                        option.text = res[i].descricao;
+                                        selectTipoCam.appendChild(option);
                                     }
-                                },
-                                error: function (xhr, status, thrown) {
-                                    console.error(thrown);
-                                    mostraDialogo(
-                                        "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php",
-                                        "danger",
-                                        3000
-                                    );
-                                }
-                            });
-                            let item = {
-                                orcamento: 0,
-                                produto: {
-                                    id: response[i].produto.id,
-                                    descricao: response[i].produto.descricao,
-                                    peso: response[i].produto.peso,
-                                    estado: response[i].produto.representacao.pessoa.contato.endereco.cidade.estado.id,
-                                    representacao: response[i].produto.representacao.pessoa.nomeFantasia
-                                },
-                                quantidade: Number(response[i].quantidade),
-                                peso: response[i].peso
-                            };
-                            itens.push(item);
-                            preencheTabelaItens(itens);
-                        }
-                        textPesoItens.value = peso;
+                                } else {
+                                    let tmp = [];
+                                    limparSelectTipo();
 
-                        $(selectEstado).val(detalhes.destino.estado.id);
-                        selectEstadoChange();
-                        $(selectCidade).val(detalhes.destino.id);
-                        selectTipoCam.value = detalhes.tipoCaminhao.id;
-                        $(textDistancia).val(detalhes.distancia);
-                        await textDistanciaBlur();
-                        $(textValorFrete).val(detalhes.valor);
-                        $(dateEntrega).val(detalhes.entrega);
-                        $(dateValidade).val(detalhes.validade);
+                                    for (let i = 0; i < res.length; i++) {
+                                        if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
+                                            tmp.push(res[i]);
+                                            let option = document.createElement("option");
+                                            option.value = res[i].id;
+                                            option.text = res[i].descricao;
+                                            selectTipoCam.appendChild(option);
+                                        }
+                                    }
+                                    tipos = tmp;
+                                }
+                            } else {
+                                mostraDialogo(
+                                    res,
+                                    "danger",
+                                    3000
+                                );
+                            }
+                        } else {
+                            mostraDialogo(
+                                "Erro na requisição da URL /representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php. <br />" +
+                                "Status: "+request.status+" "+request.statusText,
+                                "danger",
+                                3000
+                            );
+                        }
+
+                        let item = {
+                            orcamento: 0,
+                            produto: {
+                                id: response[i].produto.id,
+                                descricao: response[i].produto.descricao,
+                                peso: response[i].produto.peso,
+                                estado: response[i].produto.representacao.pessoa.contato.endereco.cidade.estado.id,
+                                representacao: response[i].produto.representacao.pessoa.nomeFantasia
+                            },
+                            quantidade: Number(response[i].quantidade),
+                            peso: response[i].peso
+                        };
+                        itens.push(item);
+                        preencheTabelaItens(itens);
                     }
-                },
-                error: function (xhr, status, thrown) {
-                    console.error(thrown);
+                    textPesoItens.value = peso;
+
+                    $(selectEstado).val(detalhes.destino.estado.id);
+                    selectEstadoChange();
+                    $(selectCidade).val(detalhes.destino.id);
+                    selectTipoCam.value = detalhes.tipoCaminhao.id;
+                    $(textDistancia).val(detalhes.distancia);
+                    await textDistanciaBlur();
+                    $(textValorFrete).val(detalhes.valor);
+                    $(dateEntrega).val(detalhes.entrega);
+                    $(dateValidade).val(detalhes.validade);
+                } else {
                     mostraDialogo(
-                        "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/item/obter-por-venda.php",
+                        res,
                         "danger",
                         3000
                     );
                 }
-            });
+            } else {
+                mostraDialogo(
+                    "Erro na requisição da URL /representacoes/orcamento/frete/detalhes/item/obter.php. <br />" +
+                    "Status: "+request.status+" "+request.statusText,
+                    "danger",
+                    3000
+                );
+            }
         }
-
     }
 });

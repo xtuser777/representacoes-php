@@ -257,7 +257,7 @@ if (!isset($_COOKIE['USER_ID'])) {
                             <th>DESCRIÇÃO</th>
                             <th>CLIENTE</th>
                             <th>DATA</th>
-                            <th>ATOR</th>
+                            <th>AUTOR</th>
                             <th>VALOR (R$)</th>
                             <th style="width: 2%;">&nbsp;</th>
                             <th style="width: 2%;">&nbsp;</th>

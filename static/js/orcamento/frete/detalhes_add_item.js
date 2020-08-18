@@ -2,6 +2,7 @@ const textFiltroProd = document.getElementById("text_filtro_prod");
 const tbodyProduto = document.getElementById("tbody_produtos");
 const textQtde = document.getElementById("text_qtde_prod");
 const textProdSel = document.getElementById("text_prod_sel");
+const textPesoTotal = document.getElementById("text_peso_total");
 
 var selecionado = {
     id: 0,
@@ -158,6 +159,40 @@ function excluirItem(id) {
     }
 }
 
+function calcularPesoTotal() {
+    let qtdeText = textQtde.value.toString();
+
+    if (textProdSel.value === null || textProdSel.value === "") {
+        $("#msprodsel").html('<span class="label label-danger">Selecione um produto.</span>');
+    } else {
+        $("#msprodsel").html('');
+
+        if (qtdeText.search("e") > -1) {
+            $("#msqtdeprod").html('<span class="label label-danger">Informe uma quantidade válida.</span>');
+        } else {
+            $("#msqtdeprod").html('');
+
+            let qtde = Number.parseInt(qtdeText);
+            if (qtde === 0 || isNaN(qtde)) {
+                $("#msqtdeprod").html('<span class="label label-danger">Informe uma quantidade válida.</span>');
+            } else {
+                $("#msqtdeprod").html('');
+
+                let total = selecionado.peso * qtde;
+                //total = truncate(total);
+                let totalText = total.toString();
+                totalText = totalText.replace(".", "#");
+                /*if (totalText.split("#")[1].length === 1) {
+                    totalText = totalText.concat("0");
+                }*/
+                totalText = totalText.replace("#", ",");
+
+                textPesoTotal.value = totalText;
+            }
+        }
+    }
+}
+
 async function adicionarItem() {
     let erroQtde = true;
     let erroProd = true;
@@ -190,7 +225,7 @@ async function adicionarItem() {
         let peso = 0.0;
 
         let request = new XMLHttpRequest();
-        request.open('POST', '/representacoes/orcamento/venda/novo/item/obter-tipos-por-item.php', false);
+        request.open('POST', '/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php', false);
         request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         request.send(encodeURI('item='+selecionado.id));
 
@@ -229,11 +264,7 @@ async function adicionarItem() {
                         selectTipoCam.appendChild(option);
                     }
 
-                    if (Number(selectEstado.value) !== selecionado.estado) {
-                        peso = selecionado.peso * Number(qtde);
-                    } else {
-                        peso = selecionado.peso * Number(qtde);
-                    }
+                    peso = Number.parseFloat(textPesoTotal.value.replace(",", "."));
                     itens.push({
                         orcamento: 0,
                         produto: {

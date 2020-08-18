@@ -129,7 +129,7 @@ function filtrar() {
 
 function excluir(id) {
     bootbox.confirm({
-        message: "Confirma a exclusão deste orçamentos?",
+        message: "Confirma a exclusão deste orçamento?",
         buttons: {
             confirm: {
                 label: 'Sim',

@@ -12,10 +12,10 @@ class ProdutoTipoCaminhaoControl
 {
     public function obter()
     {
-        if (!isset($_SESSION["PRODUTO"])) return json_encode(null);
+        if (!isset($_COOKIE["PRODUTO"])) return json_encode(null);
 
         if (!Banco::getInstance()->open()) return json_encode([]);
-        $tipos = Produto::findById($_SESSION["PRODUTO"])->getTipos();
+        $tipos = Produto::findById($_COOKIE["PRODUTO"])->getTipos();
         Banco::getInstance()->getConnection()->close();
 
         $jarray = [];
@@ -29,10 +29,10 @@ class ProdutoTipoCaminhaoControl
 
     public function obterPorChave(string $chave)
     {
-        if (!isset($_SESSION["PRODUTO"])) return json_encode("Produto não selecionado.");
+        if (!isset($_COOKIE["PRODUTO"])) return json_encode("Produto não selecionado.");
 
         if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se com o banco de dados.");
-        $tipos = Produto::findById($_SESSION["PRODUTO"])->getTipos();
+        $tipos = Produto::findById($_COOKIE["PRODUTO"])->getTipos();
         Banco::getInstance()->getConnection()->close();
 
         $tipos = array_filter($tipos, function (TipoCaminhao $tipo) use ($chave) {
@@ -50,10 +50,10 @@ class ProdutoTipoCaminhaoControl
 
     public function ordenar(string $col)
     {
-        if (!isset($_SESSION["PRODUTO"])) return json_encode("Produto não selecionado.");
+        if (!isset($_COOKIE["PRODUTO"])) return json_encode("Produto não selecionado.");
 
         if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se com o banco de dados.");
-        $tipos = Produto::findById($_SESSION["PRODUTO"])->getTipos();
+        $tipos = Produto::findById($_COOKIE["PRODUTO"])->getTipos();
         Banco::getInstance()->getConnection()->close();
 
         if (count($tipos) > 0) {
@@ -121,7 +121,7 @@ class ProdutoTipoCaminhaoControl
     public function verificarTipo(int $tipo)
     {
         if (!Banco::getInstance()->open()) return json_encode(false);
-        $res = Produto::verifyType($_SESSION["PRODUTO"], $tipo);
+        $res = Produto::verifyType($_COOKIE["PRODUTO"], $tipo);
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($res);
@@ -131,12 +131,12 @@ class ProdutoTipoCaminhaoControl
     {
         if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
 
-        $product = Produto::findById($_SESSION["PRODUTO"]);
+        $product = Produto::findById($_COOKIE["PRODUTO"]);
 
         Banco::getInstance()->getConnection()->begin_transaction();
 
         $res = $product->deleteType($id);
-        if ($res == -10 || $res -1) {
+        if ($res == -10 || $res == -1) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getConnection()->close();
             return json_encode("Ocorreu um erro ao remover o vínculo.");
@@ -157,7 +157,7 @@ class ProdutoTipoCaminhaoControl
     {
         if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
 
-        $product = Produto::findById($_SESSION["PRODUTO"]);
+        $product = Produto::findById($_COOKIE["PRODUTO"]);
 
         Banco::getInstance()->getConnection()->begin_transaction();
 

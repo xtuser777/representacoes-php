@@ -160,7 +160,7 @@ if (!isset($_COOKIE['USER_ID'])) {
                             <!-- Botao de usuario -->
                             <li class="dropdown">
                                 <a href="#" style="color: #fff; font-weight: bold;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <?php echo strtoupper($_COOKIE['USER_LOGIN']); ?>
+                                    <?php echo $_COOKIE['USER_LOGIN']; ?>
                                     <span class="caret"></span>
                                 </a>
                                 <!-- Popup usuario -->
@@ -377,7 +377,7 @@ if (!isset($_COOKIE['USER_ID'])) {
         <!-- Fim conteudo da pagina -->
 
         <!-- Fancybox Add Produto -->
-        <div style="display: none; min-width: 300px; width: 700px" id="fbFrmAddProduto">
+        <div style="display: none; min-width: 300px; width: 950px" id="fbFrmAddProduto">
 
             <h3 style="text-align: center; font-weight: bold;">Adicionar Produto</h3>
             <hr style="color: grey;" />
@@ -417,24 +417,33 @@ if (!isset($_COOKIE['USER_ID'])) {
 
             <div class="row">
                 <div class="col-sm-4">
-                    <label for="text_qtde_prod">Quantidade desejada <span style="color: red;">*</span>:</label>
-                    <input type="number" id="text_qtde_prod" class="form-control input-sm" style="width: 100%;" />
-                    <div id="msqtdeprod"></div>
+                    <label for="text_prod_sel">Produto selecionado <span style="color: red;">*</span>:</label>
+                    <input type="text" id="text_prod_sel" class="form-control input-sm" disabled style="width: 100%;" />
+                    <div id="msprodsel"></div>
                 </div>
 
-                <div class="col-sm-4">
-                    <label for="text_qtde_prod">Valor <span style="color: red;">*</span>:</label>
+                <div class="col-sm-3">
+                    <label for="text_valor_prod">Valor Unitário <span style="color: red;">*</span>:</label>
                     <div class="input-group">
                         <div class="input-group-addon">R$</div>
                         <input type="text" id="text_valor_prod" class="form-control input-sm" style="width: 100%;" />
                     </div>
+                    <div id="msvalorout"></div>
                     <div id="msvalorprod"></div>
                 </div>
 
-                <div class="col-sm-4">
-                    <label for="text_prod_sel">Produto selecionado <span style="color: red;">*</span>:</label>
-                    <input type="text" id="text_prod_sel" class="form-control input-sm" disabled style="width: 100%;" />
-                    <div id="msprodsel"></div>
+                <div class="col-sm-2">
+                    <label for="text_qtde_prod">Qtde desejada <span style="color: red;">*</span>:</label>
+                    <input type="number" id="text_qtde_prod" class="form-control input-sm" style="width: 100%;" onchange="calcularTotalItem();" value="0"/>
+                    <div id="msqtdeprod"></div>
+                </div>
+
+                <div class="col-sm-3">
+                    <label for="text_total_prod">Valor Total:</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">R$</div>
+                        <input type="text" id="text_total_prod" class="form-control input-sm" style="width: 100%;" value="0,00" readonly />
+                    </div>
                 </div>
             </div>
 

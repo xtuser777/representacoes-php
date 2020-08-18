@@ -586,7 +586,7 @@ class Produto
             echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
-        $stmt->bind_param("ii", $product, $type);
+        $stmt->bind_param("ii", $this->id, $type);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return -10;

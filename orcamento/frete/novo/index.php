@@ -160,7 +160,7 @@ if (!isset($_COOKIE['USER_ID'])) {
                             <!-- Botao de usuario -->
                             <li class="dropdown">
                                 <a href="#" style="color: #fff; font-weight: bold;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <?php echo setcookie($_COOKIE['USER_LOGIN']); ?>
+                                    <?php echo $_COOKIE['USER_LOGIN']; ?>
                                     <span class="caret"></span>
                                 </a>
                                 <!-- Popup usuario -->
@@ -407,17 +407,20 @@ if (!isset($_COOKIE['USER_ID'])) {
 
             <div class="row">
                 <div class="col-sm-4">
+                    <label for="text_prod_sel">Produto selecionado <span style="color: red;">*</span>:</label>
+                    <input type="text" id="text_prod_sel" class="form-control input-sm" readonly style="width: 100%;" />
+                    <div id="msprodsel"></div>
+                </div>
+
+                <div class="col-sm-4">
                     <label for="text_qtde_prod">Quantidade desejada <span style="color: red;">*</span>:</label>
-                    <input type="number" id="text_qtde_prod" class="form-control input-sm" style="width: 100%;" />
+                    <input type="number" id="text_qtde_prod" class="form-control input-sm" style="width: 100%;" onchange="calcularPesoTotal();" value="0" />
                     <div id="msqtdeprod"></div>
                 </div>
 
-                <div class="col-sm-4"></div>
-
                 <div class="col-sm-4">
-                    <label for="text_prod_sel">Produto selecionado <span style="color: red;">*</span>:</label>
-                    <input type="text" id="text_prod_sel" class="form-control input-sm" disabled style="width: 100%;" />
-                    <div id="msprodsel"></div>
+                    <label for="text_peso_total">Peso total:</label>
+                    <input type="text" id="text_peso_total" class="form-control input-sm" style="width: 100%;" value="0,0" readonly />
                 </div>
             </div>
 
