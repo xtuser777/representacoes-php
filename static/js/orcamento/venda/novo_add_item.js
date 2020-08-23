@@ -218,6 +218,11 @@ function excluirItem(id) {
     textPesoItens.value = pesoFormat;
     textValorItens.value = valorFormat;
     itens = temp;
+
+    if (temp.length === 0) {
+        tipos = [];
+    }
+
     preencheTabelaItens(itens);
 }
 

@@ -155,6 +155,12 @@ function excluirItem(id) {
 
         textPesoItens.value = pesoFormat;
         itens = temp;
+
+        if (temp.length === 0) {
+            tipos = [];
+            limparSelectTipo();
+        }
+
         preencheTabelaItens(itens);
     }
 }

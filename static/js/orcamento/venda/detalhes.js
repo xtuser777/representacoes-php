@@ -510,6 +510,42 @@ $(document).ready((event) => {
         if (itensBanco.length > 0) {
             let itensOrc = itensBanco;
             for (let i = 0; i < itensOrc.length; i++) {
+                let request = new XMLHttpRequest();
+                request.open('POST', '/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php', false);
+                request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                request.send(encodeURI('item='+itensOrc[i].produto.id));
+
+                if (request.DONE === 4 && request.status === 200) {
+                    let res = JSON.parse(request.responseText);
+                    if (res !== null && typeof res !== "string" && res.length !== 0) {
+                        if (tipos.length === 0) {
+                            tipos = res;
+                        } else {
+                            let tmp = [];
+
+                            for (let i = 0; i < res.length; i++) {
+                                if (tipos.findIndex((element) => { return (element.id === res[i].id); }) !== -1) {
+                                    tmp.push(res[i]);
+                                }
+                            }
+                            tipos = tmp;
+                        }
+                    } else {
+                        mostraDialogo(
+                            res,
+                            "danger",
+                            3000
+                        );
+                    }
+                } else {
+                    mostraDialogo(
+                        "Erro na requisição da URL /representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php. <br />" +
+                        "Status: "+request.status+" "+request.statusText,
+                        "danger",
+                        3000
+                    );
+                }
+
                 itens.push({
                     orcamento: itensOrc[i].orcamento.id,
                     produto: {
