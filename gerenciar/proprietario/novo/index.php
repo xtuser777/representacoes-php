@@ -161,7 +161,7 @@ if (!isset($_COOKIE["USER_ID"])) {
                             <!-- Botao de usuario -->
                             <li class="dropdown">
                                 <a href="#" style="color: #fff; font-weight: bold;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <?php echo strtoupper($_COOKIE['USER_LOGIN']); ?>
+                                    <?php echo $_COOKIE['USER_LOGIN']; ?>
                                     <span class="caret"></span>
                                 </a>
                                 <!-- Popup usuario -->

@@ -16,7 +16,7 @@ if (!isset($_COOKIE['USER_ID'])) {
 
     <link rel="icon" type="image/png" href="/representacoes/static/images/logo.png">
 
-    <title>Gerenciar Orçamentos de Vendas - Sistema de Controle de Representações</title>
+    <title>Lançar Despesas - Sistema de Controle de Representações</title>
 
     <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/fancybox/jquery.fancybox.min.css"/>

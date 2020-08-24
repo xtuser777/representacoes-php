@@ -23,7 +23,7 @@ $response = [];
 
 if ($user) {
     setcookie("USER_ID", $user["id"], time() + (24 * 3600), "/", "", 0, 1);
-    setcookie("USER_LOGIN", $user["login"], time() + (24 * 3600), "/", "", 0, 1);
+    setcookie("USER_LOGIN", strtoupper($user["login"]), time() + (24 * 3600), "/", "", 0, 1);
     setcookie("USER_LEVEL", $user["nivel"]["id"], time() + (24 * 3600), "/", "", 0, 1);
 
     $response = [
