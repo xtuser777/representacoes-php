@@ -447,6 +447,11 @@ class PedidoFrete
         );
     }
 
+    public function findAll(): array
+    {
+        return [];
+    }
+
     public function jsonSerialize(): array
     {
         $orcamento = ($this->orcamento !== null) ? $this->orcamento->jsonSerialize() : null;

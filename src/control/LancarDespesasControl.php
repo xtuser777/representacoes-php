@@ -198,7 +198,14 @@ class LancarDespesasControl
 
     public function enviar(int $id)
     {
-        if ($id <= 0) return json_encode("Parâmetro inválido.");
+        if ($id <= 0)
+            return json_encode("Parâmetro inválido.");
+
+        $conta = (new  ContaPagar())->findById($id);
+
+        if ($conta->getSituacao() > 1 || $conta->getDataPagamento() !== null || strlen($conta->getDataPagamento()) > 0)
+            return json_encode("Não é possível alterar uma conta já paga.");
+
         setcookie("DESP", $id, time() + 3600, "/", "", 0 , 1);
 
         return json_encode("");
@@ -208,7 +215,12 @@ class LancarDespesasControl
     {
         if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
         $conta = (new ContaPagar())->findById($id);
-        if (!$conta) return json_encode("Registro não encontrado.");
+        if (!$conta)
+            return json_encode("Registro não encontrado.");
+
+        if ($conta->getSituacao() > 1 || $conta->getDataPagamento() !== null || strlen($conta->getDataPagamento()) > 0)
+            return json_encode("Não é possível remover uma conta já paga.");
+
         Banco::getInstance()->getConnection()->begin_transaction();
         $cp = $conta->delete();
         if ($cp == -10 || $cp == -1) {

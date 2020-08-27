@@ -20,9 +20,9 @@ $(document).ready(function (event) {
         location.href = "../../inicio";
     }
 
-    $('#peso').mask('000,000.0', { reverse: true });
-    $('#preco').mask('00,000,000.00', { reverse: true });
-    $('#preco_out').mask('00,000,000.00', { reverse: true });
+    $('#peso').mask('000000.0', { reverse: true });
+    $('#preco').mask('00000000.00', { reverse: true });
+    $('#preco_out').mask('00000000.00', { reverse: true });
 
     let representacao = document.getElementById("representacao");
     if (representacoes !== null && representacoes.length > 0) {

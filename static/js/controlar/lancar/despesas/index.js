@@ -25,7 +25,7 @@ function preencherTabela(dados) {
                 <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
             </tr>';
     });
-    $(tbodyOrcamentos).html(txt);
+    $(tbodyDespesas).html(txt);
 }
 
 function get(url_i) {
@@ -174,49 +174,58 @@ function excluir(id) {
         },
         callback: function (result) {
             if (result) {
-                $.ajax({
-                    type: 'POST',
-                    url: '/representacoes/controlar/lancar/despesas/excluir.php',
-                    data: {
-                        id: id
-                    },
-                    success: function (result) {
-                        if (result === "") {
-                            obter();
-                        } else {
-                            alert("Ocorreu um problema ao excluir esta despesa.");
-                        }
-                    },
-                    error: function (XMLHttpRequest, txtStatus, errorThrown) {
-                        alert("Status: " + txtStatus);
-                        alert("Error: " + errorThrown);
+                let request = new XMLHttpRequest();
+                request.open("POST", "/representacoes/controlar/lancar/despesas/excluir.php", false);
+                request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                request.send(encodeURI('id='+id));
+
+                if (request.DONE === 4 && request.status === 200) {
+                    let res = JSON.parse(request.responseText);
+                    if (res !== null && res.length === 0) {
+                        obter();
+                    } else {
+                        mostraDialogo(
+                            res,
+                            "danger",
+                            3000
+                        );
                     }
-                });
+                } else {
+                    mostraDialogo(
+                        "Erro na requisição da URL /representacoes/controlar/lancar/despesas/enviar.php. <br />" +
+                        "Status: "+request.status+" "+request.statusText,
+                        "danger",
+                        3000
+                    );
+                }
             }
         }
     });
 }
 
 function alterar(id) {
-    $.ajax({
-        type: 'POST',
-        url: '/representacoes/controlar/lancar/despesas/enviar.php',
-        data: {
-            id: id
-        },
-        success: function (result) {
-            if (result.length > 0) alert(result);
-            else {
-                window.location.href = "../../../controlar/lancar/despesas/detalhes";
-            }
-        },
-        error: function (XMLHttpRequest, txtStatus, errorThrown) {
+    let request = new XMLHttpRequest();
+    request.open("POST", "/representacoes/controlar/lancar/despesas/enviar.php", false);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(encodeURI('id='+id));
+
+    if (request.DONE === 4 && request.status === 200) {
+        let res = JSON.parse(request.responseText);
+        if (res !== null && res.length === 0) {
+            window.location.href = "../../../controlar/lancar/despesas/detalhes";
+        } else {
             mostraDialogo(
-                "<strong>Ocorreu um erro ao se comunicar com o servidor...</strong>" +
-                "<br/>"+errorThrown,
+                res,
                 "danger",
-                2000
+                3000
             );
         }
-    });
+    } else {
+        mostraDialogo(
+            "Erro na requisição da URL /representacoes/controlar/lancar/despesas/enviar.php. <br />" +
+            "Status: "+request.status+" "+request.statusText,
+            "danger",
+            3000
+        );
+    }
 }

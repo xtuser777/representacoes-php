@@ -391,7 +391,9 @@ class ContaPagar
         return new ContaPagar(
             $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
             $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
-            $row["con_pag_vencimento"], $row["con_pag_data_pagamento"], $row["con_pag_valor_pago"],
+            $row["con_pag_vencimento"],
+            (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+            (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
             ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
             ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
             ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -440,7 +442,9 @@ class ContaPagar
             $contas[] = new ContaPagar(
                 $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
                 $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
-                $row["con_pag_vencimento"], $row["con_pag_data_pagamento"], $row["con_pag_valor_pago"],
+                $row["con_pag_vencimento"],
+                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
                 ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
                 ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
                 ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -492,7 +496,9 @@ class ContaPagar
             $contas[] = new ContaPagar(
                 $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
                 $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
-                $row["con_pag_vencimento"], $row["con_pag_data_pagamento"], $row["con_pag_valor_pago"],
+                $row["con_pag_vencimento"],
+                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
                 ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
                 ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
                 ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -545,7 +551,9 @@ class ContaPagar
             $contas[] = new ContaPagar(
                 $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
                 $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
-                $row["con_pag_vencimento"], $row["con_pag_data_pagamento"], $row["con_pag_valor_pago"],
+                $row["con_pag_vencimento"],
+                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
                 ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
                 ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
                 ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -594,7 +602,9 @@ class ContaPagar
             $contas[] = new ContaPagar(
                 $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
                 $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
-                $row["con_pag_vencimento"], $row["con_pag_data_pagamento"], $row["con_pag_valor_pago"],
+                $row["con_pag_vencimento"],
+                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
                 ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
                 ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
                 ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -606,6 +616,104 @@ class ContaPagar
         }
 
         return $contas;
+    }
+
+    public function save(int $fun): int
+    {
+        if ($fun === 1) {
+            if(
+                $this->id !== 0 ||
+                strlen($this->data) === 0 ||
+                strlen($this->descricao) === 0 ||
+                strlen($this->empresa) === 0 ||
+                $this->valor <= 0 ||
+                strlen($this->vencimento) === 0 ||
+                $this->situacao === 0 ||
+                $this->categoria === null ||
+                $this->autor === null
+            )
+                return -5;
+        } else {
+            if(
+                $this->id !== 0 ||
+                strlen($this->data) === 0 ||
+                strlen($this->descricao) === 0 ||
+                strlen($this->empresa) === 0 ||
+                $this->valor <= 0 ||
+                strlen($this->vencimento) === 0 ||
+                $this->situacao === 0 ||
+                strlen($this->dataPagamento) === 0 ||
+                $this->valorPago <= 0 ||
+                $this->formaPagamento === null ||
+                $this->categoria === null ||
+                $this->autor === null
+            )
+                return -5;
+        }
+
+        $sql = "
+            INSERT 
+            INTO conta_pagar(con_pag_data, con_pag_descricao, con_pag_empresa, con_pag_valor, con_pag_vencimento, con_pag_situacao, cat_id, ped_fre_id, usu_id) 
+            VALUES (?,?,?,?,?,?,?,?,?);
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $cat = $this->categoria->getId();
+        $ped = ($this->pedidoFrete) ? $this->pedidoFrete->getId() : null;
+        $autor = $this->autor->getId();
+
+        $stmt->bind_param(
+            "sssdsiiii",
+            $this->data,
+            $this->descricao,
+            $this->empresa,
+            $this->valor,
+            $this->vencimento,
+            $this->situacao,
+            $cat,
+            $ped,
+            $autor
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->insert_id;
+    }
+
+    public function delete(): int
+    {
+        if ($this->id <= 0)
+            return -5;
+
+        $sql = "
+            DELETE 
+            FROM conta_pagar
+            WHERE con_pag_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if ($stmt === null) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $stmt->bind_param("i", $this->id);
+        if ($stmt->execute() === false) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
     }
 
     public function jsonSerialize(): array

@@ -223,6 +223,8 @@ CREATE OR REPLACE TABLE orcamento_frete
     tip_cam_id INTEGER NOT NULL,
     cid_id INTEGER NOT NULL,
     usu_id INTEGER NOT NULL,
+    FOREIGN KEY (orc_ven_id) REFERENCES orcamento_venda(orc_ven_id),
+    FOREIGN KEY (rep_id) REFERENCES representacao(rep_id),
     FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
     FOREIGN KEY (cid_id) REFERENCES cidade(cid_id),
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
@@ -246,9 +248,9 @@ CREATE OR REPLACE TABLE orcamento_frete_produto
     pro_id INTEGER NOT NULL,
     orc_fre_pro_quantidade INTEGER NOT NULL,
     orc_fre_pro_peso DECIMAL(10,2) NOT NULL,
-    PRIMARY KEY (orc_fre_id, pro_id),
     FOREIGN KEY (orc_fre_id) REFERENCES orcamento_frete(orc_fre_id),
-    FOREIGN KEY (pro_id) REFERENCES produto(pro_id)
+    FOREIGN KEY (pro_id) REFERENCES produto(pro_id),
+    PRIMARY KEY (orc_fre_id, pro_id)
 );
 
 CREATE OR REPLACE TABLE proprietario
