@@ -1,4 +1,8 @@
-<?php namespace scr\model;
+<?php
+
+
+namespace scr\model;
+
 
 use mysqli_result;
 use mysqli_stmt;
@@ -123,7 +127,9 @@ class OrcamentoVenda
 
     public static function findById(int $id): ?OrcamentoVenda
     {
-        if ($id <= 0) return null;
+        if ($id <= 0)
+            return null;
+
         $sql = "
             select orc_ven_id,orc_ven_descricao,orc_ven_data,
                    orc_ven_nome_cliente,orc_ven_documento_cliente,orc_ven_telefone_cliente,orc_ven_celular_cliente,orc_ven_email_cliente,
@@ -132,29 +138,33 @@ class OrcamentoVenda
             from orcamento_venda
             where orc_ven_id = ?;
         ";
+
         /** @var $stmt mysqli_stmt */
         $stmt = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$stmt) {
             echo Banco::getInstance()->getConnection()->error;
             return null;
         }
+
         $stmt->bind_param("i", $id);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return null;
         }
+
         /** @var $result mysqli_result */
         $result = $stmt->get_result();
         if (!$result || $result->num_rows <= 0) {
             echo $stmt->error;
             return null;
         }
+
         $row = $result->fetch_assoc();
 
         return new OrcamentoVenda(
             $row["orc_ven_id"],$row["orc_ven_descricao"],$row["orc_ven_data"],$row["orc_ven_nome_cliente"],$row["orc_ven_documento_cliente"],$row["orc_ven_telefone_cliente"],$row["orc_ven_celular_cliente"],$row["orc_ven_email_cliente"],$row["orc_ven_peso"],$row["orc_ven_valor"],$row["orc_ven_validade"],
-            Funcionario::getById($row["fun_id"]),
-            Cliente::getById($row["cli_id"]),
+            ($row["fun_id"]) ? Funcionario::getById($row["fun_id"]) : null,
+            ($row["cli_id"]) ? Cliente::getById($row["cli_id"]) : null,
             (new Cidade())->getById($row["cid_id"]),
             Usuario::getById($row["usu_id"])
         );
@@ -162,7 +172,8 @@ class OrcamentoVenda
 
     public static function findByKey(string $key): array
     {
-        if (strlen(trim($key)) === 0) return array();
+        if (strlen(trim($key)) === 0)
+            return array();
 
         $sql = "
             select orc_ven_id,orc_ven_descricao,orc_ven_data,
@@ -174,30 +185,34 @@ class OrcamentoVenda
             or ov.orc_ven_nome_cliente like ?
             order by ov.orc_ven_id;
         ";
+
         /** @var $stmt mysqli_stmt */
         $stmt = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$stmt) {
             echo Banco::getInstance()->getConnection()->error;
             return array();
         }
+
         $filter = "%".$key."%";
         $stmt->bind_param("ss", $filter, $filter);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return array();
         }
+
         /** @var $result mysqli_result */
         $result = $stmt->get_result();
         if (!$result || $result->num_rows <= 0) {
             echo $stmt->error;
             return array();
         }
+
         $orcamentos = [];
         while ($row = $result->fetch_assoc()) {
             $orcamentos[] = new OrcamentoVenda(
                 $row["orc_ven_id"],$row["orc_ven_descricao"],$row["orc_ven_data"],$row["orc_ven_nome_cliente"],$row["orc_ven_documento_cliente"],$row["orc_ven_telefone_cliente"],$row["orc_ven_celular_cliente"],$row["orc_ven_email_cliente"],$row["orc_ven_peso"],$row["orc_ven_valor"],$row["orc_ven_validade"],
-                Funcionario::getById($row["fun_id"]),
-                Cliente::getById($row["cli_id"]),
+                ($row["fun_id"]) ? Funcionario::getById($row["fun_id"]) : null,
+                ($row["cli_id"]) ? Cliente::getById($row["cli_id"]) : null,
                 (new Cidade())->getById($row["cid_id"]),
                 Usuario::getById($row["usu_id"])
             );
@@ -208,7 +223,9 @@ class OrcamentoVenda
 
     public static function findByDate(string $date): array
     {
-        if (strlen(trim($date)) === 0) return array();
+        if (strlen(trim($date)) === 0)
+            return array();
+
         $sql = "
             select orc_ven_id,orc_ven_descricao,orc_ven_data,
                    orc_ven_nome_cliente,orc_ven_documento_cliente,orc_ven_telefone_cliente,orc_ven_celular_cliente,orc_ven_email_cliente,
@@ -218,29 +235,33 @@ class OrcamentoVenda
             where ov.orc_ven_data = ?
             order by ov.orc_ven_id;
         ";
+
         /** @var $stmt mysqli_stmt */
         $stmt = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$stmt) {
             echo Banco::getInstance()->getConnection()->error;
             return array();
         }
+
         $stmt->bind_param("s", $date);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return array();
         }
+
         /** @var $result mysqli_result */
         $result = $stmt->get_result();
         if (!$result || $result->num_rows <= 0) {
             echo $stmt->error;
             return array();
         }
+
         $orcamentos = [];
         while ($row = $result->fetch_assoc()) {
             $orcamentos[] = new OrcamentoVenda(
                 $row["orc_ven_id"],$row["orc_ven_descricao"],$row["orc_ven_data"],$row["orc_ven_nome_cliente"],$row["orc_ven_documento_cliente"],$row["orc_ven_telefone_cliente"],$row["orc_ven_celular_cliente"],$row["orc_ven_email_cliente"],$row["orc_ven_peso"],$row["orc_ven_valor"],$row["orc_ven_validade"],
-                Funcionario::getById($row["fun_id"]),
-                Cliente::getById($row["cli_id"]),
+                ($row["fun_id"]) ? Funcionario::getById($row["fun_id"]) : null,
+                ($row["cli_id"]) ? Cliente::getById($row["cli_id"]) : null,
                 (new Cidade())->getById($row["cid_id"]),
                 Usuario::getById($row["usu_id"])
             );
@@ -251,7 +272,9 @@ class OrcamentoVenda
 
     public static function findByKeyDate(string $key, string $date): array
     {
-        if(strlen(trim($key)) === 0 || strlen(trim($date)) === 0) return array();
+        if(strlen(trim($key)) === 0 || strlen(trim($date)) === 0)
+            return array();
+
         $sql = "
             select ov.orc_ven_id,ov.orc_ven_descricao,ov.orc_ven_data,
                    ov.orc_ven_nome_cliente,ov.orc_ven_documento_cliente,ov.orc_ven_telefone_cliente,ov.orc_ven_celular_cliente,ov.orc_ven_email_cliente,
@@ -263,30 +286,34 @@ class OrcamentoVenda
             and ov.orc_ven_data = ?
             order by ov.orc_ven_id;
         ";
+
         /** @var $stmt mysqli_stmt */
         $stmt = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$stmt) {
             echo Banco::getInstance()->getConnection()->error;
             return array();
         }
+
         $filter = "%".$key."%";
         $stmt->bind_param("sss", $filter, $filter, $date);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return array();
         }
+
         /** @var $result mysqli_result */
         $result = $stmt->get_result();
         if (!$result || $result->num_rows <= 0) {
             echo $stmt->error;
             return array();
         }
+
         $orcamentos = [];
         while ($row = $result->fetch_assoc()) {
             $orcamentos[] = new OrcamentoVenda(
                 $row["orc_ven_id"],$row["orc_ven_descricao"],$row["orc_ven_data"],$row["orc_ven_nome_cliente"],$row["orc_ven_documento_cliente"],$row["orc_ven_telefone_cliente"],$row["orc_ven_celular_cliente"],$row["orc_ven_email_cliente"],$row["orc_ven_peso"],$row["orc_ven_valor"],$row["orc_ven_validade"],
-                Funcionario::getById($row["fun_id"]),
-                Cliente::getById($row["cli_id"]),
+                ($row["fun_id"]) ? Funcionario::getById($row["fun_id"]) : null,
+                ($row["cli_id"]) ? Cliente::getById($row["cli_id"]) : null,
                 (new Cidade())->getById($row["cid_id"]),
                 Usuario::getById($row["usu_id"])
             );
@@ -305,18 +332,20 @@ class OrcamentoVenda
             from orcamento_venda
             order by orc_ven_id;
         ";
+
         /** @var $result mysqli_result */
         $result = Banco::getInstance()->getConnection()->query($sql);
         if (!$result || $result->num_rows <= 0) {
             echo Banco::getInstance()->getConnection()->error;
             return array();
         }
+
         $orcamentos = [];
         while ($row = $result->fetch_assoc()) {
             $orcamentos[] = new OrcamentoVenda(
                 $row["orc_ven_id"],$row["orc_ven_descricao"],$row["orc_ven_data"],$row["orc_ven_nome_cliente"],$row["orc_ven_documento_cliente"],$row["orc_ven_telefone_cliente"],$row["orc_ven_celular_cliente"],$row["orc_ven_email_cliente"],$row["orc_ven_peso"],$row["orc_ven_valor"],$row["orc_ven_validade"],
-                Funcionario::getById($row["fun_id"]),
-                Cliente::getById($row["cli_id"]),
+                ($row["fun_id"]) ? Funcionario::getById($row["fun_id"]) : null,
+                ($row["cli_id"]) ? Cliente::getById($row["cli_id"]) : null,
                 (new Cidade())->getById($row["cid_id"]),
                 Usuario::getById($row["usu_id"])
             );
@@ -332,7 +361,8 @@ class OrcamentoVenda
             strlen($this->telefoneCliente) <= 0 || strlen($this->celularCliente) <= 0 ||
             strlen($this->emailCliente) <= 0 || $this->valor <= 0 || $this->peso <= 0 ||
             strlen($this->validade) <= 0 || $this->destino == null || $this->autor == null
-        ) return -5;
+        )
+            return -5;
 
         $sql = "
             insert into orcamento_venda(
@@ -342,14 +372,16 @@ class OrcamentoVenda
             )
             values(?,?,?,?,?,?,?,?,?,?,?,?,?,?);
         ";
+
         /** @var $stmt mysqli_stmt */
         $stmt = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$stmt) {
             echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
-        $vdd = ($this->vendedor !== null) ? $this->vendedor->getId() : 0;
-        $cli = ($this->cliente !== null) ? $this->cliente->getId() : 0;
+
+        $vdd = ($this->vendedor !== null) ? $this->vendedor->getId() : null;
+        $cli = ($this->cliente !== null) ? $this->cliente->getId() : null;
         $dest = $this->destino->getId();
         $autor = $this->autor->getId();
         $stmt->bind_param(
@@ -374,21 +406,24 @@ class OrcamentoVenda
             strlen($this->telefoneCliente) <= 0 || strlen($this->celularCliente) <= 0 ||
             strlen($this->emailCliente) <= 0 || $this->valor <= 0 || $this->peso <= 0 ||
             strlen($this->validade) <= 0 || $this->destino == null || $this->autor == null
-        ) return -5;
+        )
+            return -5;
 
         $sql = "
             update orcamento_venda
             set orc_ven_descricao = ?,orc_ven_data = ?,orc_ven_nome_cliente = ?,orc_ven_documento_cliente = ?,orc_ven_telefone_cliente = ?,orc_ven_celular_cliente = ?,orc_ven_email_cliente = ?,orc_ven_peso = ?,orc_ven_valor = ?,orc_ven_validade = ?,fun_id = ?,cli_id = ?,cid_id = ?,usu_id = ?
             where orc_ven_id = ?;
         ";
+
         /** @var $stmt mysqli_stmt */
         $stmt = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$stmt) {
             echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
-        $vdd = ($this->vendedor !== null) ? $this->vendedor->getId() : 0;
-        $cli = ($this->cliente !== null) ? $this->cliente->getId() : 0;
+
+        $vdd = ($this->vendedor !== null) ? $this->vendedor->getId() : null;
+        $cli = ($this->cliente !== null) ? $this->cliente->getId() : null;
         $dest = $this->destino->getId();
         $autor = $this->autor->getId();
         $stmt->bind_param(
@@ -398,6 +433,7 @@ class OrcamentoVenda
             $this->peso,$this->valor,$this->validade,
             $vdd,$cli,$dest,$autor,$this->id
         );
+
         if (!$stmt->execute()) {
             echo $stmt->error;
             return -10;

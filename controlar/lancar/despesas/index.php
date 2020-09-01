@@ -111,7 +111,7 @@ if (!isset($_COOKIE['USER_ID'])) {
                             </a>
                             <!-- Popup botao controlar -->
                             <ul class="dropdown-menu">
-                                <li><a href="/controlar/contas/pagar/index">Contas a Pagar</a></li>
+                                <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
                                 <li><a href="/controlar/contas/receber/index">Contas a Receber</a></li>
                                 <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
                                 <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
@@ -203,14 +203,19 @@ if (!isset($_COOKIE['USER_ID'])) {
 
         <div class="fieldset-card-container">
             <div class="row">
-                <div class="col-sm-8">
+                <div class="col-sm-6">
                     <label for="txFiltro">Filtro:</label>
                     <input type="text" id="txFiltro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por descrição..." />
                 </div>
 
                 <div class="col-sm-2">
-                    <label for="txFiltroData">Filtro Data:</label>
-                    <input type="date" id="txFiltroData" class="form-control input-sm" style="width: 100%;" />
+                    <label for="txDataInicio">Data Início:</label>
+                    <input type="date" id="txDataInicio" class="form-control input-sm" style="width: 100%;" />
+                </div>
+
+                <div class="col-sm-2">
+                    <label for="txDataFim">Data Fim:</label>
+                    <input type="date" id="txDataFim" class="form-control input-sm" style="width: 100%;" />
                 </div>
 
                 <div class="col-sm-2">
@@ -229,22 +234,20 @@ if (!isset($_COOKIE['USER_ID'])) {
                 <div class="col-sm-10">
                     <label for="cbord">Ordenar por:</label>
                     <select id="cbord" class="form-control input-sm" onchange="ordenar();">
-                        <option value="1">REGISTRO (CRESCENTE)</option>
-                        <option value="2">REGISTRO (DECRESCENTE)</option>
-                        <option value="3">DESCRIÇÂO (CRESCENTE)</option>
-                        <option value="4">DESCRIÇÂO (DECRESCENTE)</option>
-                        <option value="5">CATEGORIA (CRESCENTE)</option>
-                        <option value="6">CATEGORIA (DECRESCENTE)</option>
-                        <option value="7">DATA (CRESCENTE)</option>
-                        <option value="8">DATA (DECRESCENTE)</option>
-                        <option value="9">VENCIMENTO (CRESCENTE)</option>
-                        <option value="10">VENCIMENTO (DECRESCENTE)</option>
-                        <option value="11">EMPRESA (CRESCENTE)</option>
-                        <option value="12">EMPRESA (DECRESCENTE)</option>
-                        <option value="13">AUTOR (CRESCENTE)</option>
-                        <option value="14">AUTOR (DECRESCENTE)</option>
-                        <option value="15">VALOR (CRESCENTE)</option>
-                        <option value="16">VALOR (DECRESCENTE)</option>
+                        <option value="1">DESCRIÇÂO (CRESCENTE)</option>
+                        <option value="2">DESCRIÇÂO (DECRESCENTE)</option>
+                        <option value="3">CATEGORIA (CRESCENTE)</option>
+                        <option value="4">CATEGORIA (DECRESCENTE)</option>
+                        <option value="5">DATA (CRESCENTE)</option>
+                        <option value="6">DATA (DECRESCENTE)</option>
+                        <option value="7">VENCIMENTO (CRESCENTE)</option>
+                        <option value="8">VENCIMENTO (DECRESCENTE)</option>
+                        <option value="9">EMPRESA (CRESCENTE)</option>
+                        <option value="10">EMPRESA (DECRESCENTE)</option>
+                        <option value="11">AUTOR (CRESCENTE)</option>
+                        <option value="12">AUTOR (DECRESCENTE)</option>
+                        <option value="13">VALOR (CRESCENTE)</option>
+                        <option value="14">VALOR (DECRESCENTE)</option>
                     </select>
                 </div>
 
@@ -258,13 +261,14 @@ if (!isset($_COOKIE['USER_ID'])) {
                 <thead>
                 <tr>
                     <th class="hidden">ID</th>
-                    <th>DESCRIÇÃO</th>
-                    <th>CATEGORIA</th>
-                    <th>DATA</th>
-                    <th>VENCIMENTO</th>
-                    <th>EMPRESA</th>
-                    <th>AUTOR</th>
+                    <th style="width: 20%;">DESCRIÇÃO</th>
+                    <th style="width: 14%;">CATEGORIA</th>
+                    <th style="width: 8%;">VENC.</th>
+                    <th style="width: 8%;">DATA</th>
+                    <th style="width: 12%;">EMPRESA</th>
+                    <th style="width: 12%;">AUTOR</th>
                     <th>VALOR (R$)</th>
+                    <th>SITUAÇÃO</th>
                     <th style="width: 2%;">&nbsp;</th>
                     <th style="width: 2%;">&nbsp;</th>
                 </tr>

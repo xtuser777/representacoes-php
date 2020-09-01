@@ -112,9 +112,9 @@ if (!isset($_COOKIE['USER_ID'])) {
                                     </a>
                                     <!-- Popup botao controlar -->
                                     <ul class="dropdown-menu">
-                                        <li><a href="/controlar/contas/pagar/index">Contas a Pagar</a></li>
+                                        <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
                                         <li><a href="/controlar/contas/receber/index">Contas a Receber</a></li>
-                                        <li><a href="/controlar/lancar/despezas/index">Lançar Despesas</a></li>
+                                        <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
                                         <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
                                             <li><a href="/controlar/comissao/index">Comissões</a></li>
                                         <?php endif; ?>
@@ -434,7 +434,7 @@ if (!isset($_COOKIE['USER_ID'])) {
 
                 <div class="col-sm-2">
                     <label for="text_qtde_prod">Qtde desejada <span style="color: red;">*</span>:</label>
-                    <input type="number" id="text_qtde_prod" class="form-control input-sm" style="width: 100%;" onchange="calcularTotalItem();" value="0"/>
+                    <input type="number" id="text_qtde_prod" class="form-control input-sm" style="width: 100%;" onchange="calcularTotalItem();" oninput="calcularTotalItem();" value="0"/>
                     <div id="msqtdeprod"></div>
                 </div>
 

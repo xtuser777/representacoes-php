@@ -1,25 +1,22 @@
 <?php
 
-require '../../header.php';
+require '../../../header.php';
 
-if (!isset($_COOKIE["USER_ID"])) {
+if (!isset($_COOKIE['USER_ID'])) {
     header('Location: /representacoes/login');
-} elseif (strcmp($_SERVER["REQUEST_METHOD"], "GET") !== 0) {
-    header("Content-type: application/json");
-    echo "Método não suportado pela rota.";
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <link rel="icon" type="image/png" href="/representacoes/static/images/logo.png">
 
-        <title>Gerenciar Propritários de Caminhões - Sistema de Controle de Representações</title>
+        <title>Contas a Pagar - Sistema de Controle de Representações</title>
 
         <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/fancybox/jquery.fancybox.min.css"/>
@@ -195,25 +192,30 @@ if (!isset($_COOKIE["USER_ID"])) {
             <div class="card-title">
                 <div class="card-title-container" style="text-align: center;">
                     <h4>
-                        <b>SCR - Gerenciar Proprietários de Caminhões</b>
+                        <b>SCR - Contas a Pagar</b>
                     </h4>
                 </div>
             </div>
             <!-- Fim card titulo pagina -->
 
             <div class="fieldset-card">
-                <div class="fieldset-card-legend">Filtragem de Proprietários</div>
+                <div class="fieldset-card-legend">Filtragem de Contas</div>
 
                 <div class="fieldset-card-container">
                     <div class="row">
-                        <div class="col-sm-8">
-                            <label for="filtro">Filtro:</label>
-                            <input type="text" id="filtro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por nome e email..." />
+                        <div class="col-sm-6">
+                            <label for="txFiltro">Filtro:</label>
+                            <input type="text" id="txFiltro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por descrição..." />
                         </div>
 
                         <div class="col-sm-2">
-                            <label for="filtro_cad">Filtro Cadastro:</label>
-                            <input type="date" id="filtro_cad" class="form-control input-sm" style="width: 100%;" />
+                            <label for="txDataInicio">Data Início:</label>
+                            <input type="date" id="txDataInicio" class="form-control input-sm" style="width: 100%;" />
+                        </div>
+
+                        <div class="col-sm-2">
+                            <label for="txDataFim">Data Fim:</label>
+                            <input type="date" id="txDataFim" class="form-control input-sm" style="width: 100%;" />
                         </div>
 
                         <div class="col-sm-2">
@@ -225,46 +227,53 @@ if (!isset($_COOKIE["USER_ID"])) {
             </div>
 
             <div class="fieldset-card" style="margin-bottom: 40px;">
-                <div class="fieldset-card-legend">Proprietários Cadastrados</div>
+                <div class="fieldset-card-legend" style="width: 200px;">Contas Lançadas</div>
 
                 <div class="fieldset-card-container">
                     <div class="row" style="margin-bottom: 10px;">
                         <div class="col-sm-10">
                             <label for="cbord">Ordenar por:</label>
                             <select id="cbord" class="form-control input-sm" onchange="ordenar();">
-                                <option value="1">REGISTRO (CRESCENTE)</option>
-                                <option value="2">REGISTRO (DECRESCENTE)</option>
-                                <option value="3">NOME (CRESCENTE)</option>
-                                <option value="4">NOME (DECRESCENTE)</option>
-                                <option value="5">CPF/CNPJ (CRESCENTE)</option>
-                                <option value="6">CPF/CNPJ (DECRESCENTE)</option>
-                                <option value="7">CADASTRO (CRESCENTE)</option>
-                                <option value="8">CADASTRO (DECRESCENTE)</option>
-                                <option value="9">EMAIL (CRESCENTE)</option>
-                                <option value="10">EMAIL (DECRESCENTE)</option>
+                                <option value="1">DESCRIÇÂO (CRESCENTE)</option>
+                                <option value="2">DESCRIÇÂO (DECRESCENTE)</option>
+                                <option value="3">FONTE (CRESCENTE)</option>
+                                <option value="4">FONTE (DECRESCENTE)</option>
+                                <option value="5">EMPRESA (CRESCENTE)</option>
+                                <option value="6">EMPRESA (DECRESCENTE)</option>
+                                <option value="7">CATEGORIA (CRESCENTE)</option>
+                                <option value="8">CATEGORIA (DECRESCENTE)</option>
+                                <option value="9">VENCIMENTO (CRESCENTE)</option>
+                                <option value="10">VENCIMENTO (DECRESCENTE)</option>
+                                <option value="11">DATA (CRESCENTE)</option>
+                                <option value="12">DATA (DECRESCENTE)</option>
+                                <option value="13">VALOR (CRESCENTE)</option>
+                                <option value="14">VALOR (DECRESCENTE)</option>
                             </select>
                         </div>
 
                         <div class="col-sm-2">
                             <label for="novo">&nbsp;</label>
-                            <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/representacoes/gerenciar/proprietario/novo">NOVO</a>
+                            <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/representacoes/controlar/lancar/despesas">LANÇAR</a>
                         </div>
                     </div>
 
-                    <table id="table_proprietarios" class="table table-responsive" style="width: 100%;">
+                    <table id="tbContas" class="table table-responsive" style="width: 100%;">
                         <thead>
                         <tr>
                             <th class="hidden">ID</th>
-                            <th style="width: 40%;">NOME</th>
-                            <th style="width: 16%;">CPF/CNPJ</th>
-                            <th style="width: 10%;">CADASTRO</th>
-                            <th>EMAIL</th>
-                            <th style="width: 2%;">&nbsp;</th>
+                            <th style="width: 20%;">DESCRIÇÃO</th>
+                            <th style="width: 12%;">FONTE</th>
+                            <th style="width: 12%;">EMPRESA</th>
+                            <th style="width: 14%;">CATEGORIA</th>
+                            <th style="width: 8%;">VENC.</th>
+                            <th style="width: 8%;">DATA</th>
+                            <th>VALOR (R$)</th>
+                            <th>SITUAÇÃO</th>
                             <th style="width: 2%;">&nbsp;</th>
                         </tr>
                         </thead>
 
-                        <tbody id="tbody_proprietarios">
+                        <tbody id="tbodyContas">
                         </tbody>
                     </table>
                 </div>
@@ -276,8 +285,6 @@ if (!isset($_COOKIE["USER_ID"])) {
         <script src="/representacoes/static/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="/representacoes/static/js/site.js"></script>
         <script src="/representacoes/static/lib/bootbox/bootbox.min.js"></script>
-        <script src="/representacoes/static/js/gerenciar/proprietario/index.js"></script>
-
+        <script src="/representacoes/static/js/controlar/contas/pagar/index.js"></script>
     </body>
-
 </html>

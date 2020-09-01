@@ -110,7 +110,7 @@ if (!isset($_COOKIE['USER_ID'])) {
                                     </a>
                                     <!-- Popup botao controlar -->
                                     <ul class="dropdown-menu">
-                                        <li><a href="/controlar/contas/pagar/index">Contas a Pagar</a></li>
+                                        <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
                                         <li><a href="/controlar/contas/receber/index">Contas a Receber</a></li>
                                         <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
                                         <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>

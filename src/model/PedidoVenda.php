@@ -274,7 +274,7 @@ class PedidoVenda
         if ($id <= 0) return null;
 
         $sql = "
-            SELECT ped_ven_id, ped_ven_data, ped_ven_descricao, ped_ven_peso, pen_ven_valor, 
+            SELECT ped_ven_id, ped_ven_data, ped_ven_descricao, ped_ven_peso, ped_ven_valor, 
                    fun_id, cid_id, orc_ven_id, tip_cam_id, cli_id, for_pag_id, usu_id 
             FROM pedido_venda
             WHERE ped_ven_id = ?;
@@ -288,6 +288,53 @@ class PedidoVenda
         }
 
         $stmt->bind_param("i", $id);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return null;
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return null;
+        }
+
+        $row = $result->fetch_assoc();
+
+        return new PedidoVenda(
+            $row["ped_ven_id"], $row["ped_ven_data"], $row["ped_ven_descricao"],
+            $row["ped_ven_peso"], $row["ped_ven_valor"],
+            ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
+            (new Cidade())->getById($row["cid_id"]),
+            ($row["orc_ven_id"] !== null) ? OrcamentoVenda::findById($row["orc_ven_id"]) : null,
+            TipoCaminhao::findById($row["tip_cam_id"]),
+            Cliente::getById($row["cli_id"]),
+            FormaPagamento::findById($row["for_pag_id"]),
+            Usuario::getById($row["usu_id"])
+        );
+    }
+
+    public function findByOrder(int $order): ?PedidoVenda
+    {
+        if ($order <= 0)
+            return null;
+
+        $sql = "
+            SELECT ped_ven_id, ped_ven_data, ped_ven_descricao, ped_ven_peso, ped_ven_valor, 
+                   fun_id, cid_id, orc_ven_id, tip_cam_id, cli_id, for_pag_id, usu_id 
+            FROM pedido_venda
+            WHERE orc_ven_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return null;
+        }
+
+        $stmt->bind_param("i", $order);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return null;

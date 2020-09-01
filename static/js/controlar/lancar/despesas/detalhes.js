@@ -13,6 +13,8 @@ let erroData = true;
 let erroValor = true;
 let erroVencimento = true;
 
+let despesa = 0;
+
 function validarEmpresa(event) {
     let empresa = txEmpresa.value.toString();
     if (empresa === null || empresa.length === 0) {
@@ -119,7 +121,7 @@ function validarCampos() {
     );
 }
 
-function lancarDespesa() {
+function alterarDespesa() {
     let empresa = "";
     let categoria = "";
     let pedido = 0;
@@ -139,7 +141,8 @@ function lancarDespesa() {
 
         let uri = "";
 
-        uri += "empresa=" + empresa;
+        uri += "despesa=" + despesa;
+        uri += "&empresa=" + empresa;
         uri += "&categoria=" + categoria;
         uri += "&pedido=" + pedido;
         uri += "&descricao=" + descricao;
@@ -148,7 +151,7 @@ function lancarDespesa() {
         uri += "&vencimento=" + vencimento;
 
         let request = new XMLHttpRequest();
-        request.open("POST", "/representacoes/controlar/lancar/despesas/novo/lancar.php", false);
+        request.open("POST", "/representacoes/controlar/lancar/despesas/detalhes/alterar.php", false);
         request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         request.send(encodeURI(uri));
 
@@ -156,12 +159,11 @@ function lancarDespesa() {
             let res = request.responseText;
             if (res !== null && res.length === 0) {
                 mostraDialogo(
-                    "<strong>Lançamento gravado com sucesso!</strong>" +
-                    "<br />Os dados da nova despesa foram salvos com sucesso no banco de dados.",
+                    "<strong>Lançamento alterado com sucesso!</strong>" +
+                    "<br />Os dados da despesa foram alterados com sucesso no banco de dados.",
                     "success",
                     2000
                 );
-                limparCampos();
             } else {
                 mostraDialogo(
                     "<strong>Problemas ao salvar a nova despesa...</strong>" +
@@ -181,7 +183,7 @@ function lancarDespesa() {
     } else {
         mostraDialogo(
             "Preencha os campos obrigatórios.",
-            "warn",
+            "warning",
             3000
         );
     }
@@ -208,10 +210,10 @@ function get(url_i) {
 }
 
 $(document).ready(() => {
-    $(txValor).mask("000000000,00", { reverse: true });
+    //$(txValor).mask("000000000,00", { reverse: true });
 
-    let categorias = get("/representacoes/controlar/lancar/despesas/novo/obter-categorias.php");
-    if (categorias !== null || categorias !== "" || categorias.length !== 0) {
+    let categorias = get("/representacoes/controlar/lancar/despesas/detalhes/obter-categorias.php");
+    if (categorias !== null && categorias.length !== 0) {
         for (let i = 0; i < categorias.length; i++) {
             let option = document.createElement("option");
             option.value = categorias[i].id;
@@ -220,8 +222,8 @@ $(document).ready(() => {
         }
     }
 
-    let pedidos = get("/representacoes/controlar/lancar/despesas/novo/obter-pedidos.php");
-    if (pedidos !== null || pedidos !== "" || pedidos.length !== 0) {
+    let pedidos = get("/representacoes/controlar/lancar/despesas/detalhes/obter-pedidos.php");
+    if (pedidos !== null && pedidos.length !== 0) {
         for (let i = 0; i < pedidos.length; i++) {
             let option = document.createElement("option");
             option.value = pedidos[i].id;
@@ -229,4 +231,36 @@ $(document).ready(() => {
             slPedido.appendChild(option);
         }
     }
+
+    let detalhes = get("/representacoes/controlar/lancar/despesas/detalhes/obter.php");
+    if (detalhes !== null && typeof detalhes !== "string") {
+        despesa = detalhes.id;
+        txEmpresa.value = detalhes.empresa;
+        slCategoria.value = detalhes.categoria.id;
+        slPedido.value = (detalhes.pedidoFrete !== null) ? detalhes.pedidoFrete.id : 0;
+        txDescricao.value = detalhes.descricao;
+        dtDespesa.value = detalhes.data;
+        let valor = detalhes.valor.toString();
+        valor = valor.replace(".", "#");
+        if (valor.search("#") === -1) {
+            valor += "00";
+        } else {
+            if (valor.split("#")[1].length === 1) {
+                valor += "0";
+            }
+        }
+        valor = valor.replace("#", ",");
+        txValor.value = valor;
+        dtVencimento.value = detalhes.vencimento;
+    } else {
+        if (typeof detalhes === "string") {
+            mostraDialogo(
+                detalhes,
+                "danger",
+                3000
+            );
+        }
+    }
+
+    $(txValor).mask("000000000,00", { reverse: true });
 });

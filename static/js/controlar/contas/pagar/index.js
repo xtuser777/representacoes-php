@@ -2,8 +2,8 @@ const txFiltro = document.getElementById("txFiltro");
 const txDataInicio = document.getElementById("txDataInicio");
 const txDataFim = document.getElementById("txDataFim");
 const selectOrd = document.getElementById("cbord");
-const tabDespesas = document.getElementById("tabDespesas");
-const tbodyDespesas = document.getElementById("tbodyDespesas");
+const tbContas = document.getElementById("tbContas");
+const tbodyContas = document.getElementById("tbodyContas");
 
 function preencherTabela(dados) {
     let txt = "";
@@ -25,22 +25,32 @@ function preencherTabela(dados) {
                 sit = "PAGO";
                 break;
         }
+
+        let fonte = "";
+        if (this.pedidoFrete !== null) {
+            fonte = this.pedidoFrete.descricao;
+        } else {
+            if (this.pedidoVenda !== null) {
+                fonte = this.pedidoVenda.descricao;
+            } else {
+                fonte = "INTERNO";
+            }
+        }
         txt +=
             '<tr>\
                 <td class="hidden">' + this.id + '</td>\
                 <td>' + this.descricao + '</td>\
+                <td>'+ fonte +'</td>\
+                <td>' + this.empresa + '</td>\
                 <td>' + this.categoria.descricao + '</td>\
                 <td>' + FormatarData(this.vencimento) + '</td>\
                 <td>' + FormatarData(this.data) + '</td>\
-                <td>' + this.empresa + '</td>\
-                <td>'+ this.autor.funcionario.pessoa.nome +'</td>\
                 <td>'+ valorFormat +'</td>\
                 <td>'+ sit +'</td>\
-                <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
-                <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
+                <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="DETALHES" href="javascript:alterar(' + this.id + ')"></a></td>\
             </tr>';
     });
-    $(tbodyDespesas).html(txt);
+    $(tbodyContas).html(txt);
 }
 
 function get(url_i) {
@@ -64,7 +74,7 @@ function get(url_i) {
 }
 
 function obter() {
-    let data = get("/representacoes/controlar/lancar/despesas/obter.php");
+    let data = get("/representacoes/controlar/contas/pagar/obter.php");
     preencherTabela(data);
 }
 
@@ -72,11 +82,6 @@ $(document).ready(function (event) {
     txDataInicio.value = new Date().toISOString().substr(0, 10);
     txDataFim.value = new Date().toISOString().substr(0, 10);
 
-    let cats = get("/representacoes/controlar/lancar/despesas/obter-categorias.php");
-    if (cats === null || cats.length === 0) {
-        alert("Não existem categorias de contas cadastradas!");
-        location.href = "../../../inicio";
-    }
     obter();
 });
 

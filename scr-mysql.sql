@@ -204,6 +204,8 @@ CREATE OR REPLACE TABLE orcamento_venda
     cid_id INTEGER NOT NULL,
     usu_id INTEGER NOT NULL,
     cli_id INTEGER,
+    FOREIGN KEY (fun_id) REFERENCES funcionario(fun_id),
+    FOREIGN KEY (cli_id) REFERENCES cliente(cli_id),
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id),
     FOREIGN KEY (cid_id) REFERENCES cidade(cid_id)
 );
@@ -298,7 +300,7 @@ CREATE OR REPLACE TABLE pedido_venda
 (
     ped_ven_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     ped_ven_data DATE NOT NULL,
-    ped_ven_decricao VARCHAR(150) NOT NULL,
+    ped_ven_descricao VARCHAR(150) NOT NULL,
     ped_ven_peso DECIMAL(10,2) NOT NULL,
     ped_ven_valor DECIMAL(10,2) NOT NULL,
     fun_id INTEGER,

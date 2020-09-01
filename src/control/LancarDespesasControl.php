@@ -66,10 +66,38 @@ class LancarDespesasControl
         return json_encode($serial);
     }
 
+    public function obterPorPeriodo(string $data1, string $data2)
+    {
+        if (!Banco::getInstance()->open()) return json_encode([]);
+        $contas = (new ContaPagar())->findByPeriod($data1, $data2);
+        Banco::getInstance()->getConnection()->close();
+        $serial = [];
+        /** @var $conta ContaPagar */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
     public function obterPorFiltroData(string $filtro, string $data)
     {
         if (!Banco::getInstance()->open()) return json_encode([]);
         $contas = (new ContaPagar())->findByDescriptionDate($filtro, $data);
+        Banco::getInstance()->getConnection()->close();
+        $serial = [];
+        /** @var $conta ContaPagar */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroPeriodo(string $filtro, string $data1, string $data2)
+    {
+        if (!Banco::getInstance()->open()) return json_encode([]);
+        $contas = (new ContaPagar())->findByDescriptionPeriod($filtro, $data1, $data2);
         Banco::getInstance()->getConnection()->close();
         $serial = [];
         /** @var $conta ContaPagar */
@@ -90,95 +118,83 @@ class LancarDespesasControl
             switch ($col) {
                 case "1":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if ($a->getId() === $b->getId()) return 0;
-                        return (($a->getId() < $b->getId()) ? -1 : 1);
-                    });
-                    break;
-                case "2":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if ($a->getId() === $b->getId()) return 0;
-                        return (($a->getId() > $b->getId()) ? -1 : 1);
-                    });
-                    break;
-                case "3":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getDescricao(), $b->getDescricao()) === 0) return 0;
                         return ((strcasecmp($a->getDescricao(), $b->getDescricao()) < 0) ? -1 : 1);
                     });
                     break;
-                case "4":
+                case "2":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getDescricao(), $b->getDescricao()) === 0) return 0;
                         return ((strcasecmp($a->getDescricao(), $b->getDescricao()) > 0) ? -1 : 1);
                     });
                     break;
-                case "5":
+                case "3":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) === 0) return 0;
                         return ((strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) < 0) ? -1 : 1);
                     });
                     break;
-                case "6":
+                case "4":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) === 0) return 0;
                         return ((strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) > 0) ? -1 : 1);
                     });
                     break;
-                case "7":
+                case "5":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getData(), $b->getData()) === 0) return 0;
                         return ((strcasecmp($a->getData(), $b->getData()) < 0) ? -1 : 1);
                     });
                     break;
-                case "8":
+                case "6":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getData(), $b->getData()) === 0) return 0;
                         return ((strcasecmp($a->getData(), $b->getData()) > 0) ? -1 : 1);
                     });
                     break;
-                case "9":
+                case "7":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getVencimento(), $b->getVencimento()) === 0) return 0;
                         return ((strcasecmp($a->getVencimento(), $b->getVencimento()) < 0) ? -1 : 1);
                     });
                     break;
-                case "10":
+                case "8":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getVencimento(), $b->getVencimento()) === 0) return 0;
                         return ((strcasecmp($a->getVencimento(), $b->getVencimento()) > 0) ? -1 : 1);
                     });
                     break;
-                case "11":
+                case "9":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getEmpresa(), $b->getEmpresa()) === 0) return 0;
                         return ((strcasecmp($a->getEmpresa(), $b->getEmpresa()) < 0) ? -1 : 1);
                     });
                     break;
-                case "12":
+                case "10":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getEmpresa(), $b->getEmpresa()) === 0) return 0;
                         return ((strcasecmp($a->getEmpresa(), $b->getEmpresa()) > 0) ? -1 : 1);
                     });
                     break;
-                case "13":
+                case "11":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) === 0) return 0;
                         return ((strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) < 0) ? -1 : 1);
                     });
                     break;
-                case "14":
+                case "12":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) === 0) return 0;
                         return ((strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) > 0) ? -1 : 1);
                     });
                     break;
-                case "15":
+                case "13":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if ($a->getValor() === $b->getValor()) return 0;
                         return (($a->getValor() < $b->getValor()) ? -1 : 1);
                     });
                     break;
-                case "16":
+                case "14":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if ($a->getValor() === $b->getValor()) return 0;
                         return (($a->getValor() > $b->getValor()) ? -1 : 1);
@@ -201,9 +217,11 @@ class LancarDespesasControl
         if ($id <= 0)
             return json_encode("Parâmetro inválido.");
 
+        Banco::getInstance()->open();
         $conta = (new  ContaPagar())->findById($id);
+        Banco::getInstance()->getConnection()->close();
 
-        if ($conta->getSituacao() > 1 || $conta->getDataPagamento() !== null || strlen($conta->getDataPagamento()) > 0)
+        if ($conta->getSituacao() > 1 || strlen($conta->getDataPagamento()) > 0)
             return json_encode("Não é possível alterar uma conta já paga.");
 
         setcookie("DESP", $id, time() + 3600, "/", "", 0 , 1);
@@ -218,7 +236,7 @@ class LancarDespesasControl
         if (!$conta)
             return json_encode("Registro não encontrado.");
 
-        if ($conta->getSituacao() > 1 || $conta->getDataPagamento() !== null || strlen($conta->getDataPagamento()) > 0)
+        if ($conta->getSituacao() > 1 || strlen($conta->getDataPagamento()) > 0)
             return json_encode("Não é possível remover uma conta já paga.");
 
         Banco::getInstance()->getConnection()->begin_transaction();

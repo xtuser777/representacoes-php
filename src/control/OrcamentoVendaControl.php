@@ -5,7 +5,9 @@ namespace scr\control;
 
 
 use scr\model\ItemOrcamentoVenda;
+use scr\model\OrcamentoFrete;
 use scr\model\OrcamentoVenda;
+use scr\model\PedidoVenda;
 use scr\util\Banco;
 
 class OrcamentoVendaControl
@@ -158,7 +160,21 @@ class OrcamentoVendaControl
 
     public function enviar(int $id)
     {
-        if ($id <= 0) return json_encode("Parâmetro inválido.");
+        if ($id <= 0)
+            return json_encode("Parâmetro inválido.");
+
+        Banco::getInstance()->open();
+
+        $frete = (new OrcamentoFrete())->findByPrice($id);
+        if ($frete !== null)
+            return json_encode("Este orçamento está vinculado ao orçamento de frete \"" . $frete->getDescricao() . "\"");
+
+        $venda = (new PedidoVenda())->findByOrder($id);
+        if ($venda !== null)
+            return json_encode("Este orçamento está vinculado ao pedido \"" . $venda->getDescricao() . "\"");
+
+        Banco::getInstance()->getConnection()->close();
+
         setcookie("ORCVEN", $id, time() + 3600, "/", "", 0 , 1);
 
         return json_encode("");
@@ -166,11 +182,26 @@ class OrcamentoVendaControl
 
     public function excluir(int $id)
     {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
+        if (!Banco::getInstance()->open())
+            return json_encode("Erro ao conectar-se ao banco de dados.");
+
+        $frete = (new OrcamentoFrete())->findByPrice($id);
+        if ($frete !== null)
+            return json_encode("Este orçamento está vinculado ao orçamento de frete \"" . $frete->getDescricao() . "\"");
+
+        $venda = (new PedidoVenda())->findByOrder($id);
+        if ($venda !== null)
+            return json_encode("Este orçamento está vinculado ao pedido \"" . $venda->getDescricao() . "\"");
+
         $orcamento = OrcamentoVenda::findById($id);
-        if (!$orcamento) return json_encode("Registro não encontrado.");
+        if ($orcamento === null)
+            return json_encode("Registro não encontrado.");
+
         Banco::getInstance()->getConnection()->begin_transaction();
-        if (!$this->excluirItens($id)) return json_encode("Erro ao excluir os itens do orçamento.");
+
+        if (!$this->excluirItens($id))
+            return json_encode("Erro ao excluir os itens do orçamento.");
+
         $orc = $orcamento->delete();
         if ($orc == -10 || $orc == -1) {
             Banco::getInstance()->getConnection()->rollback();
@@ -182,6 +213,7 @@ class OrcamentoVendaControl
             Banco::getInstance()->getconnection()->close();
             return json_encode("Parâmetro inválido.");
         }
+
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getconnection()->close();
 

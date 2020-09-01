@@ -6,6 +6,7 @@ namespace scr\control;
 
 use scr\model\ItemOrcamentoFrete;
 use scr\model\OrcamentoFrete;
+use scr\model\PedidoFrete;
 use scr\util\Banco;
 
 class OrcamentoFreteControl
@@ -181,6 +182,15 @@ class OrcamentoFreteControl
     public function enviar(int $id)
     {
         if ($id <= 0) return json_encode("Parâmetro inválido.");
+
+        Banco::getInstance()->open();
+
+        $pedido = (new PedidoFrete())->findByOrder($id);
+        if ($pedido !== null)
+            return json_encode("Este orçamento tem vínculo com o pedido \"" . $pedido->getDescricao() . "\"");
+
+        Banco::getInstance()->getConnection()->close();
+
         setcookie("ORCFRE", $id, time() + 3600, "/", "", 0, 1);
 
         return json_encode("");
@@ -188,11 +198,22 @@ class OrcamentoFreteControl
 
     public function excluir(int $id)
     {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
+        if (!Banco::getInstance()->open())
+            return json_encode("Erro ao conectar-se ao banco de dados.");
+
         $orcamento = (new OrcamentoFrete())->findById($id);
-        if (!$orcamento) return json_encode("Registro não encontrado.");
+        if (!$orcamento)
+            return json_encode("Registro não encontrado.");
+
+        $pedido = (new PedidoFrete())->findByOrder($id);
+        if ($pedido !== null)
+            return json_encode("Este orçamento tem vínculo com o pedido \"" . $pedido->getDescricao() . "\"");
+
         Banco::getInstance()->getConnection()->begin_transaction();
-        if (!$this->excluirItens($id)) return json_encode("Erro ao excluir os itens do orçamento.");
+
+        if (!$this->excluirItens($id))
+            return json_encode("Erro ao excluir os itens do orçamento.");
+
         $orc = $orcamento->delete();
         if ($orc == -10 || $orc == -1) {
             Banco::getInstance()->getConnection()->rollback();
@@ -204,6 +225,7 @@ class OrcamentoFreteControl
             Banco::getInstance()->getconnection()->close();
             return json_encode("Parâmetro inválido.");
         }
+
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getconnection()->close();
 

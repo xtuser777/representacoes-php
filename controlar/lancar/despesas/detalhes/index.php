@@ -1,28 +1,24 @@
 <?php
 
-require '../../header.php';
+require '../../../../header.php';
 
-if (!isset($_COOKIE["USER_ID"])) {
+if (!isset($_COOKIE['USER_ID'])) {
     header('Location: /representacoes/login');
-} elseif (strcmp($_SERVER["REQUEST_METHOD"], "GET") !== 0) {
-    header("Content-type: application/json");
-    echo "Método não suportado pela rota.";
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <link rel="icon" type="image/png" href="/representacoes/static/images/logo.png">
 
-        <title>Gerenciar Propritários de Caminhões - Sistema de Controle de Representações</title>
+        <title>Detalhes da Despesa - Sistema de Controle de Representações</title>
 
         <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/fancybox/jquery.fancybox.min.css"/>
         <link rel="stylesheet" type="text/css" href="/representacoes/static/css/style.css" />
     </head>
 
@@ -195,78 +191,93 @@ if (!isset($_COOKIE["USER_ID"])) {
             <div class="card-title">
                 <div class="card-title-container" style="text-align: center;">
                     <h4>
-                        <b>SCR - Gerenciar Proprietários de Caminhões</b>
+                        <b>SCR - Detalhes da Despesa</b>
                     </h4>
                 </div>
             </div>
             <!-- Fim card titulo pagina -->
 
             <div class="fieldset-card">
-                <div class="fieldset-card-legend">Filtragem de Proprietários</div>
+                <div class="fieldset-card-legend">Fonte da Despesa</div>
 
                 <div class="fieldset-card-container">
                     <div class="row">
-                        <div class="col-sm-8">
-                            <label for="filtro">Filtro:</label>
-                            <input type="text" id="filtro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por nome e email..." />
-                        </div>
-
-                        <div class="col-sm-2">
-                            <label for="filtro_cad">Filtro Cadastro:</label>
-                            <input type="date" id="filtro_cad" class="form-control input-sm" style="width: 100%;" />
-                        </div>
-
-                        <div class="col-sm-2">
-                            <label for="filtrar">&nbsp;</label>
-                            <button id="filtrar" class="btn btn-primary btn-sm" style="width: 100%;" onclick="filtrar();">FILTRAR</button>
+                        <div class="col-sm-12">
+                            <label for="txEmpresa">Empresa <span style="color: red;">*</span>:</label>
+                            <input type="text" id="txEmpresa" class="form-control input-sm" style="width: 100%;" onblur="validarEmpresa();" />
+                            <div id="msempresa"></div>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label for="slCategoria">Categoria <span style="color: red;">*</span>:</label>
+                            <select id="slCategoria" class="form-control input-sm" style="width: 100%;" onblur="validarCategoria();">
+                                <option value="0">SELECIONE</option>
+                            </select>
+                            <div id="mscategoria"></div>
+                        </div>
+
+                        <div class="col-sm-8">
+                            <label for="slPedido">Pedido de Frete:</label>
+                            <select id="slPedido" class="form-control input-sm" style="width: 100%;">
+                                <option value="0">SELECIONE</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
                 </div>
             </div>
 
-            <div class="fieldset-card" style="margin-bottom: 40px;">
-                <div class="fieldset-card-legend">Proprietários Cadastrados</div>
+            <div class="fieldset-card">
+                <div class="fieldset-card-legend">Dados da Despesa</div>
 
                 <div class="fieldset-card-container">
-                    <div class="row" style="margin-bottom: 10px;">
-                        <div class="col-sm-10">
-                            <label for="cbord">Ordenar por:</label>
-                            <select id="cbord" class="form-control input-sm" onchange="ordenar();">
-                                <option value="1">REGISTRO (CRESCENTE)</option>
-                                <option value="2">REGISTRO (DECRESCENTE)</option>
-                                <option value="3">NOME (CRESCENTE)</option>
-                                <option value="4">NOME (DECRESCENTE)</option>
-                                <option value="5">CPF/CNPJ (CRESCENTE)</option>
-                                <option value="6">CPF/CNPJ (DECRESCENTE)</option>
-                                <option value="7">CADASTRO (CRESCENTE)</option>
-                                <option value="8">CADASTRO (DECRESCENTE)</option>
-                                <option value="9">EMAIL (CRESCENTE)</option>
-                                <option value="10">EMAIL (DECRESCENTE)</option>
-                            </select>
-                        </div>
-
-                        <div class="col-sm-2">
-                            <label for="novo">&nbsp;</label>
-                            <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/representacoes/gerenciar/proprietario/novo">NOVO</a>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label for="txDescricao">Descricao <span style="color: red;">*</span>:</label>
+                            <input type="text" id="txDescricao" class="form-control input-sm" style="width: 100%;" onblur="validarDescricao();" />
+                            <div id="msdescricao"></div>
                         </div>
                     </div>
 
-                    <table id="table_proprietarios" class="table table-responsive" style="width: 100%;">
-                        <thead>
-                        <tr>
-                            <th class="hidden">ID</th>
-                            <th style="width: 40%;">NOME</th>
-                            <th style="width: 16%;">CPF/CNPJ</th>
-                            <th style="width: 10%;">CADASTRO</th>
-                            <th>EMAIL</th>
-                            <th style="width: 2%;">&nbsp;</th>
-                            <th style="width: 2%;">&nbsp;</th>
-                        </tr>
-                        </thead>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label for="dtDespesa">Data Despesa <span style="color: red;">*</span>:</label>
+                            <input type="date" id="dtDespesa" class="form-control input-sm" style="width: 100%;" onblur="validarData();" />
+                            <div id="msdata"></div>
+                        </div>
 
-                        <tbody id="tbody_proprietarios">
-                        </tbody>
-                    </table>
+                        <div class="col-sm-4">
+                            <label for="txValor">Valor Despesa <span style="color: red;">*</span>:</label>
+                            <div class="input-group ">
+                                <div class="input-group-addon">R$</div>
+                                <input type="text" id="txValor" class="form-control input-sm" style="width: 100%;" value="0,00" onblur="validarValor();" />
+                            </div>
+                            <div id="msvalor"></div>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <label for="dtVencimento">Vencimento <span style="color: red;">*</span>:</label>
+                            <input type="date" id="dtVencimento" class="form-control input-sm" style="width: 100%;" onblur="validarVencimento();" />
+                            <div id="msvencimento"></div>
+                        </div>
+                    </div>
+
+                    <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <button id="button_cancelar" class="btn btn-danger" style="width: 100%;" onclick="cancelarLancamento();">CANCELAR</button>
+                </div>
+
+                <div class="col-sm-8"></div>
+
+                <div class="col-sm-2">
+                    <button id="button_salvar" class="btn btn-success" style="width: 100%;" onclick="alterarDespesa();">SALVAR</button>
                 </div>
             </div>
         </div>
@@ -275,9 +286,7 @@ if (!isset($_COOKIE["USER_ID"])) {
         <script src="/representacoes/static/lib/jquery/dist/jquery.js"></script>
         <script src="/representacoes/static/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="/representacoes/static/js/site.js"></script>
-        <script src="/representacoes/static/lib/bootbox/bootbox.min.js"></script>
-        <script src="/representacoes/static/js/gerenciar/proprietario/index.js"></script>
-
+        <script src="/representacoes/static/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
+        <script src="/representacoes/static/js/controlar/lancar/despesas/detalhes.js"></script>
     </body>
-
 </html>

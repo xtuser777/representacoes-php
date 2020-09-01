@@ -152,7 +152,12 @@ function excluir(id) {
                         if (result === "") {
                             obter();
                         } else {
-                            alert("Ocorreu um problema ao excluir este orçamento...");
+                            mostraDialogo(
+                                "<strong>Ocorreu um problema ao excluir este orçamento.</strong><br />" +
+                                result,
+                                "danger",
+                                3000
+                            );
                         }
                     },
                     error: function (XMLHttpRequest, txtStatus, errorThrown) {
@@ -173,8 +178,14 @@ function alterar(id) {
             id: id
         },
         success: function (result) {
-            if (result.length > 0) alert(result);
-            else {
+            if (result.length > 0) {
+                mostraDialogo(
+                    "<strong>Ocorreu um problema ao alterar este orçamento.</strong><br />" +
+                    result,
+                    "danger",
+                    3000
+                );
+            } else {
                 window.location.href = "../../orcamento/venda/detalhes";
             }
         },

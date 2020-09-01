@@ -174,8 +174,8 @@ class OrcamentoFrete
         return new OrcamentoFrete(
             $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],
             $row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
-            OrcamentoVenda::findById($row["orc_ven_id"]),
-            RepresentacaoDAO::getById($row["rep_id"]),
+            ($row["orc_ven_id"]) ? OrcamentoVenda::findById($row["orc_ven_id"]) : null,
+            ($row["rep_id"]) ? RepresentacaoDAO::getById($row["rep_id"]) : null,
             TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
             (new Cidade())->getById($row["cid_id"]),
             UsuarioDAO::getById($row["usu_id"])
@@ -215,8 +215,8 @@ class OrcamentoFrete
         while ($row = $result->fetch_assoc()) {
             $orcamentos[] = new OrcamentoFrete(
                 $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],$row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
-                OrcamentoVenda::findById($row["orc_ven_id"]),
-                RepresentacaoDAO::getById($row["rep_id"]),
+                ($row["orc_ven_id"]) ? OrcamentoVenda::findById($row["orc_ven_id"]) : null,
+                ($row["rep_id"]) ? RepresentacaoDAO::getById($row["rep_id"]) : null,
                 TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
                 (new Cidade())->getById($row["cid_id"]),
                 UsuarioDAO::getById($row["usu_id"])
@@ -258,8 +258,8 @@ class OrcamentoFrete
         while ($row = $result->fetch_assoc()) {
             $orcamentos[] = new OrcamentoFrete(
                 $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],$row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
-                OrcamentoVenda::findById($row["orc_ven_id"]),
-                RepresentacaoDAO::getById($row["rep_id"]),
+                ($row["orc_ven_id"]) ? OrcamentoVenda::findById($row["orc_ven_id"]) : null,
+                ($row["rep_id"]) ? RepresentacaoDAO::getById($row["rep_id"]) : null,
                 TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
                 (new Cidade())->getById($row["cid_id"]),
                 UsuarioDAO::getById($row["usu_id"])
@@ -303,8 +303,8 @@ class OrcamentoFrete
         while ($row = $result->fetch_assoc()) {
             $orcamentos[] = new OrcamentoFrete(
                 $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],$row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
-                OrcamentoVenda::findById($row["orc_ven_id"]),
-                RepresentacaoDAO::getById($row["rep_id"]),
+                ($row["orc_ven_id"]) ? OrcamentoVenda::findById($row["orc_ven_id"]) : null,
+                ($row["rep_id"]) ? RepresentacaoDAO::getById($row["rep_id"]) : null,
                 TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
                 (new Cidade())->getById($row["cid_id"]),
                 UsuarioDAO::getById($row["usu_id"])
@@ -312,6 +312,51 @@ class OrcamentoFrete
         }
 
         return $orcamentos;
+    }
+
+    public function findByPrice(int $price): ?OrcamentoFrete
+    {
+        if ($price <= 0)
+            return null;
+
+        $sql = "
+            select orc_fre_id,orc_fre_descricao,orc_fre_data,orc_fre_distancia,orc_fre_peso,orc_fre_valor,
+                   orc_fre_entrega,orc_fre_validade,orc_ven_id,rep_id,tip_cam_id,cid_id,usu_id
+            from orcamento_frete
+            where orc_ven_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if($stmt === null) {
+            echo Banco::getInstance()->getConnection()->error;
+            return null;
+        }
+
+        $stmt->bind_param("i", $price);
+        if ($stmt->execute() === false) {
+            $stmt->error;
+            return null;
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if ($result === null || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return null;
+        }
+
+        $row = $result->fetch_assoc();
+
+        return new OrcamentoFrete(
+            $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],
+            $row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
+            ($row["orc_ven_id"]) ? OrcamentoVenda::findById($row["orc_ven_id"]) : null,
+            ($row["rep_id"]) ? RepresentacaoDAO::getById($row["rep_id"]) : null,
+            TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
+            (new Cidade())->getById($row["cid_id"]),
+            UsuarioDAO::getById($row["usu_id"])
+        );
     }
 
     public function findAll(): array
@@ -332,8 +377,8 @@ class OrcamentoFrete
         while ($row = $result->fetch_assoc()) {
             $orcamentos[] = new OrcamentoFrete(
                 $row["orc_fre_id"],$row["orc_fre_descricao"],$row["orc_fre_data"],$row["orc_fre_distancia"],$row["orc_fre_peso"],$row["orc_fre_valor"],$row["orc_fre_entrega"],$row["orc_fre_validade"],
-                OrcamentoVenda::findById($row["orc_ven_id"]),
-                RepresentacaoDAO::getById($row["rep_id"]),
+                ($row["orc_ven_id"]) ? OrcamentoVenda::findById($row["orc_ven_id"]) : null,
+                ($row["rep_id"]) ? RepresentacaoDAO::getById($row["rep_id"]) : null,
                 TipoCaminhaoDAO::selectId($row["tip_cam_id"]),
                 (new Cidade())->getById($row["cid_id"]),
                 UsuarioDAO::getById($row["usu_id"])
@@ -361,8 +406,8 @@ class OrcamentoFrete
             echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
-        $orcamentoVenda = (!$this->orcamentoVenda) ? 0 : $this->orcamentoVenda->getId();
-        $representacao = (!$this->representacao) ? 0 : $this->representacao->getId();
+        $orcamentoVenda = (!$this->orcamentoVenda) ? null : $this->orcamentoVenda->getId();
+        $representacao = (!$this->representacao) ? null : $this->representacao->getId();
         $tipoCaminhao = $this->tipoCaminhao->getId();
         $destino = $this->destino->getId();
         $autor = $this->autor->getId();
@@ -396,8 +441,8 @@ class OrcamentoFrete
             echo Banco::getInstance()->getConnection()->error;
             return -10;
         }
-        $orcamentoVenda = (!$this->orcamentoVenda) ? 0 : $this->orcamentoVenda->getId();
-        $representacao = (!$this->representacao) ? 0 : $this->representacao->getId();
+        $orcamentoVenda = (!$this->orcamentoVenda) ? null : $this->orcamentoVenda->getId();
+        $representacao = (!$this->representacao) ? null : $this->representacao->getId();
         $tipoCaminhao = $this->tipoCaminhao->getId();
         $destino = $this->destino->getId();
         $autor = $this->autor->getId();

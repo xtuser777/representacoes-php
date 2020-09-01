@@ -13,7 +13,7 @@ var selecionado = {
 };
 
 function preencheTabelaItens(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
         let pesoFormat = this.produto.peso.toString();
         pesoFormat = pesoFormat.replace('.', '#');
@@ -33,7 +33,7 @@ function preencheTabelaItens(dados) {
 }
 
 function preencheTabelaProd(dados) {
-    var txt = "";
+    let txt = "";
     $.each(dados, function () {
         let pesoFormat = this.peso.toString();
         pesoFormat = pesoFormat.replace('.', '#');
