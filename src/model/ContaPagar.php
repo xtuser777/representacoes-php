@@ -358,11 +358,11 @@ class ContaPagar
         if ($id <= 0) return null;
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa, 
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento, 
-                   con_pag_data_pagamento, con_pag_valor_pago, 
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id 
-            FROM conta_pagar 
+            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
+                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
+                   con_pag_data_pagamento, con_pag_valor_pago,
+                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            FROM conta_pagar
             WHERE con_pag_id = ?;
         ";
 
@@ -409,11 +409,11 @@ class ContaPagar
         if ($description === null || strlen($description) <= 0) return [];
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa, 
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento, 
-                   con_pag_data_pagamento, con_pag_valor_pago, 
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id 
-            FROM conta_pagar 
+            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
+                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
+                   con_pag_data_pagamento, con_pag_valor_pago,
+                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            FROM conta_pagar
             WHERE con_pag_descricao like ?;
         ";
 
@@ -463,11 +463,11 @@ class ContaPagar
         if ($date === null || strlen($date) <= 0) return [];
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa, 
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento, 
-                   con_pag_data_pagamento, con_pag_valor_pago, 
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id 
-            FROM conta_pagar 
+            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
+                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
+                   con_pag_data_pagamento, con_pag_valor_pago,
+                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            FROM conta_pagar
             WHERE con_pag_data = ?;
         ";
 
@@ -518,12 +518,12 @@ class ContaPagar
             return [];
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa, 
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento, 
-                   con_pag_data_pagamento, con_pag_valor_pago, 
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id 
-            FROM conta_pagar 
-            WHERE con_pag_data >= ? 
+            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
+                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
+                   con_pag_data_pagamento, con_pag_valor_pago,
+                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            FROM conta_pagar
+            WHERE con_pag_data >= ?
             AND con_pag_data <= ?;
         ";
 
@@ -573,11 +573,11 @@ class ContaPagar
         if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0) return [];
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa, 
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento, 
-                   con_pag_data_pagamento, con_pag_valor_pago, 
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id 
-            FROM conta_pagar 
+            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
+                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
+                   con_pag_data_pagamento, con_pag_valor_pago,
+                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            FROM conta_pagar
             WHERE con_pag_descricao like ?
             AND con_pag_data = ?;
         ";
@@ -633,13 +633,13 @@ class ContaPagar
             return [];
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa, 
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento, 
-                   con_pag_data_pagamento, con_pag_valor_pago, 
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id 
-            FROM conta_pagar 
+            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
+                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
+                   con_pag_data_pagamento, con_pag_valor_pago,
+                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            FROM conta_pagar
             WHERE con_pag_descricao like ?
-            AND con_pag_data >= ? 
+            AND con_pag_data >= ?
             AND con_pag_data <= ?;
         ";
 
@@ -687,11 +687,11 @@ class ContaPagar
     public function findAll(): array
     {
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa, 
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento, 
-                   con_pag_data_pagamento, con_pag_valor_pago, 
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id 
-            FROM conta_pagar 
+            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
+                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
+                   con_pag_data_pagamento, con_pag_valor_pago,
+                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            FROM conta_pagar
             ORDER BY con_pag_id;
         ";
 
@@ -769,8 +769,8 @@ class ContaPagar
         }
 
         $sql = "
-            INSERT 
-            INTO conta_pagar(con_pag_data, con_pag_descricao, con_pag_empresa, con_pag_valor, con_pag_vencimento, con_pag_situacao, cat_id, ped_fre_id, usu_id) 
+            INSERT
+            INTO conta_pagar(con_pag_data, con_pag_descricao, con_pag_empresa, con_pag_valor, con_pag_vencimento, con_pag_situacao, cat_id, ped_fre_id, usu_id)
             VALUES (?,?,?,?,?,?,?,?,?);
         ";
 
@@ -823,15 +823,15 @@ class ContaPagar
 
         $sql = "
             UPDATE conta_pagar
-            SET con_pag_data = ?, 
-            con_pag_descricao = ?, 
-            con_pag_empresa = ?, 
-            con_pag_valor = ?, 
-            con_pag_vencimento = ?, 
-            con_pag_situacao = ?, 
-            cat_id = ?, 
-            ped_fre_id = ?, 
-            usu_id = ? 
+            SET con_pag_data = ?,
+            con_pag_descricao = ?,
+            con_pag_empresa = ?,
+            con_pag_valor = ?,
+            con_pag_vencimento = ?,
+            con_pag_situacao = ?,
+            cat_id = ?,
+            ped_fre_id = ?,
+            usu_id = ?
             WHERE con_pag_id = ?;
         ";
 
@@ -868,13 +868,57 @@ class ContaPagar
         return $stmt->affected_rows;
     }
 
+    public function quitar(int $forma, float $valor, string $data, int $situacao): int
+    {
+        if (
+            $this->id <= 0 ||
+            $valor <= 0 ||
+            strlen($data) === 0 ||
+            $situacao === 0 ||
+            $forma === 0
+        )
+            return -5;
+
+        $sql = "
+            UPDATE conta_pagar
+            SET con_pag_valor_pago = ?,
+            con_pag_data_pagamento = ?,
+            con_pag_situacao = ?,
+            for_pag_id = ?
+            WHERE con_pag_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $stmt->bind_param(
+            "dsiii",
+            $valor,
+            $data,
+            $situacao,
+            $forma,
+            $this->id
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
+    }
+
     public function delete(): int
     {
         if ($this->id <= 0)
             return -5;
 
         $sql = "
-            DELETE 
+            DELETE
             FROM conta_pagar
             WHERE con_pag_id = ?;
         ";

@@ -1,6 +1,6 @@
 <?php
 
-require '../../../header.php';
+require '../../../../header.php';
 
 if (!isset($_COOKIE['USER_ID'])) {
     header('Location: /representacoes/login');
@@ -16,10 +16,9 @@ if (!isset($_COOKIE['USER_ID'])) {
 
         <link rel="icon" type="image/png" href="/representacoes/static/images/logo.png">
 
-        <title>Contas a Pagar - Sistema de Controle de Representações</title>
+        <title>Detalhes da Conta - Sistema de Controle de Representações</title>
 
         <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/fancybox/jquery.fancybox.min.css"/>
         <link rel="stylesheet" type="text/css" href="/representacoes/static/css/style.css" />
     </head>
 
@@ -192,88 +191,109 @@ if (!isset($_COOKIE['USER_ID'])) {
             <div class="card-title">
                 <div class="card-title-container" style="text-align: center;">
                     <h4>
-                        <b>SCR - Contas a Pagar</b>
+                        <b>SCR - Detalhes da Conta</b>
                     </h4>
                 </div>
             </div>
             <!-- Fim card titulo pagina -->
 
             <div class="fieldset-card">
-                <div class="fieldset-card-legend">Filtragem de Contas</div>
+                <div class="fieldset-card-legend">Detalhes da Conta</div>
 
                 <div class="fieldset-card-container">
                     <div class="row">
+                        <div class="col-sm-3">
+                            <label for="dtDespesa">Data Despesa:</label>
+                            <input type="date" id="dtDespesa" class="form-control input-sm" style="width: 100%;" readonly />
+                        </div>
+
+                        <div class="col-sm-9">
+                            <label for="txDescricao">Descricao:</label>
+                            <input type="text" id="txDescricao" class="form-control input-sm" style="width: 100%;" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label for="txEmpresa">Empresa:</label>
+                            <input type="text" id="txEmpresa" class="form-control input-sm" style="width: 100%;" readonly />
+                        </div>
+
+                        <div class="col-sm-4">
+                            <label for="txCategoria">Categoria:</label>
+                            <input type="text" id="txCategoria" class="form-control input-sm" style="width: 100%;" readonly />
+                        </div>
+
+                        <div class="col-sm-4">
+                            <label for="txFonte">Fonte:</label>
+                            <input type="text" id="txFonte" class="form-control input-sm" style="width: 100%;" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label for="dtVencimento">Vencimento <span style="color: red;">*</span>:</label>
+                            <input type="date" id="dtVencimento" class="form-control input-sm" style="width: 100%;" readonly />
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="txValor">Valor Despesa <span style="color: red;">*</span>:</label>
+                            <div class="input-group ">
+                                <div class="input-group-addon">R$</div>
+                                <input type="text" id="txValor" class="form-control input-sm" style="width: 100%;" value="0,00" readonly />
+                            </div>
+                        </div>
+
                         <div class="col-sm-6">
-                            <label for="txFiltro">Filtro:</label>
-                            <input type="text" id="txFiltro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por descrição..." />
-                        </div>
-
-                        <div class="col-sm-2">
-                            <label for="txDataInicio">Data Início:</label>
-                            <input type="date" id="txDataInicio" class="form-control input-sm" style="width: 100%;" />
-                        </div>
-
-                        <div class="col-sm-2">
-                            <label for="txDataFim">Data Fim:</label>
-                            <input type="date" id="txDataFim" class="form-control input-sm" style="width: 100%;" />
-                        </div>
-
-                        <div class="col-sm-2">
-                            <label for="filtrar">&nbsp;</label>
-                            <button id="filtrar" class="btn btn-primary btn-sm" style="width: 100%;" onclick="filtrar();">FILTRAR</button>
+                            <label for="txSituacao">Situação:</label>
+                            <input type="text" id="txSituacao" class="form-control input-sm" style="width: 100%;" readonly />
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="fieldset-card" style="margin-bottom: 40px;">
-                <div class="fieldset-card-legend" style="width: 200px;">Contas Lançadas</div>
+            <div class="fieldset-card">
+                <div class="fieldset-card-legend">Dados do Pagamento</div>
 
                 <div class="fieldset-card-container">
-                    <div class="row" style="margin-bottom: 10px;">
-                        <div class="col-sm-10">
-                            <label for="cbord">Ordenar por:</label>
-                            <select id="cbord" class="form-control input-sm" onchange="ordenar();">
-                                <option value="1">DESCRIÇÂO (CRESCENTE)</option>
-                                <option value="2">DESCRIÇÂO (DECRESCENTE)</option>
-                                <option value="3">EMPRESA (CRESCENTE)</option>
-                                <option value="4">EMPRESA (DECRESCENTE)</option>
-                                <option value="5">CATEGORIA (CRESCENTE)</option>
-                                <option value="6">CATEGORIA (DECRESCENTE)</option>
-                                <option value="7">VENCIMENTO (CRESCENTE)</option>
-                                <option value="8">VENCIMENTO (DECRESCENTE)</option>
-                                <option value="9">DATA (CRESCENTE)</option>
-                                <option value="10">DATA (DECRESCENTE)</option>
-                                <option value="11">VALOR (CRESCENTE)</option>
-                                <option value="12">VALOR (DECRESCENTE)</option>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="slFormaPagamento">Forma Pagamento <span style="color: red;">*</span>:</label>
+                            <select id="slFormaPagamento" class="form-control input-sm" style="width: 100%;" onblur="validarFormaPagamento();">
+                                <option value="0">SELECIONE</option>
                             </select>
+                            <div id="msforma"></div>
                         </div>
 
-                        <div class="col-sm-2">
-                            <label for="novo">&nbsp;</label>
-                            <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/representacoes/controlar/lancar/despesas">LANÇAR</a>
+                        <div class="col-sm-3">
+                            <label for="txValorPago">Valor Pago <span style="color: red;">*</span>:</label>
+                            <div class="input-group ">
+                                <div class="input-group-addon">R$</div>
+                                <input type="text" id="txValorPago" class="form-control input-sm" style="width: 100%;" value="0,00" onblur="validarValor();" />
+                            </div>
+                            <div id="msvalor"></div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="dtPagamento">Data Pagamento <span style="color: red;">*</span>:</label>
+                            <input type="date" id="dtPagamento" class="form-control input-sm" style="width: 100%;" onblur="validarPagamento();" />
+                            <div id="mspagamento"></div>
                         </div>
                     </div>
 
-                    <table id="tbContas" class="table table-responsive" style="width: 100%;">
-                        <thead>
-                        <tr>
-                            <th class="hidden">ID</th>
-                            <th style="width: 20%;">DESCRIÇÃO</th>
-                            <th style="width: 12%;">FONTE</th>
-                            <th style="width: 12%;">EMPRESA</th>
-                            <th style="width: 14%;">CATEGORIA</th>
-                            <th style="width: 8%;">VENC.</th>
-                            <th style="width: 8%;">DATA</th>
-                            <th>VALOR (R$)</th>
-                            <th>SITUAÇÃO</th>
-                            <th style="width: 2%;">&nbsp;</th>
-                        </tr>
-                        </thead>
+                    <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
+                </div>
+            </div>
 
-                        <tbody id="tbodyContas">
-                        </tbody>
-                    </table>
+            <div class="row">
+                <div class="col-sm-2">
+                    <button id="button_cancelar" class="btn btn-danger" style="width: 100%;" onclick="cancelarQuitacao();">CANCELAR</button>
+                </div>
+
+                <div class="col-sm-8"></div>
+
+                <div class="col-sm-2">
+                    <button id="button_salvar" class="btn btn-success" style="width: 100%;" onclick="quitarDespesa();">QUITAR</button>
                 </div>
             </div>
         </div>
@@ -282,7 +302,7 @@ if (!isset($_COOKIE['USER_ID'])) {
         <script src="/representacoes/static/lib/jquery/dist/jquery.js"></script>
         <script src="/representacoes/static/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="/representacoes/static/js/site.js"></script>
-        <script src="/representacoes/static/lib/bootbox/bootbox.min.js"></script>
-        <script src="/representacoes/static/js/controlar/contas/pagar/index.js"></script>
+        <script src="/representacoes/static/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
+        <script src="/representacoes/static/js/controlar/contas/pagar/detalhes.js"></script>
     </body>
 </html>

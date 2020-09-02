@@ -89,7 +89,7 @@ function ordenar() {
     let ord = selectOrd.value;
 
     let request = new XMLHttpRequest();
-    request.open("POST", "/representacoes/controlar/lancar/despesas/ordenar.php", false);
+    request.open("POST", "/representacoes/controlar/contas/pagar/ordenar.php", false);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     request.send(encodeURI('col='+ord));
 
@@ -106,7 +106,7 @@ function ordenar() {
         }
     } else {
         mostraDialogo(
-            "Erro na requisição da URL /representacoes/controlar/lancar/despesas/ordenar.php. <br />" +
+            "Erro na requisição da URL /representacoes/controlar/contas/pagar/ordenar.php. <br />" +
             "Status: "+request.status+" "+request.statusText,
             "danger",
             3000
@@ -135,7 +135,7 @@ function filtrar() {
             } else {
                 if (dataInicio === dataFim) {
                     let request = new XMLHttpRequest();
-                    request.open("POST", "/representacoes/controlar/lancar/despesas/obter-por-filtro-data.php", false);
+                    request.open("POST", "/representacoes/controlar/contas/pagar/obter-por-filtro-data.php", false);
                     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                     request.send(encodeURI("filtro="+filtro+"&data="+dataInicio));
 
@@ -152,7 +152,7 @@ function filtrar() {
                         }
                     } else {
                         mostraDialogo(
-                            "Erro na requisição da URL /representacoes/controlar/lancar/despesas/obter-por-filtro-data.php. <br />" +
+                            "Erro na requisição da URL /representacoes/controlar/contas/pagar/obter-por-filtro-data.php. <br />" +
                             "Status: "+request.status+" "+request.statusText,
                             "danger",
                             3000
@@ -167,7 +167,7 @@ function filtrar() {
                         );
                     } else {
                         let request = new XMLHttpRequest();
-                        request.open("POST", "/representacoes/controlar/lancar/despesas/obter-por-filtro-periodo.php", false);
+                        request.open("POST", "/representacoes/controlar/contas/pagar/obter-por-filtro-periodo.php", false);
                         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                         request.send(encodeURI("filtro="+filtro+"&dataInicio="+dataInicio+"&dataFim="+dataFim));
 
@@ -184,7 +184,7 @@ function filtrar() {
                             }
                         } else {
                             mostraDialogo(
-                                "Erro na requisição da URL /representacoes/controlar/lancar/despesas/obter-por-filtro-periodo.php. <br />" +
+                                "Erro na requisição da URL /representacoes/controlar/contas/pagar/obter-por-filtro-periodo.php. <br />" +
                                 "Status: "+request.status+" "+request.statusText,
                                 "danger",
                                 3000
@@ -204,7 +204,7 @@ function filtrar() {
                 } else {
                     if (dataInicio === dataFim) {
                         let request = new XMLHttpRequest();
-                        request.open("POST", "/representacoes/controlar/lancar/despesas/obter-por-data.php", false);
+                        request.open("POST", "/representacoes/controlar/contas/pagar/obter-por-data.php", false);
                         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                         request.send(encodeURI("data="+dataInicio));
 
@@ -221,7 +221,7 @@ function filtrar() {
                             }
                         } else {
                             mostraDialogo(
-                                "Erro na requisição da URL /representacoes/controlar/lancar/despesas/obter-por-data.php. <br />" +
+                                "Erro na requisição da URL /representacoes/controlar/contas/pagar/obter-por-data.php. <br />" +
                                 "Status: "+request.status+" "+request.statusText,
                                 "danger",
                                 3000
@@ -236,7 +236,7 @@ function filtrar() {
                             );
                         } else {
                             let request = new XMLHttpRequest();
-                            request.open("POST", "/representacoes/controlar/lancar/despesas/obter-por-periodo.php", false);
+                            request.open("POST", "/representacoes/controlar/contas/pagar/obter-por-periodo.php", false);
                             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                             request.send(encodeURI("dataInicio="+dataInicio+"&dataFim="+dataFim));
 
@@ -253,7 +253,7 @@ function filtrar() {
                                 }
                             } else {
                                 mostraDialogo(
-                                    "Erro na requisição da URL /representacoes/controlar/lancar/despesas/obter-por-periodo.php. <br />" +
+                                    "Erro na requisição da URL /representacoes/controlar/contas/pagar/obter-por-periodo.php. <br />" +
                                     "Status: "+request.status+" "+request.statusText,
                                     "danger",
                                     3000
@@ -266,7 +266,7 @@ function filtrar() {
                 if (filtro !== "" && dataInicio === "" && dataFim === "") {
                     $.ajax({
                         type: 'POST',
-                        url: '/representacoes/controlar/lancar/despesas/obter-por-filtro.php',
+                        url: '/representacoes/controlar/contas/pagar/obter-por-filtro.php',
                         data: { filtro: filtro },
                         success: function (response) {
                             if (response != null && response !== ""){
@@ -301,6 +301,7 @@ function filtrar() {
     }
 }
 
+/*
 function excluir(id) {
     bootbox.confirm({
         message: "Confirma a exclusão desta despesa?",
@@ -344,17 +345,18 @@ function excluir(id) {
         }
     });
 }
+*/
 
 function alterar(id) {
     let request = new XMLHttpRequest();
-    request.open("POST", "/representacoes/controlar/lancar/despesas/enviar.php", false);
+    request.open("POST", "/representacoes/controlar/contas/pagar/enviar.php", false);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     request.send(encodeURI('id='+id));
 
     if (request.DONE === 4 && request.status === 200) {
         let res = JSON.parse(request.responseText);
         if (res !== null && res.length === 0) {
-            window.location.href = "../../../controlar/lancar/despesas/detalhes";
+            window.location.href = "../../../controlar/contas/pagar/detalhes";
         } else {
             mostraDialogo(
                 res,
@@ -364,7 +366,7 @@ function alterar(id) {
         }
     } else {
         mostraDialogo(
-            "Erro na requisição da URL /representacoes/controlar/lancar/despesas/enviar.php. <br />" +
+            "Erro na requisição da URL /representacoes/controlar/contas/pagar/enviar.php. <br />" +
             "Status: "+request.status+" "+request.statusText,
             "danger",
             3000
