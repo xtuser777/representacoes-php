@@ -8,7 +8,9 @@ use mysqli;
 
 class Banco
 {
-    private static $instances = [];
+    /** @var Banco|null  */
+    private static $instance = null;
+
     /** @var mysqli */
     private $conn = null;
 
@@ -23,12 +25,11 @@ class Banco
 
     public static function getInstance()
     {
-        $session_id = session_id();
-        if (!isset(self::$instances[$session_id])) {
-            self::$instances[$session_id] = new Banco();
+        if (!isset(self::$instance) || self::$instance === null) {
+            self::$instance = new Banco();
         }
 
-        return self::$instances[$session_id];
+        return self::$instance;
     }
 
     public function open(): bool
