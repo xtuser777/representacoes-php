@@ -11,19 +11,27 @@ class FormaPagamentoDetalhesControl
 {
     public function obter()
     {
-        if (!isset($_COOKIE["FORMA"])) return json_encode(null);
-        if (!Banco::getInstance()->open()) return json_encode(null);
+        if (!isset($_COOKIE["FORMA"]))
+            return json_encode(null);
+
+        if (!Banco::getInstance()->open())
+            return json_encode(null);
+
         $forma = FormaPagamento::findById($_COOKIE["FORMA"]);
+
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($forma !== null ? $forma->jsonSerialize() : null);
     }
 
-    public function alterar(int $for, string $descricao, int $prazo)
+    public function alterar(int $for, string $descricao,int $vinculo, int $prazo)
     {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
+        if (!Banco::getInstance()->open())
+            return json_encode("Erro ao conectar-se ao banco de dados.");
+
         Banco::getInstance()->getConnection()->begin_transaction();
-        $forma = new FormaPagamento($for, $descricao, $prazo);
+
+        $forma = new FormaPagamento($for, $descricao, $vinculo, $prazo);
         $res = $forma->update();
         if ($res == -10 || $res == -1) {
             Banco::getInstance()->getConnection()->rollback();
@@ -35,6 +43,7 @@ class FormaPagamentoDetalhesControl
             Banco::getInstance()->getConnection()->close();
             return json_encode("Parâmetros inválidos.");
         }
+
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getConnection()->close();
 

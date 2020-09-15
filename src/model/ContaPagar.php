@@ -353,6 +353,39 @@ class ContaPagar
         $this->autor = $autor;
     }
 
+    public function findRelationsByFP(int $fp): int
+    {
+        $sql = "
+            SELECT COUNT(con_pag_id) as FORMAS 
+            FROM conta_pagar 
+            WHERE for_pag_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if ($stmt === null) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $stmt->bind_param("i", $fp);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if ($result === null || $result->num_rows === 0) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        $row = $result->fetch_assoc();
+
+        return (int) $row["FORMAS"];
+    }
+
     public function findById(int $id): ?ContaPagar
     {
         if ($id <= 0) return null;

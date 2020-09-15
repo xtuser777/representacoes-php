@@ -13,5 +13,5 @@ if (!isset($_COOKIE['USER_ID'])) {
     $control = new FormaPagamentoNovoControl();
 
     header('Content-type: application/json');
-    echo $control->gravar ($_POST['desc'], $_POST['prazo']);
+    echo $control->gravar ($_POST['desc'], $_POST["vinculo"], $_POST['prazo']);
 }

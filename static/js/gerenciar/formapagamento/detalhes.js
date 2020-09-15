@@ -23,14 +23,16 @@ $(document).ready(function (event) {
     if (dados !== "") {
         _forma = dados.id;
         $("#desc").val(dados.descricao);
+        $("#vinculo").val(dados.vinculo);
         $("#prazo").val(dados.prazo);
     }
 });
 
-function gravar() {
+function alterar() {
     let desc = $("#desc").val();
+    let vinculo = $("#vinculo").val();
     let prazo = $("#prazo").val();
-    
+
     let erros = 0;
 
     if (desc === "") {
@@ -38,6 +40,13 @@ function gravar() {
         $("#msdesc").html('<span class="label label-danger">A descrição do tipo precisa ser preenchida!</span>');
     } else {
         $("#msdesc").html('');
+    }
+
+    if (vinculo === null || vinculo === "0") {
+        erros++;
+        $("#msvinculo").html('<span class="label label-danger">O vínculo desta forma de pagamento deve ser selecionada.</span>');
+    } else {
+        $("#msvinculo").html('');
     }
 
     if (prazo === "" || prazo === "0") {
@@ -51,6 +60,7 @@ function gravar() {
         let form = new FormData();
         form.append("forma", _forma);
         form.append("desc", desc);
+        form.append("vinculo", vinculo);
         form.append("prazo", prazo);
 
         $.ajax({
@@ -86,13 +96,11 @@ function gravar() {
                 );
             }
         });    
-    } else {
-        $("#desc").val(desc);
-        $("#prazo").val(prazo);
     }
 }
 
 function limpar() {
     $("input[type='text']").val("");
+    $("#vinculo").val("0");
     $("input[type='number']").val("0");
 }

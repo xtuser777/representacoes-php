@@ -44,7 +44,6 @@ require ROOT . '/src/dao/ClienteDAO.php';
 require ROOT . '/src/dao/RepresentacaoDAO.php';
 require ROOT . "/src/dao/TipoCaminhaoDAO.php";
 require ROOT . "/src/dao/CategoriaDAO.php";
-require ROOT . "/src/dao/FormaPagamentoDAO.php";
 require ROOT . "/src/dao/DadosBancariosDAO.php";
 require ROOT . "/src/dao/MotoristaDAO.php";
 

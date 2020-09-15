@@ -5,7 +5,7 @@ use scr\control\FormaPagamentoDetalhesControl;
 require '../../../header.php';
 
 if (!isset($_COOKIE['USER_ID'])) {
-    header('Location: /representacoes/login/index.php');
+    header('Location: /representacoes/login');
 } elseif (strcmp($_SERVER['REQUEST_METHOD'], 'POST') !== 0) {
     header('Content-type: application/json');
     echo json_encode('Método inválido.');
@@ -13,5 +13,5 @@ if (!isset($_COOKIE['USER_ID'])) {
     $control = new FormaPagamentoDetalhesControl();
 
     header('Content-type: application/json');
-    echo $control->alterar ($_POST['forma'], $_POST['desc'], $_POST['prazo']);
+    echo $control->alterar ($_POST['forma'], $_POST['desc'], $_POST['vinculo'], $_POST['prazo']);
 }

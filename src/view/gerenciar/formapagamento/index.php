@@ -38,8 +38,10 @@
                     <option value="2">REGISTRO (DECRESCENTE)</option>
                     <option value="3">DESCRIÇÃO (CRESCENTE)</option>
                     <option value="4">DESCRIÇÃO (DECRESCENTE)</option>
-                    <option value="5">PRAZO (CRESCENTE)</option>
-                    <option value="6">PRAZO (DECRESCENTE)</option>
+                    <option value="5">VÍNCULO (CRESCENTE)</option>
+                    <option value="6">VÍNCULO (DECRESCENTE)</option>
+                    <option value="7">PRAZO (CRESCENTE)</option>
+                    <option value="8">PRAZO (DECRESCENTE)</option>
                 </select>
             </div>
 
@@ -54,7 +56,8 @@
             <tr>
                 <th class="hidden">ID</th>
                 <th style="width: 40%;">DESCRIÇÃO</th>
-                <th style="width: 16%;">PRAZO</th>
+                <th style="width: 20%;">VÍNCULO</th>
+                <th style="width: 20%;">PRAZO</th>
                 <th style="width: 2%;">&nbsp;</th>
                 <th style="width: 2%;">&nbsp;</th>
             </tr>

@@ -1,10 +1,13 @@
 function preencherTabela(dados) {
     let txt = "";
     $.each(dados, function () {
+        let vinc = (this.vinculo === 1) ? "CONTA A PAGAR" : "CONTA A RECEBER";
+
         txt += 
             '<tr>\
                 <td class="hidden">' + this.id + '</td>\
                 <td>' + this.descricao + '</td>\
+                <td>' + vinc + '</td>\
                 <td>' + this.prazo + '</td>\
                 <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
                 <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\

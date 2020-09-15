@@ -10,10 +10,20 @@
     <div class="fieldset-card-legend">Dados da Forma de Pagamento</div>
     <div class="fieldset-card-container">
         <div class="row">
-            <div class="col-sm-9">
+            <div class="col-sm-6">
                 <label for="desc">Descrição <span style="color: red;">*</span>:</label>
                 <input type="text" id="desc" class="form-control input-sm" style="width: 100%;" value="" />
                 <div id="msdesc"></div>
+            </div>
+
+            <div class="col-sm-3">
+                <label for="vinculo">Vínculo <span style="color: red;">*</span>:</label>
+                <select id="vinculo" class="form-control input-sm">
+                    <option value="0">SELECIONE</option>
+                    <option value="1">CONTA A PAGAR</option>
+                    <option value="2">CONTA A RECEBER</option>
+                </select>
+                <div id="msvinculo"></div>
             </div>
 
             <div class="col-sm-3">
@@ -35,6 +45,6 @@
     <div class="col-sm-8"></div>
 
     <div class="col-sm-2">
-        <button id="salvar" class="btn btn-success" style="width: 100%;" onclick="gravar();">SALVAR</button>
+        <button id="salvar" class="btn btn-success" style="width: 100%;" onclick="alterar();">SALVAR</button>
     </div>
 </div>
