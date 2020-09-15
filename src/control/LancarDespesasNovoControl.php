@@ -46,7 +46,7 @@ class LancarDespesasNovoControl
         return json_encode($serial);
     }
 
-    public function lancar(string $empresa, int $categoria, int $pedido, string $descricao, string $data, float $valor, string $vencimento)
+    public function lancar(string $empresa, int $categoria, int $pedido, int $conta, string $descricao, int $tipo, int $frequencia, string $data, int $parcelas, float $valor, string $vencimento)
     {
         if (Banco::getInstance()->open() === false)
             return json_encode("Problema ao conectar-se ao bano de dados.");

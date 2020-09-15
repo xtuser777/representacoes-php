@@ -13,14 +13,23 @@ class ContaPagar
     /** @var int */
     private $id;
 
+    /** @var int */
+    private $conta;
+
     /** @var string */
     private $data;
+
+    /** @var int */
+    private $tipo;
 
     /** @var string */
     private $descricao;
 
     /** @var string */
     private $empresa;
+
+    /** @var int */
+    private $parcela;
 
     /** @var float */
     private $valor;
@@ -37,6 +46,9 @@ class ContaPagar
     /** @var float */
     private $valorPago;
 
+    /** @var ContaPagar|null */
+    private $pendencia;
+
     /** @var FormaPagamento|null */
     private $formaPagamento;
 
@@ -46,7 +58,7 @@ class ContaPagar
     /** @var Funcionario|null */
     private $vendedor;
 
-    /** @var Categoria */
+    /** @var Categoria|null */
     private $categoria;
 
     /** @var PedidoFrete|null */
@@ -55,20 +67,24 @@ class ContaPagar
     /** @var PedidoVenda|null */
     private $pedidoVenda;
 
-    /** @var Usuario */
+    /** @var Usuario|null */
     private $autor;
 
     /**
      * ContaPagar constructor.
      * @param int $id
+     * @param int $conta
      * @param string $data
+     * @param int $tipo
      * @param string $descricao
      * @param string $empresa
+     * @param int $parcela
      * @param float $valor
      * @param int $situacao
      * @param string $vencimento
      * @param string $dataPagamento
      * @param float $valorPago
+     * @param ContaPagar|null $pendencia
      * @param FormaPagamento|null $formaPagamento
      * @param Motorista|null $motorista
      * @param Funcionario|null $vendedor
@@ -77,17 +93,21 @@ class ContaPagar
      * @param PedidoVenda|null $pedidoVenda
      * @param Usuario|null $autor
      */
-    public function __construct(int $id = 0, string $data = "", string $descricao = "", string $empresa = "", float $valor = 0.0, int $situacao = 0, string $vencimento = "", string $dataPagamento = "", float $valorPago = 0.0, ?FormaPagamento $formaPagamento = null, ?Motorista $motorista = null, ?Funcionario $vendedor = null, Categoria $categoria = null, ?PedidoFrete $pedidoFrete = null, ?PedidoVenda $pedidoVenda = null, Usuario $autor = null)
+    public function __construct(int $id = 0, int $conta = 0, string $data = "", int $tipo, string $descricao = "", string $empresa = "", int $parcela = 0, float $valor = 0.0, int $situacao = 0, string $vencimento = "", string $dataPagamento = "", float $valorPago = 0.0, ?ContaPagar $pendencia = null, ?FormaPagamento $formaPagamento = null, ?Motorista $motorista = null, ?Funcionario $vendedor = null, ?Categoria $categoria = null, ?PedidoFrete $pedidoFrete = null, ?PedidoVenda $pedidoVenda = null, ?Usuario $autor = null)
     {
         $this->id = $id;
+        $this->conta = $conta;
         $this->data = $data;
+        $this->tipo = $tipo;
         $this->descricao = $descricao;
         $this->empresa = $empresa;
+        $this->parcela = $parcela;
         $this->valor = $valor;
         $this->situacao = $situacao;
         $this->vencimento = $vencimento;
         $this->dataPagamento = $dataPagamento;
         $this->valorPago = $valorPago;
+        $this->pendencia = $pendencia;
         $this->formaPagamento = $formaPagamento;
         $this->motorista = $motorista;
         $this->vendedor = $vendedor;
@@ -114,6 +134,22 @@ class ContaPagar
     }
 
     /**
+     * @return int
+     */
+    public function getConta(): int
+    {
+        return $this->conta;
+    }
+
+    /**
+     * @param int $conta
+     */
+    public function setConta(int $conta): void
+    {
+        $this->conta = $conta;
+    }
+
+    /**
      * @return string
      */
     public function getData(): string
@@ -127,6 +163,22 @@ class ContaPagar
     public function setData(string $data): void
     {
         $this->data = $data;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTipo(): int
+    {
+        return $this->tipo;
+    }
+
+    /**
+     * @param int $tipo
+     */
+    public function setTipo(int $tipo): void
+    {
+        $this->tipo = $tipo;
     }
 
     /**
@@ -159,6 +211,22 @@ class ContaPagar
     public function setEmpresa(string $empresa): void
     {
         $this->empresa = $empresa;
+    }
+
+    /**
+     * @return int
+     */
+    public function getParcela(): int
+    {
+        return $this->parcela;
+    }
+
+    /**
+     * @param int $parcela
+     */
+    public function setParcela(int $parcela): void
+    {
+        $this->parcela = $parcela;
     }
 
     /**
@@ -242,6 +310,22 @@ class ContaPagar
     }
 
     /**
+     * @return ContaPagar|null
+     */
+    public function getPendencia(): ?ContaPagar
+    {
+        return $this->pendencia;
+    }
+
+    /**
+     * @param ContaPagar|null $pendencia
+     */
+    public function setPendencia(?ContaPagar $pendencia): void
+    {
+        $this->pendencia = $pendencia;
+    }
+
+    /**
      * @return FormaPagamento|null
      */
     public function getFormaPagamento(): ?FormaPagamento
@@ -290,17 +374,17 @@ class ContaPagar
     }
 
     /**
-     * @return Categoria
+     * @return Categoria|null
      */
-    public function getCategoria(): Categoria
+    public function getCategoria(): ?Categoria
     {
         return $this->categoria;
     }
 
     /**
-     * @param Categoria $categoria
+     * @param Categoria|null $categoria
      */
-    public function setCategoria(Categoria $categoria): void
+    public function setCategoria(?Categoria $categoria): void
     {
         $this->categoria = $categoria;
     }
@@ -338,17 +422,17 @@ class ContaPagar
     }
 
     /**
-     * @return Usuario
+     * @return Usuario|null
      */
-    public function getAutor(): Usuario
+    public function getAutor(): ?Usuario
     {
         return $this->autor;
     }
 
     /**
-     * @param Usuario $autor
+     * @param Usuario|null $autor
      */
-    public function setAutor(Usuario $autor): void
+    public function setAutor(?Usuario $autor): void
     {
         $this->autor = $autor;
     }
@@ -391,10 +475,26 @@ class ContaPagar
         if ($id <= 0) return null;
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
-                   con_pag_data_pagamento, con_pag_valor_pago,
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            SELECT con_pag_id, 
+                   con_pag_conta 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
             FROM conta_pagar
             WHERE con_pag_id = ?;
         ";
@@ -422,11 +522,19 @@ class ContaPagar
         $row = $result->fetch_assoc();
 
         return new ContaPagar(
-            $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
-            $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
+            $row["con_pag_id"],
+            $row["con_pag_conta"],
+            $row["con_pag_data"],
+            $row["con_pag_tipo"],
+            $row["con_pag_descricao"],
+            $row["con_pag_empresa"],
+            $row["con_pag_parcela"],
+            $row["con_pag_valor"],
+            $row["con_pag_situacao"],
             $row["con_pag_vencimento"],
             (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
             (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+            ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
             ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
             ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
             ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -442,10 +550,26 @@ class ContaPagar
         if ($description === null || strlen($description) <= 0) return [];
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
-                   con_pag_data_pagamento, con_pag_valor_pago,
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            SELECT con_pag_id, 
+                   con_pag_conta 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
             FROM conta_pagar
             WHERE con_pag_descricao like ?;
         ";
@@ -473,11 +597,19 @@ class ContaPagar
         $contas = [];
         while ($row = $result->fetch_assoc()) {
             $contas[] = new ContaPagar(
-                $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
-                $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
                 $row["con_pag_vencimento"],
                 (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
                 (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
                 ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
                 ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
                 ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -496,10 +628,26 @@ class ContaPagar
         if ($date === null || strlen($date) <= 0) return [];
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
-                   con_pag_data_pagamento, con_pag_valor_pago,
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            SELECT con_pag_id, 
+                   con_pag_conta 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
             FROM conta_pagar
             WHERE con_pag_data = ?;
         ";
@@ -527,11 +675,19 @@ class ContaPagar
         $contas = [];
         while ($row = $result->fetch_assoc()) {
             $contas[] = new ContaPagar(
-                $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
-                $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
                 $row["con_pag_vencimento"],
                 (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
                 (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
                 ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
                 ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
                 ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -551,10 +707,26 @@ class ContaPagar
             return [];
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
-                   con_pag_data_pagamento, con_pag_valor_pago,
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            SELECT con_pag_id, 
+                   con_pag_conta 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
             FROM conta_pagar
             WHERE con_pag_data >= ?
             AND con_pag_data <= ?;
@@ -583,11 +755,19 @@ class ContaPagar
         $contas = [];
         while ($row = $result->fetch_assoc()) {
             $contas[] = new ContaPagar(
-                $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
-                $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
                 $row["con_pag_vencimento"],
                 (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
                 (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
                 ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
                 ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
                 ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -606,10 +786,26 @@ class ContaPagar
         if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0) return [];
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
-                   con_pag_data_pagamento, con_pag_valor_pago,
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            SELECT con_pag_id, 
+                   con_pag_conta 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
             FROM conta_pagar
             WHERE con_pag_descricao like ?
             AND con_pag_data = ?;
@@ -638,11 +834,19 @@ class ContaPagar
         $contas = [];
         while ($row = $result->fetch_assoc()) {
             $contas[] = new ContaPagar(
-                $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
-                $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
                 $row["con_pag_vencimento"],
                 (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
                 (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
                 ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
                 ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
                 ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -666,10 +870,26 @@ class ContaPagar
             return [];
 
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
-                   con_pag_data_pagamento, con_pag_valor_pago,
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            SELECT con_pag_id, 
+                   con_pag_conta 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
             FROM conta_pagar
             WHERE con_pag_descricao like ?
             AND con_pag_data >= ?
@@ -699,11 +919,19 @@ class ContaPagar
         $contas = [];
         while ($row = $result->fetch_assoc()) {
             $contas[] = new ContaPagar(
-                $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
-                $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
                 $row["con_pag_vencimento"],
                 (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
                 (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
                 ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
                 ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
                 ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -720,10 +948,26 @@ class ContaPagar
     public function findAll(): array
     {
         $sql = "
-            SELECT con_pag_id, con_pag_data, con_pag_descricao, con_pag_empresa,
-                   con_pag_valor, con_pag_situacao, con_pag_vencimento,
-                   con_pag_data_pagamento, con_pag_valor_pago,
-                   for_pag_id, mot_id, fun_id, cat_id, ped_fre_id, ped_ven_id, usu_id
+            SELECT con_pag_id, 
+                   con_pag_conta 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
             FROM conta_pagar
             ORDER BY con_pag_id;
         ";
@@ -750,11 +994,19 @@ class ContaPagar
         $contas = [];
         while ($row = $result->fetch_assoc()) {
             $contas[] = new ContaPagar(
-                $row["con_pag_id"], $row["con_pag_data"], $row["con_pag_descricao"],
-                $row["con_pag_empresa"], $row["con_pag_valor"], $row["con_pag_situacao"],
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
                 $row["con_pag_vencimento"],
                 (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
                 (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
                 ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
                 ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
                 ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
@@ -768,84 +1020,15 @@ class ContaPagar
         return $contas;
     }
 
-    public function save(int $fun): int
+    public function save(): int
     {
-        if ($fun === 1) {
-            if(
-                $this->id !== 0 ||
-                strlen($this->data) === 0 ||
-                strlen($this->descricao) === 0 ||
-                strlen($this->empresa) === 0 ||
-                $this->valor <= 0 ||
-                strlen($this->vencimento) === 0 ||
-                $this->situacao === 0 ||
-                $this->categoria === null ||
-                $this->autor === null
-            )
-                return -5;
-        } else {
-            if(
-                $this->id !== 0 ||
-                strlen($this->data) === 0 ||
-                strlen($this->descricao) === 0 ||
-                strlen($this->empresa) === 0 ||
-                $this->valor <= 0 ||
-                strlen($this->vencimento) === 0 ||
-                $this->situacao === 0 ||
-                strlen($this->dataPagamento) === 0 ||
-                $this->valorPago <= 0 ||
-                $this->formaPagamento === null ||
-                $this->categoria === null ||
-                $this->autor === null
-            )
-                return -5;
-        }
-
-        $sql = "
-            INSERT
-            INTO conta_pagar(con_pag_data, con_pag_descricao, con_pag_empresa, con_pag_valor, con_pag_vencimento, con_pag_situacao, cat_id, ped_fre_id, usu_id)
-            VALUES (?,?,?,?,?,?,?,?,?);
-        ";
-
-        /** @var $stmt mysqli_stmt */
-        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
-        if (!$stmt) {
-            echo Banco::getInstance()->getConnection()->error;
-            return -10;
-        }
-
-        $cat = $this->categoria->getId();
-        $ped = ($this->pedidoFrete) ? $this->pedidoFrete->getId() : null;
-        $autor = $this->autor->getId();
-
-        $stmt->bind_param(
-            "sssdsiiii",
-            $this->data,
-            $this->descricao,
-            $this->empresa,
-            $this->valor,
-            $this->vencimento,
-            $this->situacao,
-            $cat,
-            $ped,
-            $autor
-        );
-
-        if (!$stmt->execute()) {
-            echo $stmt->error;
-            return -10;
-        }
-
-        return $stmt->insert_id;
-    }
-
-    public function update(): int
-    {
-        if (
-            $this->id <= 0 ||
+        if(
+            $this->id !== 0 ||
+            $this->conta !== 0 ||
             strlen($this->data) === 0 ||
             strlen($this->descricao) === 0 ||
             strlen($this->empresa) === 0 ||
+            $this->parcela !== 0 ||
             $this->valor <= 0 ||
             strlen($this->vencimento) === 0 ||
             $this->situacao === 0 ||
@@ -855,17 +1038,24 @@ class ContaPagar
             return -5;
 
         $sql = "
-            UPDATE conta_pagar
-            SET con_pag_data = ?,
-            con_pag_descricao = ?,
-            con_pag_empresa = ?,
-            con_pag_valor = ?,
-            con_pag_vencimento = ?,
-            con_pag_situacao = ?,
-            cat_id = ?,
-            ped_fre_id = ?,
-            usu_id = ?
-            WHERE con_pag_id = ?;
+            INSERT
+            INTO conta_pagar(
+                con_pag_conta, 
+                con_pag_data, 
+                con_pag_descricao, 
+                con_pag_empresa, 
+                con_pag_parcela, 
+                con_pag_valor, 
+                con_pag_vencimento, 
+                con_pag_situacao, 
+                mot_id, 
+                fun_id, 
+                cat_id, 
+                ped_fre_id, 
+                ped-ven_id, 
+                usu_id
+            )
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -875,22 +1065,29 @@ class ContaPagar
             return -10;
         }
 
+        $mot = ($this->motorista) ? $this->motorista->getId() : null;
+        $vdd = ($this->vendedor) ? $this->vendedor->getId() : null;
         $cat = $this->categoria->getId();
-        $ped = ($this->pedidoFrete) ? $this->pedidoFrete->getId() : null;
+        $fre = ($this->pedidoFrete) ? $this->pedidoFrete->getId() : null;
+        $ven = ($this->pedidoVenda) ? $this->pedidoVenda->getId() : null;
         $autor = $this->autor->getId();
 
         $stmt->bind_param(
-            "sssdsiiiii",
+            "isssidsiiiiiii",
+            $this->conta,
             $this->data,
             $this->descricao,
             $this->empresa,
+            $this->parcela,
             $this->valor,
             $this->vencimento,
             $this->situacao,
+            $mot,
+            $vdd,
             $cat,
-            $ped,
-            $autor,
-            $this->id
+            $fre,
+            $ven,
+            $autor
         );
 
         if (!$stmt->execute()) {
@@ -898,7 +1095,7 @@ class ContaPagar
             return -10;
         }
 
-        return $stmt->affected_rows;
+        return $stmt->insert_id;
     }
 
     public function quitar(int $forma, float $valor, string $data, int $situacao): int
@@ -974,6 +1171,7 @@ class ContaPagar
 
     public function jsonSerialize(): array
     {
+        $pendencia = ($this->pendencia) ? $this->pendencia->jsonSerialize() : null;
         $formaPagamento = ($this->formaPagamento !== null) ? $this->formaPagamento->jsonSerialize() : null;
         $motorista = ($this->motorista !== null) ? $this->motorista->jsonSerialize() : null;
         $vendedor = ($this->vendedor !== null) ? $this->vendedor->jsonSerialize() : null;
@@ -984,14 +1182,18 @@ class ContaPagar
 
         return [
             "id" => $this->id,
+            "conta" => $this->conta,
             "data" => $this->data,
+            "tipo" => $this->tipo,
             "descricao" => $this->descricao,
             "empresa" => $this->empresa,
+            "parcela" => $this->parcela,
             "valor" => $this->valor,
             "situacao" => $this->situacao,
             "vencimento" => $this->vencimento,
             "dataPagamento" => $this->dataPagamento,
             "valorPago" => $this->valorPago,
+            "pendencia" => $pendencia,
             "formaPagamento" => $formaPagamento,
             "motorista" => $motorista,
             "vendedor" => $vendedor,
