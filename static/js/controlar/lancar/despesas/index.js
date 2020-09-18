@@ -29,14 +29,14 @@ function preencherTabela(dados) {
             '<tr>\
                 <td class="hidden">' + this.id + '</td>\
                 <td>' + this.descricao + '</td>\
+                <td>' + this.conta + '</td>\
+                <td>' + this.parcela + '</td>\
                 <td>' + this.categoria.descricao + '</td>\
-                <td>' + FormatarData(this.vencimento) + '</td>\
                 <td>' + FormatarData(this.data) + '</td>\
-                <td>' + this.empresa + '</td>\
+                <td>' + FormatarData(this.vencimento) + '</td>\
                 <td>'+ this.autor.funcionario.pessoa.nome +'</td>\
                 <td>'+ valorFormat +'</td>\
                 <td>'+ sit +'</td>\
-                <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
                 <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
             </tr>';
     });

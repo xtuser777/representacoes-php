@@ -39,15 +39,17 @@ function preencherTabela(dados) {
         txt +=
             '<tr>\
                 <td class="hidden">' + this.id + '</td>\
+                <td>' + this.conta + '</td>\
                 <td>' + this.descricao + '</td>\
+                <td>' + this.parcela + '</td>\
                 <td>'+ fonte +'</td>\
-                <td>' + this.empresa + '</td>\
                 <td>' + this.categoria.descricao + '</td>\
                 <td>' + FormatarData(this.vencimento) + '</td>\
                 <td>' + FormatarData(this.data) + '</td>\
                 <td>'+ valorFormat +'</td>\
                 <td>'+ sit +'</td>\
                 <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="DETALHES" href="javascript:alterar(' + this.id + ')"></a></td>\
+                <td><a role="button" class="glyphicon glyphicon-remove" data-toggle="tooltip" data-placement="top" title="ESTORNAR" href="javascript:estornar(' + this.id + ')"></a></td>\
             </tr>';
     });
     $(tbodyContas).html(txt);
@@ -79,6 +81,12 @@ function obter() {
 }
 
 $(document).ready(function (event) {
+    let formas = get("/representacoes/controlar/contas/pagar/obter-formas.php");
+    if (formas === null || formas.length === 0) {
+        alert("Não existem formas de pagamento para contas a pagar cadastradas.");
+        location.href = "../../../gerenciar/formapagamento/";
+    }
+
     txDataInicio.value = new Date().toISOString().substr(0, 10);
     txDataFim.value = new Date().toISOString().substr(0, 10);
 
@@ -372,4 +380,54 @@ function alterar(id) {
             3000
         );
     }
+}
+
+function estornar(id) {
+    bootbox.confirm({
+        message: "Confirma o estorno deste pagamento?",
+        buttons: {
+            confirm: {
+                label: 'Sim',
+                className: 'btn-success'
+            },
+            cancel: {
+                label: 'Não',
+                className: 'btn-danger'
+            }
+        },
+        callback: function (result) {
+            if (result) {
+                let request = new XMLHttpRequest();
+                request.open("POST", "/representacoes/controlar/contas/pagar/estornar.php", false);
+                request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                request.send(encodeURI('id='+id));
+
+                if (request.DONE === 4 && request.status === 200) {
+                    let res = JSON.parse(request.responseText);
+                    if (res !== null && res.length === 0) {
+                        mostraDialogo(
+                            "<strong>Conta a pagar estornada com sucesso.</strong>" +
+                            "<br /> O valor pago anteriormente foi estornado da parcela selecionada.",
+                            "success",
+                            3000
+                        );
+                        obter();
+                    } else {
+                        mostraDialogo(
+                            res,
+                            "danger",
+                            3000
+                        );
+                    }
+                } else {
+                    mostraDialogo(
+                        "Erro na requisição da URL /representacoes/controlar/contas/pagar/enviar.php. <br />" +
+                        "Status: "+request.status+" "+request.statusText,
+                        "danger",
+                        3000
+                    );
+                }
+            }
+        }
+    });
 }

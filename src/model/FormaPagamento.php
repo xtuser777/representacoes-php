@@ -214,6 +214,64 @@ class FormaPagamento
         return $formas;
     }
 
+    public static function findByPayment(): array
+    {
+        $sql = "
+            select for_pag_id, for_pag_descricao, for_pag_vinculo, for_pag_prazo
+            from forma_pagamento 
+            where for_pag_vinculo = 1 
+            order by for_pag_id;
+        ";
+
+        /** @var $result mysqli_result */
+        $result = Banco::getInstance()->getConnection()->query($sql);
+        if (!$result || $result->num_rows <= 0) {
+            echo Banco::getInstance()->getConnection()->error;
+            return array();
+        }
+
+        $formas = [];
+        while ($row = $result->fetch_assoc()) {
+            $formas[] = new FormaPagamento(
+                $row["for_pag_id"],
+                $row["for_pag_descricao"],
+                $row["for_pag_vinculo"],
+                $row["for_pag_prazo"]
+            );
+        }
+
+        return $formas;
+    }
+
+    public static function findByReceive(): array
+    {
+        $sql = "
+            select for_pag_id, for_pag_descricao, for_pag_vinculo, for_pag_prazo
+            from forma_pagamento 
+            where for_pag_vinculo = 2 
+            order by for_pag_id;
+        ";
+
+        /** @var $result mysqli_result */
+        $result = Banco::getInstance()->getConnection()->query($sql);
+        if (!$result || $result->num_rows <= 0) {
+            echo Banco::getInstance()->getConnection()->error;
+            return array();
+        }
+
+        $formas = [];
+        while ($row = $result->fetch_assoc()) {
+            $formas[] = new FormaPagamento(
+                $row["for_pag_id"],
+                $row["for_pag_descricao"],
+                $row["for_pag_vinculo"],
+                $row["for_pag_prazo"]
+            );
+        }
+
+        return $formas;
+    }
+
     public function save(): int
     {
         if ($this->id != 0 || strlen(trim($this->descricao)) <= 0 || $this->vinculo <= 0 || $this->prazo <= 0)

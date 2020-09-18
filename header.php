@@ -97,6 +97,5 @@ require ROOT . "/src/control/OrcamentoFreteDetalhesControl.php";
 require ROOT . "/src/control/OrcamentoFreteDetalhesItemControl.php";
 require ROOT . "/src/control/LancarDespesasControl.php";
 require ROOT . "/src/control/LancarDespesasNovoControl.php";
-require ROOT . "/src/control/LancarDespesasDetalhesControl.php";
 require ROOT . "/src/control/ContasPagarControl.php";
 require ROOT . "/src/control/ContasPagarDetalhesControl.php";

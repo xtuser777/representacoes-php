@@ -202,12 +202,22 @@ if (!isset($_COOKIE['USER_ID'])) {
 
                 <div class="fieldset-card-container">
                     <div class="row">
+                        <div class="col-sm-1">
+                            <label for="txConta">Conta:</label>
+                            <input type="text" id="txConta" class="form-control input-sm" style="width: 100%;" readonly />
+                        </div>
+
                         <div class="col-sm-3">
-                            <label for="dtDespesa">Data Despesa:</label>
+                            <label for="dtDespesa">Data:</label>
                             <input type="date" id="dtDespesa" class="form-control input-sm" style="width: 100%;" readonly />
                         </div>
 
-                        <div class="col-sm-9">
+                        <div class="col-sm-2">
+                            <label for="txParcela">Parcela:</label>
+                            <input type="text" id="txParcela" class="form-control input-sm" style="width: 100%;" readonly />
+                        </div>
+
+                        <div class="col-sm-6">
                             <label for="txDescricao">Descricao:</label>
                             <input type="text" id="txDescricao" class="form-control input-sm" style="width: 100%;" readonly />
                         </div>
@@ -219,12 +229,17 @@ if (!isset($_COOKIE['USER_ID'])) {
                             <input type="text" id="txEmpresa" class="form-control input-sm" style="width: 100%;" readonly />
                         </div>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-2">
+                            <label for="txTipo">Tipo:</label>
+                            <input type="text" id="txTipo" class="form-control input-sm" style="width: 100%;" readonly />
+                        </div>
+
+                        <div class="col-sm-3">
                             <label for="txCategoria">Categoria:</label>
                             <input type="text" id="txCategoria" class="form-control input-sm" style="width: 100%;" readonly />
                         </div>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                             <label for="txFonte">Fonte:</label>
                             <input type="text" id="txFonte" class="form-control input-sm" style="width: 100%;" readonly />
                         </div>

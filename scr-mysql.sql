@@ -358,6 +358,7 @@ CREATE TABLE conta_pagar
     con_pag_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     con_pag_conta INTEGER NOT NULL,
     con_pag_data DATE NOT NULL,
+    con_pag_tipo INTEGER NOT NULL,
     con_pag_descricao VARCHAR(150) NOT NULL,
     con_pag_empresa VARCHAR(50) NOT NULL,
     con_pag_parcela INTEGER NOT NULL,

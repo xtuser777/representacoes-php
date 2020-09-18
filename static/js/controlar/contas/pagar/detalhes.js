@@ -1,6 +1,9 @@
+const txConta = document.getElementById("txConta");
 const dtDespesa = document.getElementById("dtDespesa");
+const txParcela = document.getElementById("txParcela");
 const txDescricao = document.getElementById("txDescricao");
 const txEmpresa = document.getElementById("txEmpresa");
+const txTipo = document.getElementById("txTipo");
 const txCategoria = document.getElementById("txCategoria");
 const txFonte = document.getElementById("txFonte");
 const dtVencimento = document.getElementById("dtVencimento");
@@ -74,9 +77,12 @@ function cancelarQuitacao() {
 }
 
 function limparCampos() {
+    txConta.value = "0000";
     dtDespesa.value = "";
+    txParcela.value = "0";
     txDescricao.value = "";
     txEmpresa.value = "";
+    txTipo.value = "";
     txCategoria.value = "";
     txFonte.value = "";
     dtVencimento.value = "";
@@ -185,10 +191,14 @@ $(document).ready(() => {
         }
     }
 
+    $(txValor).mask("000000000,00", { reverse: true });
+
     let detalhes = get("/representacoes/controlar/contas/pagar/detalhes/obter.php");
     if (detalhes !== null && typeof detalhes !== "string") {
         despesa = detalhes.id;
+        txConta.value = detalhes.conta;
         dtDespesa.value = detalhes.data;
+        txParcela.value = detalhes.parcela;
         txDescricao.value = detalhes.descricao;
         txEmpresa.value = detalhes.empresa;
         txCategoria.value = detalhes.categoria.descricao;
@@ -213,6 +223,23 @@ $(document).ready(() => {
         }
         valor = valor.replace("#", ",");
         txValor.value = valor;
+
+        let tipo = "";
+        switch (detalhes.tipo) {
+            case 1:
+                tipo = "A VISTA";
+                break;
+
+            case 2:
+                tipo = "A PRAZO";
+                break;
+
+            case 3:
+                tipo = "FIXA";
+                break;
+        }
+        txTipo.value = tipo;
+
         let situacao = "";
         switch (detalhes.situacao) {
           case 1:

@@ -1,6 +1,6 @@
 <?php
 
-use scr\control\LancarDespesasDetalhesControl;
+use scr\control\LancarDespesasNovoControl;
 
 require "../../../../header.php";
 
@@ -11,5 +11,5 @@ if (!isset($_COOKIE["USER_ID"])) {
     echo json_encode("Método HTTP inválido.");
 } else {
     header("Content-type: application/json");
-    echo (new LancarDespesasDetalhesControl())->obterCategorias();
+    echo (new LancarDespesasNovoControl())->obterConta();
 }

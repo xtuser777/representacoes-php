@@ -51,13 +51,44 @@ class ContasPagarDetalhesControl
         Banco::getInstance()->getConnection()->begin_transaction();
 
         $situacao = 0;
+        $restante = 0.0;
         if ($valor < $conta->getValor()) {
             $situacao = 2;
+            $restante = $conta->getValor() - $valor;
         } else {
             $situacao = 3;
         }
 
-        $res = $conta->quitar($forma, $valor, $pagamento, $situacao);
+        $des = 0;
+        if ($situacao === 2) {
+            $pendencia = new ContaPagar();
+            $pendencia->setEmpresa($conta->getEmpresa());
+            $pendencia->setCategoria($conta->getCategoria());
+            $pendencia->setPedidoFrete($conta->getPedidoFrete());
+            $pendencia->setConta($conta->getConta());
+            $pendencia->setDescricao($conta->getDescricao());
+            $pendencia->setTipo($conta->getTipo());
+            $pendencia->setData($conta->getData());
+            $pendencia->setParcela($conta->getParcela());
+            $pendencia->setValor($restante);
+            $pendencia->setVencimento($conta->getVencimento());
+            $pendencia->setSituacao(1);
+            $pendencia->setAutor($conta->getAutor());
+
+            $des = $pendencia->save();
+            if ($des === -10 || $des === -1) {
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getConnection()->close();
+                return json_encode("Problema ao salvar a pendência da despesa no banco de dados.");
+            }
+            if ($des === -5) {
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getConnection()->close();
+                return json_encode("Parâmetro ou parâmetros inválidos.");
+            }
+        }
+
+        $res = $conta->quitar($forma, $valor, $pagamento, $situacao, $des);
         if ($res === -10 || $res === -1) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getConnection()->close();

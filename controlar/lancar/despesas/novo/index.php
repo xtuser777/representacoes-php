@@ -235,21 +235,53 @@ if (!isset($_COOKIE['USER_ID'])) {
 
                 <div class="fieldset-card-container">
                     <div class="row">
-                        <div class="col-sm-12">
+                        <div class="col-sm-1">
+                            <label for="txConta">Conta:</label>
+                            <input type="text" id="txConta" class="form-control input-sm" style="width: 100%;" readonly />
+                        </div>
+
+                        <div class="col-sm-5">
                             <label for="txDescricao">Descricao <span style="color: red;">*</span>:</label>
                             <input type="text" id="txDescricao" class="form-control input-sm" style="width: 100%;" onblur="validarDescricao();" />
                             <div id="msdescricao"></div>
                         </div>
+
+                        <div class="col-sm-3">
+                            <label for="slTipo">Tipo <span style="color: red;">*</span>:</label>
+                            <select id="slTipo" class="form-control input-sm" style="width: 100%;" onblur="validarTipo();" onchange="mudarTipo();">
+                                <option value="0">SELECIONE</option>
+                                <option value="1">A VISTA</option>
+                                <option value="2">A PRAZO</option>
+                                <option value="3">FIXA</option>
+                            </select>
+                            <div id="mstipo"></div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="slFrequencia">Frequência <span style="color: red;">*</span>:</label>
+                            <select id="slFrequencia" class="form-control input-sm" style="width: 100%;" onblur="validarFrequencia();">
+                                <option value="0">SELECIONE</option>
+                                <option value="1">MENSAL</option>
+                                <option value="2">ANUAL</option>
+                            </select>
+                            <div id="msfrequencia"></div>
+                        </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                             <label for="dtDespesa">Data Despesa <span style="color: red;">*</span>:</label>
                             <input type="date" id="dtDespesa" class="form-control input-sm" style="width: 100%;" onblur="validarData();" />
                             <div id="msdata"></div>
                         </div>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
+                            <label for="txParcelas">Parcelas <span style="color: red;">*</span>:</label>
+                            <input type="number" id="txParcelas" class="form-control input-sm" style="width: 100%;" onblur="validarParcelas();" />
+                            <div id="msparcelas"></div>
+                        </div>
+
+                        <div class="col-sm-3">
                             <label for="txValor">Valor Despesa <span style="color: red;">*</span>:</label>
                             <div class="input-group ">
                                 <div class="input-group-addon">R$</div>
@@ -258,7 +290,7 @@ if (!isset($_COOKIE['USER_ID'])) {
                             <div id="msvalor"></div>
                         </div>
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                             <label for="dtVencimento">Vencimento <span style="color: red;">*</span>:</label>
                             <input type="date" id="dtVencimento" class="form-control input-sm" style="width: 100%;" onblur="validarVencimento();" />
                             <div id="msvencimento"></div>

@@ -6,6 +6,7 @@ namespace scr\control;
 
 use scr\model\Categoria;
 use scr\model\ContaPagar;
+use scr\model\FormaPagamento;
 use scr\util\Banco;
 
 class ContasPagarControl
@@ -94,10 +95,31 @@ class ContasPagarControl
         return json_encode($serial);
     }
 
+    public function obterFormas()
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $formas = FormaPagamento::findByPayment();
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $forma FormaPagamento */
+        foreach ($formas as $forma) {
+            $serial[] = $forma->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
     public function ordenar(string $col)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
         $contas = (new ContaPagar())->findAll();
+
         Banco::getInstance()->getConnection()->close();
 
         if (count($contas) > 0) {
@@ -210,6 +232,58 @@ class ContasPagarControl
             return json_encode("Não é possível alterar uma conta já paga.");
 
         setcookie("CONPAG", $id, time() + 3600, "/", "", 0 , 1);
+
+        return json_encode("");
+    }
+
+    public function estornar(int $id)
+    {
+        if ($id <= 0)
+            return json_encode("Parâmetro inválido.");
+
+        if (!Banco::getInstance()->open())
+            return json_encode("Problemas ao se conectar com o banco de dados.");
+
+        $conta = (new ContaPagar())->findById($id);
+        if ($conta === null)
+            return json_encode("Registro não encontrado.");
+
+        if ($conta->getSituacao() === 1)
+            return json_encode("Esta conta ainda não foi quitada...");
+
+        if ($conta->getPendencia() !== null && $conta->getPendencia()->getSituacao() > 1)
+            return json_encode("Esta conta possui pendências pagas... Estorne-as primeiro.");
+
+        Banco::getInstance()->getConnection()->begin_transaction();
+
+        $cp = $conta->estornar();
+        if ($cp == -10 || $cp == -1) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getconnection()->close();
+            return json_encode("Ocorreu um problema ao estornar a despesa.");
+        }
+        if ($cp == -5) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getconnection()->close();
+            return json_encode("Parâmetro inválido.");
+        }
+
+        if ($conta->getPendencia() !== null) {
+            $cpp = $conta->getPendencia()->delete();
+            if ($cpp == -10 || $cpp == -1) {
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getconnection()->close();
+                return json_encode("Ocorreu um problema ao excluir a pendência da despesa.");
+            }
+            if ($cpp == -5) {
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getconnection()->close();
+                return json_encode("Parâmetro inválido.");
+            }
+        }
+
+        Banco::getInstance()->getConnection()->commit();
+        Banco::getInstance()->getconnection()->close();
 
         return json_encode("");
     }

@@ -93,7 +93,7 @@ class ContaPagar
      * @param PedidoVenda|null $pedidoVenda
      * @param Usuario|null $autor
      */
-    public function __construct(int $id = 0, int $conta = 0, string $data = "", int $tipo, string $descricao = "", string $empresa = "", int $parcela = 0, float $valor = 0.0, int $situacao = 0, string $vencimento = "", string $dataPagamento = "", float $valorPago = 0.0, ?ContaPagar $pendencia = null, ?FormaPagamento $formaPagamento = null, ?Motorista $motorista = null, ?Funcionario $vendedor = null, ?Categoria $categoria = null, ?PedidoFrete $pedidoFrete = null, ?PedidoVenda $pedidoVenda = null, ?Usuario $autor = null)
+    public function __construct(int $id = 0, int $conta = 0, string $data = "", int $tipo = 0, string $descricao = "", string $empresa = "", int $parcela = 0, float $valor = 0.0, int $situacao = 0, string $vencimento = "", string $dataPagamento = "", float $valorPago = 0.0, ?ContaPagar $pendencia = null, ?FormaPagamento $formaPagamento = null, ?Motorista $motorista = null, ?Funcionario $vendedor = null, ?Categoria $categoria = null, ?PedidoFrete $pedidoFrete = null, ?PedidoVenda $pedidoVenda = null, ?Usuario $autor = null)
     {
         $this->id = $id;
         $this->conta = $conta;
@@ -437,6 +437,39 @@ class ContaPagar
         $this->autor = $autor;
     }
 
+    public function findNewCount(): int
+    {
+        $sql = "
+            SELECT MAX(con_pag_conta) AS CONTA
+            FROM conta_pagar;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if ($stmt === null) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if ($result === null || $result->num_rows === 0) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        $row = $result->fetch_assoc();
+
+        $conta = ($row["CONTA"]) ? (int) $row["CONTA"] : 0;
+
+        return $conta + 1;
+    }
+
     public function findRelationsByFP(int $fp): int
     {
         $sql = "
@@ -470,13 +503,93 @@ class ContaPagar
         return (int) $row["FORMAS"];
     }
 
+    public function findByCount(int $count): array
+    {
+        if ($count <= 0)
+            return [];
+
+        $sql = "
+            SELECT con_pag_id, 
+                   con_pag_conta, 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
+            FROM conta_pagar
+            WHERE con_pag_conta = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("i", $count);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        $contas = [];
+        while ($row = $result->fetch_assoc()) {
+            $conta = new ContaPagar();
+            $conta->setId($row["con_pag_id"]);
+            $conta->setConta($row["con_pag_conta"]);
+            $conta->setData($row["con_pag_data"]);
+            $conta->setTipo($row["con_pag_tipo"]);
+            $conta->setDescricao($row["con_pag_descricao"]);
+            $conta->setEmpresa($row["con_pag_empresa"]);
+            $conta->setParcela($row["con_pag_parcela"]);
+            $conta->setValor($row["con_pag_valor"]);
+            $conta->setSituacao($row["con_pag_situacao"]);
+            $conta->setVencimento($row["con_pag_vencimento"]);
+            $conta->setDataPagamento((!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"]);
+            $conta->setValorPago((!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"]);
+            $conta->setPendencia(($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null);
+            $conta->setFormaPagamento(($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null);
+            $conta->setMotorista(($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null);
+            $conta->setVendedor(($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null);
+            $conta->setCategoria(Categoria::findById($row["cat_id"]));
+            $conta->setPedidoFrete(($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null);
+            $conta->setPedidoVenda(($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null);
+            $conta->setAutor(Usuario::getById($row["usu_id"]));
+
+            $contas[] = $conta;
+        }
+
+        return $contas;
+    }
+
     public function findById(int $id): ?ContaPagar
     {
         if ($id <= 0) return null;
 
         $sql = "
             SELECT con_pag_id, 
-                   con_pag_conta 
+                   con_pag_conta, 
                    con_pag_data, 
                    con_pag_tipo, 
                    con_pag_descricao, 
@@ -551,7 +664,7 @@ class ContaPagar
 
         $sql = "
             SELECT con_pag_id, 
-                   con_pag_conta 
+                   con_pag_conta, 
                    con_pag_data, 
                    con_pag_tipo, 
                    con_pag_descricao, 
@@ -629,7 +742,7 @@ class ContaPagar
 
         $sql = "
             SELECT con_pag_id, 
-                   con_pag_conta 
+                   con_pag_conta, 
                    con_pag_data, 
                    con_pag_tipo, 
                    con_pag_descricao, 
@@ -708,7 +821,7 @@ class ContaPagar
 
         $sql = "
             SELECT con_pag_id, 
-                   con_pag_conta 
+                   con_pag_conta, 
                    con_pag_data, 
                    con_pag_tipo, 
                    con_pag_descricao, 
@@ -787,7 +900,7 @@ class ContaPagar
 
         $sql = "
             SELECT con_pag_id, 
-                   con_pag_conta 
+                   con_pag_conta, 
                    con_pag_data, 
                    con_pag_tipo, 
                    con_pag_descricao, 
@@ -871,7 +984,7 @@ class ContaPagar
 
         $sql = "
             SELECT con_pag_id, 
-                   con_pag_conta 
+                   con_pag_conta, 
                    con_pag_data, 
                    con_pag_tipo, 
                    con_pag_descricao, 
@@ -949,7 +1062,7 @@ class ContaPagar
     {
         $sql = "
             SELECT con_pag_id, 
-                   con_pag_conta 
+                   con_pag_conta, 
                    con_pag_data, 
                    con_pag_tipo, 
                    con_pag_descricao, 
@@ -969,7 +1082,7 @@ class ContaPagar
                    ped_ven_id, 
                    usu_id
             FROM conta_pagar
-            ORDER BY con_pag_id;
+            ORDER BY con_pag_descricao;
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -993,28 +1106,29 @@ class ContaPagar
 
         $contas = [];
         while ($row = $result->fetch_assoc()) {
-            $contas[] = new ContaPagar(
-                $row["con_pag_id"],
-                $row["con_pag_conta"],
-                $row["con_pag_data"],
-                $row["con_pag_tipo"],
-                $row["con_pag_descricao"],
-                $row["con_pag_empresa"],
-                $row["con_pag_parcela"],
-                $row["con_pag_valor"],
-                $row["con_pag_situacao"],
-                $row["con_pag_vencimento"],
-                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
-                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
-                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
-                ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
-                ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
-                ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
-                Categoria::findById($row["cat_id"]),
-                ($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null,
-                ($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null,
-                Usuario::getById($row["usu_id"])
-            );
+            $conta = new ContaPagar();
+            $conta->setId($row["con_pag_id"]);
+            $conta->setConta($row["con_pag_conta"]);
+            $conta->setData($row["con_pag_data"]);
+            $conta->setTipo($row["con_pag_tipo"]);
+            $conta->setDescricao($row["con_pag_descricao"]);
+            $conta->setEmpresa($row["con_pag_empresa"]);
+            $conta->setParcela($row["con_pag_parcela"]);
+            $conta->setValor($row["con_pag_valor"]);
+            $conta->setSituacao($row["con_pag_situacao"]);
+            $conta->setVencimento($row["con_pag_vencimento"]);
+            $conta->setDataPagamento((!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"]);
+            $conta->setValorPago((!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"]);
+            $conta->setPendencia(($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null);
+            $conta->setFormaPagamento(($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null);
+            $conta->setMotorista(($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null);
+            $conta->setVendedor(($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null);
+            $conta->setCategoria(Categoria::findById($row["cat_id"]));
+            $conta->setPedidoFrete(($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null);
+            $conta->setPedidoVenda(($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null);
+            $conta->setAutor(Usuario::getById($row["usu_id"]));
+
+            $contas[] = $conta;
         }
 
         return $contas;
@@ -1024,11 +1138,11 @@ class ContaPagar
     {
         if(
             $this->id !== 0 ||
-            $this->conta !== 0 ||
+            $this->conta <= 0 ||
             strlen($this->data) === 0 ||
             strlen($this->descricao) === 0 ||
             strlen($this->empresa) === 0 ||
-            $this->parcela !== 0 ||
+            $this->parcela <= 0 ||
             $this->valor <= 0 ||
             strlen($this->vencimento) === 0 ||
             $this->situacao === 0 ||
@@ -1042,6 +1156,7 @@ class ContaPagar
             INTO conta_pagar(
                 con_pag_conta, 
                 con_pag_data, 
+                con_pag_tipo,
                 con_pag_descricao, 
                 con_pag_empresa, 
                 con_pag_parcela, 
@@ -1052,10 +1167,10 @@ class ContaPagar
                 fun_id, 
                 cat_id, 
                 ped_fre_id, 
-                ped-ven_id, 
+                ped_ven_id, 
                 usu_id
             )
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -1073,9 +1188,10 @@ class ContaPagar
         $autor = $this->autor->getId();
 
         $stmt->bind_param(
-            "isssidsiiiiiii",
+            "isissidsiiiiiii",
             $this->conta,
             $this->data,
+            $this->tipo,
             $this->descricao,
             $this->empresa,
             $this->parcela,
@@ -1098,7 +1214,7 @@ class ContaPagar
         return $stmt->insert_id;
     }
 
-    public function quitar(int $forma, float $valor, string $data, int $situacao): int
+    public function quitar(int $forma, float $valor, string $data, int $situacao, int $pendencia): int
     {
         if (
             $this->id <= 0 ||
@@ -1114,6 +1230,7 @@ class ContaPagar
             SET con_pag_valor_pago = ?,
             con_pag_data_pagamento = ?,
             con_pag_situacao = ?,
+            con_pag_pendencia = ?, 
             for_pag_id = ?
             WHERE con_pag_id = ?;
         ";
@@ -1125,12 +1242,49 @@ class ContaPagar
             return -10;
         }
 
+        $pen = ($pendencia > 0) ? $pendencia : null;
         $stmt->bind_param(
-            "dsiii",
+            "dsiiii",
             $valor,
             $data,
             $situacao,
+            $pen,
             $forma,
+            $this->id
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
+    }
+
+    public function estornar(): int
+    {
+        if ($this->id <= 0)
+            return -5;
+
+        $sql = "
+            UPDATE conta_pagar
+            SET con_pag_valor_pago = null,
+            con_pag_data_pagamento = null,
+            con_pag_situacao = 1,
+            con_pag_pendencia = null, 
+            for_pag_id = null
+            WHERE con_pag_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $stmt->bind_param(
+            "i",
             $this->id
         );
 

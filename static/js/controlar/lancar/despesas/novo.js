@@ -1,15 +1,24 @@
 const txEmpresa = document.getElementById("txEmpresa");
 const slCategoria = document.getElementById("slCategoria");
 const slPedido = document.getElementById("slPedido");
+const txConta = document.getElementById("txConta");
 const txDescricao = document.getElementById("txDescricao");
+const slTipo = document.getElementById("slTipo");
+const slFrequencia = document.getElementById("slFrequencia");
 const dtDespesa = document.getElementById("dtDespesa");
+const txParcelas = document.getElementById("txParcelas");
 const txValor = document.getElementById("txValor");
 const dtVencimento = document.getElementById("dtVencimento");
+
+let conta = 0;
 
 let erroEmpresa = true;
 let erroCategoria = true;
 let erroDescricao = true;
+let erroTipo = true;
+let erroFrequencia = true;
 let erroData = true;
+let erroParcelas = true;
 let erroValor = true;
 let erroVencimento = true;
 
@@ -46,6 +55,28 @@ function validarDescricao(event) {
     }
 }
 
+function validarTipo(event) {
+    let tipo = Number.parseInt(slTipo.value);
+    if (tipo === null || isNaN(tipo) || tipo === 0) {
+        erroTipo = true;
+        $("#mstipo").html('<span class="label label-danger">O tipo de conta deve ser selecionado.</span>');
+    } else {
+        erroTipo = false;
+        $("#mstipo").html('');
+    }
+}
+
+function validarFrequencia(event) {
+    let frequencia = Number.parseInt(slFrequencia.value);
+    if (frequencia === null || isNaN(frequencia) || frequencia === 0) {
+        erroFrequencia = true;
+        $("#msfrequencia").html('<span class="label label-danger">A frequência das parces deve ser selecionada.</span>');
+    } else {
+        erroFrequencia = false;
+        $("#msfrequencia").html('');
+    }
+}
+
 function validarData(event) {
     let data = dtDespesa.value.toString();
     if (data === null || data.length === 0) {
@@ -60,6 +91,17 @@ function validarData(event) {
             erroData = false;
             $("#msdata").html('');
         }
+    }
+}
+
+function validarParcelas(event) {
+    let parcelas = Number.parseInt(txParcelas.value);
+    if (parcelas === null || isNaN(parcelas) || parcelas <= 0) {
+        erroParcelas = true;
+        $("#msparcelas").html('<span class="label label-danger">O número de parcelas deve ser informado.</span>')
+    } else {
+        erroParcelas = false;
+        $("#msparcelas").html('');
     }
 }
 
@@ -91,6 +133,58 @@ function validarVencimento(event) {
     }
 }
 
+function obterConta() {
+    conta = get("/representacoes/controlar/lancar/despesas/novo/obter-conta.php");
+    if (conta > 0) {
+        let tmp = conta.toString();
+        switch (tmp.length) {
+            case 1:
+                tmp = "000" + tmp;
+                break;
+            case 2:
+                tmp = "00" + tmp;
+                break;
+            case 3:
+                tmp = "0" + tmp;
+                break;
+        }
+
+        txConta.value = tmp;
+    }
+}
+
+function mudarTipo(event) {
+    let tipo = Number.parseInt(slTipo.value);
+    if (tipo !== null && !isNaN(tipo) && tipo >= 0) {
+        switch (tipo) {
+            case 1:
+                slFrequencia.value = 1;
+                slFrequencia.disabled = true;
+                txParcelas.value = 1;
+                txParcelas.disabled = true;
+                break;
+            case 2:
+                slFrequencia.disabled = false;
+                slFrequencia.value = 0;
+                txParcelas.disabled = false;
+                txParcelas.value = 1;
+                break;
+            case 3:
+                slFrequencia.disabled = false;
+                slFrequencia.value = 0;
+                txParcelas.disabled = true;
+                txParcelas.value = 60;
+                break;
+            case 0:
+                slFrequencia.disabled = false;
+                slFrequencia.value = 0;
+                txParcelas.disabled = false;
+                txParcelas.value = 1;
+                break;
+        }
+    }
+}
+
 function cancelarLancamento() {
     limparCampos();
     location.href = "../../despesas";
@@ -100,8 +194,13 @@ function limparCampos() {
     txEmpresa.value = "";
     slCategoria.value = 0;
     slPedido.value = 0;
+    txConta.value = "0000";
     txDescricao.value = "";
+    slTipo.value = 0;
+
+    slFrequencia.value = 0;
     dtDespesa.value = "";
+    txParcelas.value = 1;
     txValor.value = "0,00";
     dtVencimento.value = "";
 }
@@ -110,12 +209,23 @@ function validarCampos() {
     validarEmpresa();
     validarCategoria();
     validarDescricao();
+    validarTipo();
+    validarFrequencia();
     validarData();
+    validarParcelas();
     validarValor();
     validarVencimento();
 
     return (
-        !erroEmpresa && !erroCategoria && !erroDescricao && !erroData && !erroValor && !erroVencimento
+        !erroEmpresa &&
+        !erroCategoria &&
+        !erroDescricao &&
+        !erroTipo &&
+        !erroFrequencia &&
+        !erroData &&
+        !erroParcelas &&
+        !erroValor &&
+        !erroVencimento
     );
 }
 
@@ -124,7 +234,10 @@ function lancarDespesa() {
     let categoria = "";
     let pedido = 0;
     let descricao = "";
+    let tipo = 0;
+    let frequencia = 0;
     let data = "";
+    let parcelas = 0;
     let valor = 0.0;
     let vencimento = "";
 
@@ -133,7 +246,10 @@ function lancarDespesa() {
         categoria = slCategoria.value;
         pedido = slPedido.value;
         descricao = txDescricao.value;
+        tipo = slTipo.value;
+        frequencia = slFrequencia.value;
         data = dtDespesa.value;
+        parcelas = txParcelas.value;
         valor = Number.parseFloat(txValor.value.replace(",", "."));
         vencimento = dtVencimento.value;
 
@@ -142,8 +258,12 @@ function lancarDespesa() {
         uri += "empresa=" + empresa;
         uri += "&categoria=" + categoria;
         uri += "&pedido=" + pedido;
+        uri += "&conta=" + conta;
         uri += "&descricao=" + descricao;
+        uri += "&tipo=" + tipo;
+        uri += "&frequencia=" + frequencia;
         uri += "&data=" + data;
+        uri += "&parcelas=" + parcelas;
         uri += "&valor=" + valor;
         uri += "&vencimento=" + vencimento;
 
@@ -153,7 +273,7 @@ function lancarDespesa() {
         request.send(encodeURI(uri));
 
         if (request.DONE === 4 && request.status === 200) {
-            let res = request.responseText;
+            let res = JSON.parse(request.responseText);
             if (res !== null && res.length === 0) {
                 mostraDialogo(
                     "<strong>Lançamento gravado com sucesso!</strong>" +
@@ -162,6 +282,7 @@ function lancarDespesa() {
                     2000
                 );
                 limparCampos();
+                obterConta();
             } else {
                 mostraDialogo(
                     "<strong>Problemas ao salvar a nova despesa...</strong>" +
@@ -229,4 +350,6 @@ $(document).ready(() => {
             slPedido.appendChild(option);
         }
     }
+
+    obterConta();
 });
