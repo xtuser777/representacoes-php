@@ -191,8 +191,6 @@ $(document).ready(() => {
         }
     }
 
-    $(txValor).mask("000000000,00", { reverse: true });
-
     let detalhes = get("/representacoes/controlar/contas/pagar/detalhes/obter.php");
     if (detalhes !== null && typeof detalhes !== "string") {
         despesa = detalhes.id;
@@ -282,5 +280,6 @@ $(document).ready(() => {
         }
     }
 
+    $(txValor).mask("000000000,00", { reverse: true });
     $(txValorPago).mask("000000000,00", { reverse: true });
 });
