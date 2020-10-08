@@ -114,103 +114,108 @@ class LancarDespesasControl
 
     public function ordenar(string $col)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
         $contas = (new ContaPagar())->findAll();
+
         Banco::getInstance()->getConnection()->close();
 
         if (count($contas) > 0) {
             switch ($col) {
                 case "1":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getDescricao(), $b->getDescricao()) === 0) return 0;
-                        return ((strcasecmp($a->getDescricao(), $b->getDescricao()) < 0) ? -1 : 1);
-                    });
                     break;
                 case "2":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getDescricao(), $b->getDescricao()) === 0) return 0;
-                        return ((strcasecmp($a->getDescricao(), $b->getDescricao()) > 0) ? -1 : 1);
-                    });
-                    break;
-                case "3":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if ($a->getConta() === $b->getConta()) return 0;
                         return (($a->getConta() < $b->getConta()) ? -1 : 1);
                     });
                     break;
-                case "4":
+                case "3":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if ($a->getConta() === $b->getConta()) return 0;
                         return (($a->getConta() > $b->getConta()) ? -1 : 1);
                     });
                     break;
+                case "4":
+                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
+                        if (strcasecmp($a->getDescricao(), $b->getDescricao()) === 0) return 0;
+                        return ((strcasecmp($a->getDescricao(), $b->getDescricao()) < 0) ? -1 : 1);
+                    });
+                    break;
                 case "5":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if ($a->getParcela() === $b->getParcela()) return 0;
-                        return (($a->getParcela() < $b->getParcela()) ? -1 : 1);
+                        if (strcasecmp($a->getDescricao(), $b->getDescricao()) === 0) return 0;
+                        return ((strcasecmp($a->getDescricao(), $b->getDescricao()) > 0) ? -1 : 1);
                     });
                     break;
                 case "6":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if ($a->getParcela() === $b->getParcela()) return 0;
-                        return (($a->getParcela() > $b->getParcela()) ? -1 : 1);
+                        return (($a->getParcela() < $b->getParcela()) ? -1 : 1);
                     });
                     break;
                 case "7":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) === 0) return 0;
-                        return ((strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) < 0) ? -1 : 1);
+                        if ($a->getParcela() === $b->getParcela()) return 0;
+                        return (($a->getParcela() > $b->getParcela()) ? -1 : 1);
                     });
                     break;
                 case "8":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) === 0) return 0;
-                        return ((strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) > 0) ? -1 : 1);
+                        return ((strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) < 0) ? -1 : 1);
                     });
                     break;
                 case "9":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getData(), $b->getData()) === 0) return 0;
-                        return ((strcasecmp($a->getData(), $b->getData()) < 0) ? -1 : 1);
+                        if (strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) === 0) return 0;
+                        return ((strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) > 0) ? -1 : 1);
                     });
                     break;
                 case "10":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getData(), $b->getData()) === 0) return 0;
-                        return ((strcasecmp($a->getData(), $b->getData()) > 0) ? -1 : 1);
+                        return ((strcasecmp($a->getData(), $b->getData()) < 0) ? -1 : 1);
                     });
                     break;
                 case "11":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getVencimento(), $b->getVencimento()) === 0) return 0;
-                        return ((strcasecmp($a->getVencimento(), $b->getVencimento()) < 0) ? -1 : 1);
+                        if (strcasecmp($a->getData(), $b->getData()) === 0) return 0;
+                        return ((strcasecmp($a->getData(), $b->getData()) > 0) ? -1 : 1);
                     });
                     break;
                 case "12":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getVencimento(), $b->getVencimento()) === 0) return 0;
-                        return ((strcasecmp($a->getVencimento(), $b->getVencimento()) > 0) ? -1 : 1);
+                        return ((strcasecmp($a->getVencimento(), $b->getVencimento()) < 0) ? -1 : 1);
                     });
                     break;
                 case "13":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) === 0) return 0;
-                        return ((strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) < 0) ? -1 : 1);
+                        if (strcasecmp($a->getVencimento(), $b->getVencimento()) === 0) return 0;
+                        return ((strcasecmp($a->getVencimento(), $b->getVencimento()) > 0) ? -1 : 1);
                     });
                     break;
                 case "14":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) === 0) return 0;
-                        return ((strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) > 0) ? -1 : 1);
+                        return ((strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) < 0) ? -1 : 1);
                     });
                     break;
                 case "15":
+                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
+                        if (strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) === 0) return 0;
+                        return ((strcasecmp($a->getAutor()->getFuncionario()->getPessoa()->getNome(), $b->getAutor()->getFuncionario()->getPessoa()->getNome()) > 0) ? -1 : 1);
+                    });
+                    break;
+                case "16":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if ($a->getValor() === $b->getValor()) return 0;
                         return (($a->getValor() < $b->getValor()) ? -1 : 1);
                     });
                     break;
-                case "16":
+                case "17":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if ($a->getValor() === $b->getValor()) return 0;
                         return (($a->getValor() > $b->getValor()) ? -1 : 1);

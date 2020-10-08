@@ -28,8 +28,8 @@ function preencherTabela(dados) {
         txt +=
             '<tr>\
                 <td class="hidden">' + this.id + '</td>\
-                <td>' + this.descricao + '</td>\
                 <td>' + this.conta + '</td>\
+                <td>' + this.descricao + '</td>\
                 <td>' + this.parcela + '</td>\
                 <td>' + this.categoria.descricao + '</td>\
                 <td>' + FormatarData(this.data) + '</td>\

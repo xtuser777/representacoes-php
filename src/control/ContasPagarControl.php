@@ -4,7 +4,6 @@
 namespace scr\control;
 
 
-use scr\model\Categoria;
 use scr\model\ContaPagar;
 use scr\model\FormaPagamento;
 use scr\util\Banco;
@@ -13,9 +12,13 @@ class ContasPagarControl
 {
     public function obter()
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!Banco::getInstance()->open()) 
+            return json_encode([]);
+        
         $contas = (new ContaPagar())->findAll();
+        
         Banco::getInstance()->getConnection()->close();
+        
         $serial = [];
         /** @var $conta ContaPagar */
         foreach ($contas as $conta) {
@@ -25,11 +28,15 @@ class ContasPagarControl
         return json_encode($serial);
     }
 
-    public function obterPorFiltro(string $filtro)
+    public function obterPorFiltro(string $filtro, int $ordem)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $contas = (new ContaPagar())->findByDescription($filtro);
+        if (!Banco::getInstance()->open()) 
+            return json_encode([]);
+        
+        $contas = (new ContaPagar())->findByDescription($filtro, $this->traduzirOrdem($ordem));
+        
         Banco::getInstance()->getConnection()->close();
+        
         $serial = [];
         /** @var $conta ContaPagar */
         foreach ($contas as $conta) {
@@ -39,11 +46,15 @@ class ContasPagarControl
         return json_encode($serial);
     }
 
-    public function obterPorData(string $data)
+    public function obterPorFiltroSituacao(string $filtro, int $situation, int $ordem)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $contas = (new ContaPagar())->findByDate($data);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByDescriptionSituation($filtro, $situation, $this->traduzirOrdem($ordem));
+
         Banco::getInstance()->getConnection()->close();
+
         $serial = [];
         /** @var $conta ContaPagar */
         foreach ($contas as $conta) {
@@ -53,11 +64,15 @@ class ContasPagarControl
         return json_encode($serial);
     }
 
-    public function obterPorPeriodo(string $data1, string $data2)
+    public function obterPorSituacao(int $situation, int $ordem)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $contas = (new ContaPagar())->findByPeriod($data1, $data2);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findBySituation($situation, $this->traduzirOrdem($ordem));
+
         Banco::getInstance()->getConnection()->close();
+
         $serial = [];
         /** @var $conta ContaPagar */
         foreach ($contas as $conta) {
@@ -67,11 +82,15 @@ class ContasPagarControl
         return json_encode($serial);
     }
 
-    public function obterPorFiltroData(string $filtro, string $data)
+    public function obterPorData(string $data, int $ordem)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $contas = (new ContaPagar())->findByDescriptionDate($filtro, $data);
+        if (!Banco::getInstance()->open()) 
+            return json_encode([]);
+        
+        $contas = (new ContaPagar())->findByDate($data, $this->traduzirOrdem($ordem));
+        
         Banco::getInstance()->getConnection()->close();
+        
         $serial = [];
         /** @var $conta ContaPagar */
         foreach ($contas as $conta) {
@@ -81,11 +100,123 @@ class ContasPagarControl
         return json_encode($serial);
     }
 
-    public function obterPorFiltroPeriodo(string $filtro, string $data1, string $data2)
+    public function obterPorDataSituacao(string $data, int $situacao, int $ordem)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $contas = (new ContaPagar())->findByDescriptionPeriod($filtro, $data1, $data2);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByDateSituation($data, $situacao, $this->traduzirOrdem($ordem));
+
         Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaPagar */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorPeriodo(string $data1, string $data2, int $ordem)
+    {
+        if (!Banco::getInstance()->open()) 
+            return json_encode([]);
+        
+        $contas = (new ContaPagar())->findByPeriod($data1, $data2, $this->traduzirOrdem($ordem));
+        
+        Banco::getInstance()->getConnection()->close();
+        
+        $serial = [];
+        /** @var $conta ContaPagar */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorPeriodoSituacao(string $data1, string $data2, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByPeriodSituation($data1, $data2, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaPagar */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroData(string $filtro, string $data, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByDescriptionDate($filtro, $data, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaPagar */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroDataSituacao(string $filtro, string $data, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByDescriptionDateSituation($filtro, $data, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaPagar */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroPeriodo(string $filtro, string $data1, string $data2, int $ordem)
+    {
+        if (!Banco::getInstance()->open()) 
+            return json_encode([]);
+        
+        $contas = (new ContaPagar())->findByDescriptionPeriod($filtro, $data1, $data2, $this->traduzirOrdem($ordem));
+        
+        Banco::getInstance()->getConnection()->close();
+        
+        $serial = [];
+        /** @var $conta ContaPagar */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroPeriodoSituacao(string $filtro, string $data1, string $data2, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByDescriptionPeriodSituation($filtro, $data1, $data2, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
         $serial = [];
         /** @var $conta ContaPagar */
         foreach ($contas as $conta) {
@@ -113,110 +244,39 @@ class ContasPagarControl
         return json_encode($serial);
     }
 
-    public function ordenar(string $col)
+    public function traduzirOrdem(int $ordem)
     {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
+        $ordemTraduzida = "";
 
-        $contas = (new ContaPagar())->findAll();
+        switch ($ordem) {
+            case "1": $ordemTraduzida = "con_pag_conta,con_pag_parcela"; break;
 
-        Banco::getInstance()->getConnection()->close();
+            case "2": $ordemTraduzida = "con_pag_conta"; break;
 
-        if (count($contas) > 0) {
-            switch ($col) {
-                case "1":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getDescricao(), $b->getDescricao()) === 0) return 0;
-                        return ((strcasecmp($a->getDescricao(), $b->getDescricao()) < 0) ? -1 : 1);
-                    });
-                    break;
+            case "3": $ordemTraduzida = "con_pag_conta DESC"; break;
 
-                case "2":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getDescricao(), $b->getDescricao()) === 0) return 0;
-                        return ((strcasecmp($a->getDescricao(), $b->getDescricao()) > 0) ? -1 : 1);
-                    });
-                    break;
+            case "4": $ordemTraduzida = "con_pag_descricao"; break;
 
-                case "3":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getEmpresa(), $b->getEmpresa()) === 0) return 0;
-                        return ((strcasecmp($a->getEmpresa(), $b->getEmpresa()) < 0) ? -1 : 1);
-                    });
-                    break;
+            case "5": $ordemTraduzida = "con_pag_descricao DESC"; break;
 
-                case "4":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getEmpresa(), $b->getEmpresa()) === 0) return 0;
-                        return ((strcasecmp($a->getEmpresa(), $b->getEmpresa()) > 0) ? -1 : 1);
-                    });
-                    break;
+            case "6": $ordemTraduzida = "con_pag_parcela"; break;
 
-                case "5":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) === 0) return 0;
-                        return ((strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) < 0) ? -1 : 1);
-                    });
-                    break;
+            case "7": $ordemTraduzida = "con_pag_parcela DESC"; break;
 
-                case "6":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) === 0) return 0;
-                        return ((strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) > 0) ? -1 : 1);
-                    });
-                    break;
+            case "8": $ordemTraduzida = "con_pag_valor"; break;
 
-                case "7":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getData(), $b->getData()) === 0) return 0;
-                        return ((strcasecmp($a->getData(), $b->getData()) < 0) ? -1 : 1);
-                    });
-                    break;
+            case "9": $ordemTraduzida = "con_pag_valor DESC"; break;
 
-                case "8":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getData(), $b->getData()) === 0) return 0;
-                        return ((strcasecmp($a->getData(), $b->getData()) > 0) ? -1 : 1);
-                    });
-                    break;
+            case "10": $ordemTraduzida = "con_pag_vencimento"; break;
 
-                case "9":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getVencimento(), $b->getVencimento()) === 0) return 0;
-                        return ((strcasecmp($a->getVencimento(), $b->getVencimento()) < 0) ? -1 : 1);
-                    });
-                    break;
+            case "11": $ordemTraduzida = "con_pag_vencimento DESC"; break;
 
-                case "10":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getVencimento(), $b->getVencimento()) === 0) return 0;
-                        return ((strcasecmp($a->getVencimento(), $b->getVencimento()) > 0) ? -1 : 1);
-                    });
-                    break;
+            case "12": $ordemTraduzida = "con_pag_situacao"; break;
 
-                case "11":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if ($a->getValor() === $b->getValor()) return 0;
-                        return (($a->getValor() < $b->getValor()) ? -1 : 1);
-                    });
-                    break;
-
-                case "12":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if ($a->getValor() === $b->getValor()) return 0;
-                        return (($a->getValor() > $b->getValor()) ? -1 : 1);
-                    });
-                    break;
-            }
+            case "13": $ordemTraduzida = "con_pag_situacao DESC"; break;
         }
 
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
+        return $ordemTraduzida;
     }
 
     public function enviar(int $id)

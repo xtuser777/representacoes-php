@@ -1,6 +1,6 @@
 <?php
 
-require '../../../../header.php';
+require '../../../header.php';
 
 if (!isset($_COOKIE['USER_ID'])) {
     header('Location: /representacoes/login');
@@ -10,15 +10,17 @@ if (!isset($_COOKIE['USER_ID'])) {
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <link rel="icon" type="image/png" href="/representacoes/static/images/logo.png">
 
-        <title>Lançar Nova Despesa - Sistema de Controle de Representações</title>
+        <title>Novo Pedido de Venda - Sistema de Controle de Representações</title>
 
         <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="/representacoes/static/lib/fancybox/jquery.fancybox.min.css"/>
         <link rel="stylesheet" type="text/css" href="/representacoes/static/css/style.css" />
     </head>
 
@@ -190,39 +192,60 @@ if (!isset($_COOKIE['USER_ID'])) {
             <!-- Card titulo pagina -->
             <div class="card-title">
                 <div class="card-title-container" style="text-align: center;">
-                    <h4>
-                        <b>SCR - Lançar Nova Despesa</b>
-                    </h4>
+                    <h4><b>SCR - Abrir Pedido de Venda</b></h4>
                 </div>
             </div>
             <!-- Fim card titulo pagina -->
 
             <div class="fieldset-card">
-                <div class="fieldset-card-legend">Fonte da Despesa</div>
+                <div class="fieldset-card-legend">Dados do Pedido</div>
 
                 <div class="fieldset-card-container">
                     <div class="row">
-                        <div class="col-sm-12">
-                            <label for="txEmpresa">Empresa <span style="color: red;">*</span>:</label>
-                            <input type="text" id="txEmpresa" class="form-control input-sm" style="width: 100%;" onblur="validarEmpresa();" />
-                            <div id="msempresa"></div>
+                        <div class="col-sm-5">
+                            <label for="select_orcamento">Orçamento:</label>
+                            <select id="select_orcamento" class="form-control input-sm">
+                                <option value="0">SELECIONAR</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-7">
+                            <label for="text_desc">Descrição <span style="color: red;">*</span>:</label>
+                            <input type="text" id="text_desc" class="form-control input-sm" style="width: 100%;" onblur="textDescBlur();" />
+                            <div id="msdesc"></div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-sm-4">
-                            <label for="slCategoria">Categoria <span style="color: red;">*</span>:</label>
-                            <select id="slCategoria" class="form-control input-sm" style="width: 100%;" onblur="validarCategoria();">
-                                <option value="0">SELECIONE</option>
+                        <div class="col-sm-3">
+                            <label for="select_cliente">Cliente <span style="color: red;">*</span>:</label>
+                            <select id="select_cliente" class="form-control input-sm" onblur="selectClienteBlur();">
+                                <option value="0">SELECIONAR</option>
                             </select>
-                            <div id="mscategoria"></div>
+                            <div id="mscliente"></div>
                         </div>
 
-                        <div class="col-sm-8">
-                            <label for="slPedido">Pedido de Frete:</label>
-                            <select id="slPedido" class="form-control input-sm" style="width: 100%;">
+                        <div class="col-sm-3">
+                            <label for="select_vendedor">Vendedor:</label>
+                            <select id="select_vendedor" class="form-control input-sm">
+                                <option value="0">SELECIONAR</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="select_est_dest">Estado de Destino <span style="color: red;">*</span>:</label>
+                            <select id="select_est_dest" class="form-control input-sm" onblur="selectEstadoBlur();" onchange="selectEstadoChange();">
                                 <option value="0">SELECIONE</option>
                             </select>
+                            <div id="msest"></div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="select_cid_dest">Cidade de Destino <span style="color: red;">*</span>:</label>
+                            <select id="select_cid_dest" class="form-control input-sm" onblur="selectCidadeBlur();">
+                                <option value="0">SELECIONE</option>
+                            </select>
+                            <div id="mscid"></div>
                         </div>
                     </div>
 
@@ -231,92 +254,80 @@ if (!isset($_COOKIE['USER_ID'])) {
             </div>
 
             <div class="fieldset-card">
-                <div class="fieldset-card-legend">Dados da Despesa</div>
+                <div class="fieldset-card-legend">Produtos do pedido</div>
+
+                <div class="fieldset-card-container">
+
+                    <div class="table-container" style="height: 150px;">
+                        <table id="table_itens" class="table table-striped table-hover">
+
+                            <thead>
+                                <tr>
+                                    <th>DESCRIÇÃO</th>
+                                    <th>REPRESENTAÇÃO</th>
+                                    <th>VALOR (R$)</th>
+                                    <th>QTDE.</th>
+                                    <th>TOTAL (R$)</th>
+                                    <th>&nbsp;</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="tbody_itens">
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-8"></div>
+
+                        <div class="col-sm-2">
+                            <button id="button_clr_itens" class="btn btn-primary btn-sm" style="width: 100%;" onclick="buttonClrItensClick();">LIMPAR</button>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <button id="button_add_item" class="btn btn-success btn-sm" onclick="abrirAdicionarItem();" style="width: 100%;">ADICIONAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fieldset-card">
+                <div class="fieldset-card-legend">Valores do Pedido</div>
 
                 <div class="fieldset-card-container">
                     <div class="row">
-                        <div class="col-sm-1">
-                            <label for="txConta">Conta:</label>
-                            <input type="text" id="txConta" class="form-control input-sm" style="width: 100%;" readonly />
-                        </div>
-
-                        <div class="col-sm-5">
-                            <label for="txDescricao">Descricao <span style="color: red;">*</span>:</label>
-                            <input type="text" id="txDescricao" class="form-control input-sm" style="width: 100%;" onblur="validarDescricao();" />
-                            <div id="msdescricao"></div>
+                        <div class="col-sm-3">
+                            <label for="text_peso_itens">Peso Total <span style="color: red;">*</span>:</label>
+                            <div class="input-group">
+                                <input type="text" id="text_peso_itens" class="form-control input-sm" style="width: 100%;" value="" readonly />
+                                <div class="input-group-addon">KG</div>
+                            </div>
                         </div>
 
                         <div class="col-sm-3">
-                            <label for="slTipo">Tipo <span style="color: red;">*</span>:</label>
-                            <select id="slTipo" class="form-control input-sm" style="width: 100%;" onblur="validarTipo();" onchange="mudarTipo();">
-                                <option value="0">SELECIONE</option>
-                                <option value="1">A VISTA</option>
-                                <option value="2">A PRAZO</option>
-                                <option value="3">FIXA</option>
-                            </select>
-                            <div id="mstipo"></div>
+                            <label for="text_valor_itens">Valor dos Itens <span style="color: red;">*</span>:</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">R$</div>
+                                <input type="text" id="text_valor_itens" class="form-control input-sm" style="width: 100%;" value="" readonly />
+                            </div>
                         </div>
 
-                        <div id="forma" class="col-sm-3">
-                            <label for="slFormaPagamento">Forma Pagamento <span style="color: red;">*</span>:</label>
-                            <select id="slFormaPagamento" class="form-control input-sm" style="width: 100%;" onblur="validarFormaPagamento();">
-                                <option value="0">SELECIONE</option>
+                        <div class="col-sm-3">
+                            <label for="select_forma">Forma de pagamento <span style="color: red;">*</span>:</label>
+                            <select id="select_forma" class="form-control input-sm" onblur="selectFormaBlur();">
+                                <option value="0">SELECIONAR</option>
                             </select>
                             <div id="msforma"></div>
                         </div>
 
-                        <div id="intervalo" class="col-sm-3">
-                            <label for="txIntervaloParcelas">Dias entre Parcelas <span style="color: red;">*</span>:</label>
-                            <input type="number" id="txIntervaloParcelas" class="form-control input-sm" style="width: 100%;" onblur="validarIntervalo();" />
-                            <div id="msintervalo"></div>
-                        </div>
-
-                        <div id="frequencia" class="col-sm-3">
-                            <label for="slFrequencia">Frequência <span style="color: red;">*</span>:</label>
-                            <select id="slFrequencia" class="form-control input-sm" style="width: 100%;" onblur="validarFrequencia();">
-                                <option value="0">SELECIONE</option>
-                                <option value="1">MENSAL</option>
-                                <option value="2">ANUAL</option>
-                            </select>
-                            <div id="msfrequencia"></div>
-                        </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-sm-3">
-                            <label for="dtDespesa">Data Despesa <span style="color: red;">*</span>:</label>
-                            <input type="date" id="dtDespesa" class="form-control input-sm" style="width: 100%;" onblur="validarData();" />
-                            <div id="msdata"></div>
-                        </div>
-
-                        <div id="pago" class="col-sm-3">
-                            <label for="txValorPago">Valor Pago <span style="color: red;">*</span>:</label>
-                            <div class="input-group ">
+                            <label for="text_valor_pago">Valor Pago <span style="color: red;">*</span>:</label>
+                            <div class="input-group">
                                 <div class="input-group-addon">R$</div>
-                                <input type="text" id="txValorPago" class="form-control input-sm" style="width: 100%;" value="0,00" onblur="validarValorPago();" />
+                                <input type="text" id="text_valor_pago" class="form-control input-sm" style="width: 100%;" value="" onblur="textValorPagoBlur();" />
                             </div>
                             <div id="msvalorpago"></div>
-                        </div>
-
-                        <div id="parcelas" class="col-sm-3">
-                            <label for="txParcelas">Parcelas <span style="color: red;">*</span>:</label>
-                            <input type="number" id="txParcelas" class="form-control input-sm" style="width: 100%;" onblur="validarParcelas();" />
-                            <div id="msparcelas"></div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <label for="txValor">Valor Despesa <span style="color: red;">*</span>:</label>
-                            <div class="input-group ">
-                                <div class="input-group-addon">R$</div>
-                                <input type="text" id="txValor" class="form-control input-sm" style="width: 100%;" value="0,00" onblur="validarValor();" />
-                            </div>
-                            <div id="msvalor"></div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <label for="dtVencimento">Vencimento <span style="color: red;">*</span>:</label>
-                            <input type="date" id="dtVencimento" class="form-control input-sm" style="width: 100%;" onblur="validarVencimento();" />
-                            <div id="msvencimento"></div>
                         </div>
                     </div>
 
@@ -326,26 +337,116 @@ if (!isset($_COOKIE['USER_ID'])) {
 
             <div class="row">
                 <div class="col-sm-2">
-                    <button id="button_cancelar" class="btn btn-danger" style="width: 100%;" onclick="cancelarLancamento();">CANCELAR</button>
+                    <button id="button_cancelar" class="btn btn-danger" style="width: 100%;" onclick="buttonCancelarClick();">CANCELAR</button>
                 </div>
 
                 <div class="col-sm-6"></div>
 
                 <div class="col-sm-2">
-                    <button id="button_limpar" class="btn btn-primary" style="width: 100%;" onclick="limparCampos();">LIMPAR</button>
+                    <button id="button_limpar" class="btn btn-primary" style="width: 100%;" onclick="buttonLimparClick();">LIMPAR</button>
                 </div>
 
                 <div class="col-sm-2">
-                    <button id="button_salvar" class="btn btn-success" style="width: 100%;" onclick="lancarDespesa();">SALVAR</button>
+                    <button id="button_salvar" class="btn btn-success" style="width: 100%;" onclick="buttonSalvarClick();">SALVAR</button>
                 </div>
             </div>
         </div>
         <!-- Fim conteudo da pagina -->
 
+        <!-- Fancybox Add Produto -->
+        <div style="display: none; min-width: 300px; width: 950px" id="fbFrmAddProduto">
+
+            <h3 style="text-align: center; font-weight: bold;">Adicionar Produto</h3>
+            <hr style="color: grey;" />
+
+            <div class="row">
+                <div class="col-sm-9">
+                    <div class="form-group">
+                        <label for="text_filtro_prod">Filtro:</label>
+                        <input type="text" id="text_filtro_prod" class="form-control input-sm" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="button_filtrar_prod">&nbsp;</label>
+                        <button id="button_filtrar_prod" class="btn btn-primary btn-sm" style="width: 100%;" onclick="buttonFiltrarProdClick();">FILTRAR</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container" style="height: 190px;">
+                <table id="table_produtos" class="table table-striped table-hover">
+
+                    <thead>
+                        <tr>
+                            <th>DESCRIÇÃO</th>
+                            <th>UNIDADE</th>
+                            <th>REPRESENTAÇÂO</th>
+                            <th>PREÇO</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tbody_produtos">
+                    </tbody>
+
+                </table>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <label for="text_prod_sel">Produto selecionado <span style="color: red;">*</span>:</label>
+                    <input type="text" id="text_prod_sel" class="form-control input-sm" disabled style="width: 100%;" />
+                    <div id="msprodsel"></div>
+                </div>
+
+                <div class="col-sm-3">
+                    <label for="text_valor_prod">Valor Unitário <span style="color: red;">*</span>:</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">R$</div>
+                        <input type="text" id="text_valor_prod" class="form-control input-sm" style="width: 100%;" />
+                    </div>
+                    <div id="msvalorout"></div>
+                    <div id="msvalorprod"></div>
+                </div>
+
+                <div class="col-sm-2">
+                    <label for="text_qtde_prod">Qtde desejada <span style="color: red;">*</span>:</label>
+                    <input type="number" id="text_qtde_prod" class="form-control input-sm" style="width: 100%;" onchange="calcularTotalItem();" oninput="calcularTotalItem();" value="0"/>
+                    <div id="msqtdeprod"></div>
+                </div>
+
+                <div class="col-sm-3">
+                    <label for="text_total_prod">Valor Total:</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">R$</div>
+                        <input type="text" id="text_total_prod" class="form-control input-sm" style="width: 100%;" value="0,00" readonly />
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 20px;"></div>
+
+            <div class="row">
+                <div class="col-sm-3">
+                    <button id="button_canc_prod" class="btn btn-danger" style="width: 100%;" onclick="cancelarAdicao();">Cancelar</button>
+                </div>
+
+                <div class="col-sm-6"></div>
+
+                <div class="col-sm-3">
+                    <button id="button_conf_prod" class="btn btn-success" style="width: 100%;" onclick="adicionarItem();">Confirmar</button>
+                </div>
+            </div>
+        </div>
+
         <script src="/representacoes/static/lib/jquery/dist/jquery.js"></script>
         <script src="/representacoes/static/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="/representacoes/static/js/site.js"></script>
+        <script src="/representacoes/static/lib/fancybox/jquery.fancybox.min.js"></script>
         <script src="/representacoes/static/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
-        <script src="/representacoes/static/js/controlar/lancar/despesas/novo.js"></script>
+        <script src="/representacoes/static/js/pedido/venda/novo.js"></script>
+        <script src="/representacoes/static/js/pedido/venda/novo_add_item.js"></script>
+
     </body>
+
 </html>

@@ -15,14 +15,30 @@ if (!isset($_COOKIE["USER_ID"])) {
     $conta = $_POST["conta"];
     $descricao = $_POST["descricao"];
     $tipo = $_POST["tipo"];
+    $forma = $_POST["forma"];
+    $intervalo = $_POST["intervalo"];
     $frequencia = $_POST["frequencia"];
     $data = $_POST["data"];
+    $valorPago = $_POST["valorPago"];
     $parcelas = $_POST["parcelas"];
     $valor = $_POST["valor"];
     $vencimento = $_POST["vencimento"];
 
     header("Content-type: application/json");
     echo (new LancarDespesasNovoControl())->lancar(
-        $empresa, $categoria, $pedido, $conta, $descricao, $tipo, $frequencia, $data, $parcelas, $valor, $vencimento
+        $empresa,
+        $categoria,
+        $pedido,
+        $conta,
+        $descricao,
+        $tipo,
+        $forma,
+        $intervalo,
+        $frequencia,
+        $data,
+        $valorPago,
+        $parcelas,
+        $valor,
+        $vencimento
     );
 }

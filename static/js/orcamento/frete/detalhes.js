@@ -322,50 +322,52 @@ async function textDistanciaBlur() {
 
         let tipo = tipos.findIndex((element) => { return (element.id === Number.parseInt(selectTipoCam.value)); });
 
-        await $.ajax({
-            type: "POST",
-            url: "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
-            data: { distancia: dist, eixos: tipos[tipo].eixos },
-            success: function (response) {
-                if (response <= 0) {
+        if (tipo.eixos > 3) {
+            await $.ajax({
+                type: "POST",
+                url: "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
+                data: {distancia: dist, eixos: tipos[tipo].eixos},
+                success: function (response) {
+                    if (response <= 0) {
+                        mostraDialogo(
+                            "Erro ao processar a requisição",
+                            "danger",
+                            3000
+                        );
+                    } else {
+                        let tmp = response.toString();
+                        tmp = tmp.replace('.', '#');
+                        tmp = tmp.substring(0, tmp.indexOf('#') + 3);
+                        tmp = tmp.replace('#', '.');
+                        piso = Number.parseFloat(tmp);
+                    }
+                },
+                error: function (xhr, status, thrown) {
+                    console.error(thrown);
                     mostraDialogo(
-                        "Erro ao processar a requisição",
+                        "Erro ao processar a requisição: <br/>" +
+                        "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
                         "danger",
                         3000
                     );
-                } else {
-                    let tmp = response.toString();
-                    tmp = tmp.replace('.', '#');
-                    tmp = tmp.substring(0, tmp.indexOf('#')+3);
-                    tmp = tmp.replace('#', '.');
-                    piso = Number.parseFloat(tmp);
                 }
-            },
-            error: function (xhr, status, thrown) {
-                console.error(thrown);
-                mostraDialogo(
-                    "Erro ao processar a requisição: <br/>" +
-                    "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
-                    "danger",
-                    3000
-                );
-            }
-        })
+            })
 
-        let valorFormat = piso.toString();
-        valorFormat = valorFormat.replace('.', '#');
-        if (valorFormat.search('#') === -1) {
-            valorFormat += ',00';
-        } else {
-            if (valorFormat.search('#') !== -1 && valorFormat.split('#')[1].length > 2) {
-                valorFormat = valorFormat.substring(0, valorFormat.indexOf('#') + 3);
-                valorFormat = valorFormat.replace('#', ',');
+            let valorFormat = piso.toString();
+            valorFormat = valorFormat.replace('.', '#');
+            if (valorFormat.search('#') === -1) {
+                valorFormat += ',00';
             } else {
-                valorFormat = valorFormat.replace('#', ',');
+                if (valorFormat.search('#') !== -1 && valorFormat.split('#')[1].length > 2) {
+                    valorFormat = valorFormat.substring(0, valorFormat.indexOf('#') + 3);
+                    valorFormat = valorFormat.replace('#', ',');
+                } else {
+                    valorFormat = valorFormat.replace('#', ',');
+                }
             }
-        }
 
-        textValorFrete.value = valorFormat;
+            textValorFrete.value = valorFormat;
+        }
     }
 }
 
@@ -386,34 +388,38 @@ async function textDistanciaValid() {
         erroDistancia = false;
         $("#msdist").html('');
 
-        await $.ajax({
-            type: "POST",
-            url: "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
-            data: { distancia: dist, eixos: tipos[tipos.findIndex((element) => { return (element.id === Number.parseInt(selectTipoCam.value)); })].eixos },
-            success: function (response) {
-                if (response <= 0) {
+        let tipo = tipos.findIndex((element) => { return (element.id === Number.parseInt(selectTipoCam.value)); });
+
+        if (tipo.eixos > 3) {
+            await $.ajax({
+                type: "POST",
+                url: "/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
+                data: {distancia: dist, eixos: tipos[tipo].eixos},
+                success: function (response) {
+                    if (response <= 0) {
+                        mostraDialogo(
+                            "Erro ao processar a requisição",
+                            "danger",
+                            3000
+                        );
+                    } else {
+                        let tmp = response.toString();
+                        tmp = tmp.replace('.', '#');
+                        tmp = tmp.substring(0, tmp.indexOf('#') + 3);
+                        tmp = tmp.replace('#', '.');
+                        piso = Number.parseFloat(tmp);
+                    }
+                },
+                error: function (xhr, status, thrown) {
+                    console.error(thrown);
                     mostraDialogo(
-                        "Erro ao processar a requisição",
+                        "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
                         "danger",
                         3000
                     );
-                } else {
-                    let tmp = response.toString();
-                    tmp = tmp.replace('.', '#');
-                    tmp = tmp.substring(0, tmp.indexOf('#')+3);
-                    tmp = tmp.replace('#', '.');
-                    piso = Number.parseFloat(tmp);
                 }
-            },
-            error: function (xhr, status, thrown) {
-                console.error(thrown);
-                mostraDialogo(
-                    "Erro ao processar a requisição: <br/>/representacoes/orcamento/frete/detalhes/calcular-piso-minimo.php",
-                    "danger",
-                    3000
-                );
-            }
-        });
+            });
+        }
     }
 }
 

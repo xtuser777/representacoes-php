@@ -11,7 +11,8 @@ if (!isset($_COOKIE["USER_ID"])) {
     echo json_encode("Método HTTP inválido.");
 } else {
     $data = $_POST["data"];
+    $ordem = $_POST["ordem"];
 
     header("Content-type: application/json");
-    echo (new ContasPagarControl())->obterPorData($data);
+    echo (new ContasPagarControl())->obterPorData($data, $ordem);
 }

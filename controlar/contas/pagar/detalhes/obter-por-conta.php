@@ -1,8 +1,8 @@
 <?php
 
-use scr\control\ContasPagarControl;
+use scr\control\ContasPagarDetalhesControl;
 
-require "../../../header.php";
+require "../../../../header.php";
 
 if (!isset($_COOKIE["USER_ID"])) {
     header("Location: /representacoes/login");
@@ -10,10 +10,8 @@ if (!isset($_COOKIE["USER_ID"])) {
     header("Content-type: application/json");
     echo json_encode("Método HTTP inválido.");
 } else {
-    $data1 = $_POST["dataInicio"];
-    $data2 = $_POST["dataFim"];
-    $ordem = $_POST["ordem"];
-
+    $conta = $_POST["conta"];
+    
     header("Content-type: application/json");
-    echo (new ContasPagarControl())->obterPorPeriodo($data1, $data2, $ordem);
+    echo (new ContasPagarDetalhesControl())->obterPorConta($conta);
 }

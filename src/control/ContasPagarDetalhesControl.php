@@ -40,6 +40,24 @@ class ContasPagarDetalhesControl
 
         return json_encode($serial);
     }
+    
+    public function obterPorConta(int $conta)
+    {
+        if (Banco::getInstance()->open() === false)
+            return json_encode("Erro ao conectar-se ao banco de dados.");
+
+        $despesas = (new ContaPagar())->findByCount($conta);
+        
+        Banco::getInstance()->getConnection()->close();
+        
+        $serial = [];
+        /** @var $despesa ContaPagar */
+        foreach ($despesas as $despesa) {
+            $serial[] = $despesa->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
 
     public function quitar($despesa, $forma, $valor, $pagamento)
     {

@@ -530,7 +530,8 @@ class ContaPagar
                    ped_ven_id, 
                    usu_id
             FROM conta_pagar
-            WHERE con_pag_conta = ?;
+            WHERE con_pag_conta = ?
+            ORDER BY con_pag_parcela;
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -658,7 +659,7 @@ class ContaPagar
         );
     }
 
-    public function findByDescription(string $description): array
+    public function findByDescription(string $description, string $ordem): array
     {
         if ($description === null || strlen($description) <= 0) return [];
 
@@ -684,7 +685,8 @@ class ContaPagar
                    ped_ven_id, 
                    usu_id
             FROM conta_pagar
-            WHERE con_pag_descricao like ?;
+            WHERE con_pag_descricao like ? 
+            ORDER BY " . $ordem . ";
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -736,7 +738,167 @@ class ContaPagar
         return $contas;
     }
 
-    public function findByDate(string $date): array
+    public function findByDescriptionSituation(string $description, int $situation, string $ordem): array
+    {
+        if ($description === null || strlen($description) <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT con_pag_id, 
+                   con_pag_conta, 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? 
+            AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $desc = "%".$description."%";
+        $stmt->bind_param("si", $desc, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        $contas = [];
+        while ($row = $result->fetch_assoc()) {
+            $contas[] = new ContaPagar(
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
+                $row["con_pag_vencimento"],
+                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
+                ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
+                ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
+                ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
+                Categoria::findById($row["cat_id"]),
+                ($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null,
+                ($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null,
+                Usuario::getById($row["usu_id"])
+            );
+        }
+
+        return $contas;
+    }
+
+    public function findBySituation(int $situation, string $ordem): array
+    {
+        if ($situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT con_pag_id, 
+                   con_pag_conta, 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
+            FROM conta_pagar 
+            AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $stmt->bind_param("i", $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        $contas = [];
+        while ($row = $result->fetch_assoc()) {
+            $contas[] = new ContaPagar(
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
+                $row["con_pag_vencimento"],
+                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
+                ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
+                ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
+                ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
+                Categoria::findById($row["cat_id"]),
+                ($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null,
+                ($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null,
+                Usuario::getById($row["usu_id"])
+            );
+        }
+
+        return $contas;
+    }
+
+    public function findByDate(string $date, string $ordem): array
     {
         if ($date === null || strlen($date) <= 0) return [];
 
@@ -762,7 +924,8 @@ class ContaPagar
                    ped_ven_id, 
                    usu_id
             FROM conta_pagar
-            WHERE con_pag_data = ?;
+            WHERE con_pag_data = ? 
+            ORDER BY " . $ordem . ";
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -814,7 +977,88 @@ class ContaPagar
         return $contas;
     }
 
-    public function findByPeriod(string $date1, string $date2): array
+    public function findByDateSituation(string $date, int $situation, string $ordem): array
+    {
+        if ($date === null || strlen($date) <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT con_pag_id, 
+                   con_pag_conta, 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
+            FROM conta_pagar
+            WHERE con_pag_data = ? 
+            AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("si", $date, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        $contas = [];
+        while ($row = $result->fetch_assoc()) {
+            $contas[] = new ContaPagar(
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
+                $row["con_pag_vencimento"],
+                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
+                ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
+                ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
+                ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
+                Categoria::findById($row["cat_id"]),
+                ($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null,
+                ($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null,
+                Usuario::getById($row["usu_id"])
+            );
+        }
+
+        return $contas;
+    }
+
+    public function findByPeriod(string $date1, string $date2, string $ordem): array
     {
         if ($date1 === null || strlen($date1) <= 0 || $date2 === null || strlen($date2) <= 0)
             return [];
@@ -842,7 +1086,8 @@ class ContaPagar
                    usu_id
             FROM conta_pagar
             WHERE con_pag_data >= ?
-            AND con_pag_data <= ?;
+            AND con_pag_data <= ? 
+            ORDER BY " . $ordem . ";
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -894,9 +1139,92 @@ class ContaPagar
         return $contas;
     }
 
-    public function findByDescriptionDate(string $description, string $date): array
+    public function findByPeriodSituation(string $date1, string $date2, int $situation, string $ordem): array
     {
-        if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0) return [];
+        if ($date1 === null || strlen($date1) <= 0 || $date2 === null || strlen($date2) <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT con_pag_id, 
+                   con_pag_conta, 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
+            FROM conta_pagar
+            WHERE con_pag_data >= ?
+            AND con_pag_data <= ? 
+            AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("ssi", $date1, $date2, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        $contas = [];
+        while ($row = $result->fetch_assoc()) {
+            $contas[] = new ContaPagar(
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
+                $row["con_pag_vencimento"],
+                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
+                ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
+                ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
+                ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
+                Categoria::findById($row["cat_id"]),
+                ($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null,
+                ($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null,
+                Usuario::getById($row["usu_id"])
+            );
+        }
+
+        return $contas;
+    }
+
+    public function findByDescriptionDate(string $description, string $date, string $ordem): array
+    {
+        if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0)
+            return [];
 
         $sql = "
             SELECT con_pag_id, 
@@ -921,7 +1249,8 @@ class ContaPagar
                    usu_id
             FROM conta_pagar
             WHERE con_pag_descricao like ?
-            AND con_pag_data = ?;
+            AND con_pag_data = ?
+            ORDER BY " . $ordem . ";
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -973,7 +1302,89 @@ class ContaPagar
         return $contas;
     }
 
-    public function findByDescriptionPeriod(string $description, string $date1, string $date2): array
+    public function findByDescriptionDateSituation(string $description, string $date, int $situation, string $ordem): array
+    {
+        if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT con_pag_id, 
+                   con_pag_conta, 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
+            FROM conta_pagar
+            WHERE con_pag_descricao like ?
+            AND con_pag_data = ? 
+            AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $desc = "%".$description."%";
+        $stmt->bind_param("ssi", $desc, $date, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        $contas = [];
+        while ($row = $result->fetch_assoc()) {
+            $contas[] = new ContaPagar(
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
+                $row["con_pag_vencimento"],
+                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
+                ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
+                ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
+                ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
+                Categoria::findById($row["cat_id"]),
+                ($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null,
+                ($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null,
+                Usuario::getById($row["usu_id"])
+            );
+        }
+
+        return $contas;
+    }
+
+    public function findByDescriptionPeriod(string $description, string $date1, string $date2, string $ordem): array
     {
         if (
             $description === null || strlen($description) <= 0 ||
@@ -1006,7 +1417,8 @@ class ContaPagar
             FROM conta_pagar
             WHERE con_pag_descricao like ?
             AND con_pag_data >= ?
-            AND con_pag_data <= ?;
+            AND con_pag_data <= ? 
+            ORDER BY " . $ordem . ";
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -1017,6 +1429,93 @@ class ContaPagar
         }
         $desc = "%".$description."%";
         $stmt->bind_param("sss", $desc, $date1, $date2);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        $contas = [];
+        while ($row = $result->fetch_assoc()) {
+            $contas[] = new ContaPagar(
+                $row["con_pag_id"],
+                $row["con_pag_conta"],
+                $row["con_pag_data"],
+                $row["con_pag_tipo"],
+                $row["con_pag_descricao"],
+                $row["con_pag_empresa"],
+                $row["con_pag_parcela"],
+                $row["con_pag_valor"],
+                $row["con_pag_situacao"],
+                $row["con_pag_vencimento"],
+                (!$row["con_pag_data_pagamento"]) ? "" : $row["con_pag_data_pagamento"],
+                (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
+                ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
+                ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
+                ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
+                ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
+                Categoria::findById($row["cat_id"]),
+                ($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null,
+                ($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null,
+                Usuario::getById($row["usu_id"])
+            );
+        }
+
+        return $contas;
+    }
+
+    public function findByDescriptionPeriodSituation(string $description, string $date1, string $date2, int $situation, string $ordem): array
+    {
+        if (
+            $description === null || strlen($description) <= 0 ||
+            $date1 === null || strlen($date1) <= 0 ||
+            $date2 === null || strlen($date2) <= 0 || $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT con_pag_id, 
+                   con_pag_conta, 
+                   con_pag_data, 
+                   con_pag_tipo, 
+                   con_pag_descricao, 
+                   con_pag_empresa,
+                   con_pag_parcela, 
+                   con_pag_valor, 
+                   con_pag_situacao, 
+                   con_pag_vencimento,
+                   con_pag_data_pagamento, 
+                   con_pag_valor_pago,
+                   con_pag_pendencia,
+                   for_pag_id, 
+                   mot_id, 
+                   fun_id, 
+                   cat_id, 
+                   ped_fre_id, 
+                   ped_ven_id, 
+                   usu_id
+            FROM conta_pagar
+            WHERE con_pag_descricao like ?
+            AND con_pag_data >= ?
+            AND con_pag_data <= ? 
+            AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $desc = "%".$description."%";
+        $stmt->bind_param("sssi", $desc, $date1, $date2, $situation);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -1082,7 +1581,7 @@ class ContaPagar
                    ped_ven_id, 
                    usu_id
             FROM conta_pagar
-            ORDER BY con_pag_descricao;
+            ORDER BY con_pag_conta, con_pag_parcela;
         ";
 
         /** @var $stmt mysqli_stmt */

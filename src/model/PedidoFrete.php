@@ -466,7 +466,7 @@ class PedidoFrete
 
         $sql = "
             SELECT ped_fre_id, ped_fre_data, ped_fre_descricao, 
-                   ped_fre_destino, ped_fre_peso, ped_fre_valor, 
+                   ped_fre_distancia, ped_fre_peso, ped_fre_valor, 
                    ped_fre_valor_motorista, ped_fre_entrada_motorista, ped_fre_entrega,
                    orc_fre_id, ped_ven_id, rep_id, cid_id, tip_cam_id, cam_id, mot_id, 
                    for_pag_fre, for_pag_mot, usu_id
@@ -520,7 +520,7 @@ class PedidoFrete
 
         $sql = "
             SELECT ped_fre_id, ped_fre_data, ped_fre_descricao, 
-                   ped_fre_destino, ped_fre_peso, ped_fre_valor, 
+                   ped_fre_distancia, ped_fre_peso, ped_fre_valor, 
                    ped_fre_valor_motorista, ped_fre_entrada_motorista, ped_fre_entrega,
                    orc_fre_id, ped_ven_id, rep_id, cid_id, tip_cam_id, cam_id, mot_id, 
                    for_pag_fre, for_pag_mot, usu_id
@@ -536,6 +536,60 @@ class PedidoFrete
         }
 
         $stmt->bind_param("i", $order);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return null;
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return null;
+        }
+
+        $row = $result->fetch_assoc();
+
+        return new PedidoFrete(
+            $row["ped_fre_id"], $row["ped_fre_data"], $row["ped_fre_descricao"],
+            $row["ped_fre_distancia"], $row["ped_fre_peso"], $row["ped_fre_valor"],
+            $row["ped_fre_valor_motorista"], $row["ped_fre_entrada_motorista"], $row["ped_fre_entrega"],
+            ($row["orc_fre_id"] !== null) ? (new OrcamentoFrete())->findById($row["orc_fre_id"]) : null,
+            ($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null,
+            ($row["rep_id"] !== null) ? Representacao::getById($row["rep_id"]) : null,
+            (new Cidade())->getById($row["cid_id"]),
+            TipoCaminhao::findById($row["tip_cam_id"]),
+            Motorista::findById($row["mot_id"]),
+            Caminhao::findById($row["cam_id"]),
+            FormaPagamento::findById($row["for_pag_fre"]),
+            FormaPagamento::findById($row["for_pag_mot"]),
+            Usuario::getById($row["usu_id"])
+        );
+    }
+
+    public function findByPrice(int $price)
+    {
+        if ($price <= 0)
+            return null;
+
+        $sql = "
+            SELECT ped_fre_id, ped_fre_data, ped_fre_descricao, 
+                   ped_fre_distancia, ped_fre_peso, ped_fre_valor, 
+                   ped_fre_valor_motorista, ped_fre_entrada_motorista, ped_fre_entrega,
+                   orc_fre_id, ped_ven_id, rep_id, cid_id, tip_cam_id, cam_id, mot_id, 
+                   for_pag_fre, for_pag_mot, usu_id
+            FROM pedido_frete
+            WHERE ped_ven_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return null;
+        }
+
+        $stmt->bind_param("i", $price);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return null;

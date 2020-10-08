@@ -92,9 +92,9 @@ if (!isset($_COOKIE['USER_ID'])) {
                                 <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pedido <span class="caret"></span></a>
                                 <!-- Popup botao pedido -->
                                 <ul class="dropdown-menu">
-                                    <li><a href="/pedido/venda/index">Venda</a></li>
-                                    <li><a href="/pedido/frete/index">Frete</a></li>
-                                    <li><a href="/pedido/status/index">Alterar status</a></li>
+                                    <li><a href="/representacoes/pedido/venda">Venda</a></li>
+                                    <li><a href="/representacoes/pedido/frete">Frete</a></li>
+                                    <li><a href="/representacoes/pedido/status">Alterar status</a></li>
                                     <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
                                         <li><a href="/pedido/autorizar/index">Autorizar Carregamento</a></li>
                                     <?php endif; ?>
@@ -208,20 +208,62 @@ if (!isset($_COOKIE['USER_ID'])) {
                             <input type="text" id="txFiltro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por descrição..." />
                         </div>
 
-                        <div class="col-sm-2">
+                        <div class="col-sm-3">
                             <label for="txDataInicio">Data Início:</label>
                             <input type="date" id="txDataInicio" class="form-control input-sm" style="width: 100%;" />
                         </div>
 
-                        <div class="col-sm-2">
+                        <div class="col-sm-3">
                             <label for="txDataFim">Data Fim:</label>
                             <input type="date" id="txDataFim" class="form-control input-sm" style="width: 100%;" />
                         </div>
+                    </div>
 
-                        <div class="col-sm-2">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="slOrdenar">Ordenar por:</label>
+                            <select id="slOrdenar" class="form-control input-sm">
+                                <option value="1">CONTA/PARCELA (CRESCENTE)</option>
+                                <option value="2">CONTA (CRESCENTE)</option>
+                                <option value="3">CONTA (DECRESCENTE)</option>
+                                <option value="4">DESCRIÇÂO (CRESCENTE)</option>
+                                <option value="5">DESCRIÇÂO (DECRESCENTE)</option>
+                                <option value="6">PARCELA (CRESCENTE)</option>
+                                <option value="7">PARCELA (DECRESCENTE)</option>
+                                <option value="8">VALOR (CRESCENTE)</option>
+                                <option value="9">VALOR (DECRESCENTE)</option>
+                                <option value="10">VENCIMENTO (CRESCENTE)</option>
+                                <option value="11">VENCIMENTO (DECRESCENTE)</option>
+                                <option value="12">SITUAÇÃO (CRESCENTE)</option>
+                                <option value="13">SITUAÇÃO (DECRESCENTE)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label for="slSituacao">Situação:</label>
+                            <select id="slSituacao" class="form-control input-sm">
+                                <option value="0">SELECIONE</option>
+                                <option value="1">PENDENTE</option>
+                                <option value="2">PAGO PARCIALMENTE</option>
+                                <option value="3">PAGO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-3"></div>
+
+                        <div class="col-sm-3">
                             <label for="filtrar">&nbsp;</label>
                             <button id="filtrar" class="btn btn-primary btn-sm" style="width: 100%;" onclick="filtrar();">FILTRAR</button>
                         </div>
+
+                        <div class="col-sm-3">
+                            <label for="novo">&nbsp;</label>
+                            <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/representacoes/controlar/lancar/despesas">LANÇAR</a>
+                        </div>
+
+                        <div class="col-sm-3"></div>
                     </div>
                 </div>
             </div>
@@ -230,32 +272,6 @@ if (!isset($_COOKIE['USER_ID'])) {
                 <div class="fieldset-card-legend" style="width: 200px;">Contas Lançadas</div>
 
                 <div class="fieldset-card-container">
-                    <div class="row" style="margin-bottom: 10px;">
-                        <div class="col-sm-10">
-                            <label for="cbord">Ordenar por:</label>
-                            <select id="cbord" class="form-control input-sm" onchange="ordenar();">
-                                <option value="1">CONTA (CRESCENTE)</option>
-                                <option value="2">CONTA (DECRESCENTE)</option>
-                                <option value="3">DESCRIÇÂO (CRESCENTE)</option>
-                                <option value="4">DESCRIÇÂO (DECRESCENTE)</option>
-                                <option value="5">PARCELA (CRESCENTE)</option>
-                                <option value="6">PARCELA (DECRESCENTE)</option>
-                                <option value="7">CATEGORIA (CRESCENTE)</option>
-                                <option value="8">CATEGORIA (DECRESCENTE)</option>
-                                <option value="9">VENCIMENTO (CRESCENTE)</option>
-                                <option value="10">VENCIMENTO (DECRESCENTE)</option>
-                                <option value="11">DATA (CRESCENTE)</option>
-                                <option value="12">DATA (DECRESCENTE)</option>
-                                <option value="13">VALOR (CRESCENTE)</option>
-                                <option value="14">VALOR (DECRESCENTE)</option>
-                            </select>
-                        </div>
-
-                        <div class="col-sm-2">
-                            <label for="novo">&nbsp;</label>
-                            <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/representacoes/controlar/lancar/despesas">LANÇAR</a>
-                        </div>
-                    </div>
 
                     <table id="tbContas" class="table table-responsive" style="width: 100%;">
                         <thead>
@@ -264,11 +280,10 @@ if (!isset($_COOKIE['USER_ID'])) {
                             <th style="width: 6%;">CONTA</th>
                             <th style="width: 20%;">DESCRIÇÃO</th>
                             <th style="width: 6%;">PARCELA</th>
-                            <th style="width: 12%;">FONTE</th>
-                            <th style="width: 14%;">CATEGORIA</th>
-                            <th style="width: 8%;">VENC.</th>
-                            <th style="width: 8%;">DATA</th>
                             <th>VALOR (R$)</th>
+                            <th style="width: 10%;">VENCIMENTO</th>
+                            <th>VALOR PAGO (R$)</th>
+                            <th style="width: 14%;">DATA PAGAMENTO</th>
                             <th>SITUAÇÃO</th>
                             <th style="width: 2%;">&nbsp;</th>
                             <th style="width: 2%;">&nbsp;</th>

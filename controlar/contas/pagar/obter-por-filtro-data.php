@@ -12,7 +12,8 @@ if (!isset($_COOKIE["USER_ID"])) {
 } else {
     $filtro = $_POST["filtro"];
     $data = $_POST["data"];
+    $ordem = $_POST["ordem"];
 
     header("Content-type: application/json");
-    echo (new ContasPagarControl())->obterPorFiltroData($filtro, $data);
+    echo (new ContasPagarControl())->obterPorFiltroData($filtro, $data, $ordem);
 }

@@ -11,7 +11,8 @@ if (!isset($_COOKIE["USER_ID"])) {
     echo json_encode("Método HTTP inválido.");
 } else {
     $filtro = $_POST["filtro"];
+    $ordem = $_POST["ordem"];
 
     header("Content-type: application/json");
-    echo (new ContasPagarControl())->obterPorFiltro($filtro);
+    echo (new ContasPagarControl())->obterPorFiltro($filtro, $ordem);
 }

@@ -13,7 +13,8 @@ if (!isset($_COOKIE["USER_ID"])) {
     $filtro = $_POST["filtro"];
     $data1 = $_POST["dataInicio"];
     $data2 = $_POST["dataFim"];
+    $ordem = $_POST["ordem"];
 
     header("Content-type: application/json");
-    echo (new ContasPagarControl())->obterPorFiltroPeriodo($filtro, $data1, $data2);
+    echo (new ContasPagarControl())->obterPorFiltroPeriodo($filtro, $data1, $data2, $ordem);
 }

@@ -110,46 +110,124 @@ function quitarDespesa() {
     let pagamento = "";
 
     if (validarCampos()) {
-        forma = slFormaPagamento.value;
-        valor = Number.parseFloat(txValorPago.value.replace(",", "."));
-        pagamento = dtPagamento.value;
+        let penant = 0;
+        
+        let request1 = new XMLHttpRequest();
+        request1.open("POST", "/representacoes/controlar/contas/pagar/detalhes/obter-por-conta.php", false);
+        request1.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        request1.send(encodeURI("conta=" + txConta.value));
 
-        let uri = "";
+        if (request1.DONE === 4 && request1.status === 200) {
+            let res = JSON.parse(request1.responseText);
+            if (res !== null && res.length > 0) {
+                for(let i = 0; i < Number.parseInt(txParcela.value) && penant === 0; i++) {
+                    if (res[i].situacao === 1)
+                        penant = res[i].parcela;
+                }
+            }
+        }
+        
+        if (penant > 0) {
+            bootbox.confirm({
+                message: "Esta conta possui a parcela "+penant+" ainda pendente, deseja quitar assim mesmo?",
+                buttons: {
+                    confirm: {
+                        label: 'Sim',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Não',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        forma = slFormaPagamento.value;
+                        valor = Number.parseFloat(txValorPago.value.replace(",", "."));
+                        pagamento = dtPagamento.value;
 
-        uri += "despesa=" + despesa;
-        uri += "&forma=" + forma;
-        uri += "&valor=" + valor;
-        uri += "&pagamento=" + pagamento;
+                        let uri = "";
 
-        let request = new XMLHttpRequest();
-        request.open("POST", "/representacoes/controlar/contas/pagar/detalhes/quitar.php", false);
-        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.send(encodeURI(uri));
+                        uri += "despesa=" + despesa;
+                        uri += "&forma=" + forma;
+                        uri += "&valor=" + valor;
+                        uri += "&pagamento=" + pagamento;
 
-        if (request.DONE === 4 && request.status === 200) {
-            let res = request.responseText;
-            if (res !== null && res.length === 0) {
-                mostraDialogo(
-                    "<strong>Despesa quitada com sucesso!</strong>" +
-                    "<br />A despesa foi quitada com sucesso no banco de dados.",
-                    "success",
-                    2000
-                );
+                        let request = new XMLHttpRequest();
+                        request.open("POST", "/representacoes/controlar/contas/pagar/detalhes/quitar.php", false);
+                        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                        request.send(encodeURI(uri));
+
+                        if (request.DONE === 4 && request.status === 200) {
+                            let res = request.responseText;
+                            if (res !== null && res.length === 0) {
+                                mostraDialogo(
+                                    "<strong>Despesa quitada com sucesso!</strong>" +
+                                    "<br />A despesa foi quitada com sucesso no banco de dados.",
+                                    "success",
+                                    2000
+                                );
+                            } else {
+                                mostraDialogo(
+                                    "<strong>Problemas ao quitar a despesa...</strong>" +
+                                    "<br/>"+res,
+                                    "danger",
+                                    2000
+                                );
+                            }
+                        } else {
+                            mostraDialogo(
+                                "Erro na requisição da URL /representacoes/controlar/contas/pagar/novo/quitar.php. <br />" +
+                                "Status: "+request.status+" "+request.statusText,
+                                "danger",
+                                3000
+                            );
+                        }
+                    }
+                }
+            });
+        } else {
+            forma = slFormaPagamento.value;
+            valor = Number.parseFloat(txValorPago.value.replace(",", "."));
+            pagamento = dtPagamento.value;
+
+            let uri = "";
+
+            uri += "despesa=" + despesa;
+            uri += "&forma=" + forma;
+            uri += "&valor=" + valor;
+            uri += "&pagamento=" + pagamento;
+
+            let request = new XMLHttpRequest();
+            request.open("POST", "/representacoes/controlar/contas/pagar/detalhes/quitar.php", false);
+            request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            request.send(encodeURI(uri));
+
+            if (request.DONE === 4 && request.status === 200) {
+                let res = request.responseText;
+                if (res !== null && res.length === 0) {
+                    mostraDialogo(
+                        "<strong>Despesa quitada com sucesso!</strong>" +
+                        "<br />A despesa foi quitada com sucesso no banco de dados.",
+                        "success",
+                        2000
+                    );
+                } else {
+                    mostraDialogo(
+                        "<strong>Problemas ao quitar a despesa...</strong>" +
+                        "<br/>"+res,
+                        "danger",
+                        2000
+                    );
+                }
             } else {
                 mostraDialogo(
-                    "<strong>Problemas ao quitar a despesa...</strong>" +
-                    "<br/>"+res,
+                    "Erro na requisição da URL /representacoes/controlar/contas/pagar/novo/quitar.php. <br />" +
+                    "Status: "+request.status+" "+request.statusText,
                     "danger",
-                    2000
+                    3000
                 );
             }
-        } else {
-            mostraDialogo(
-                "Erro na requisição da URL /representacoes/controlar/contas/pagar/novo/quitar.php. <br />" +
-                "Status: "+request.status+" "+request.statusText,
-                "danger",
-                3000
-            );
         }
     } else {
         mostraDialogo(

@@ -10,10 +10,9 @@ if (!isset($_COOKIE["USER_ID"])) {
     header("Content-type: application/json");
     echo json_encode("Método HTTP inválido.");
 } else {
-    $data1 = $_POST["dataInicio"];
-    $data2 = $_POST["dataFim"];
+    $situacao = $_POST["situacao"];
     $ordem = $_POST["ordem"];
 
     header("Content-type: application/json");
-    echo (new ContasPagarControl())->obterPorPeriodo($data1, $data2, $ordem);
+    echo (new ContasPagarControl())->obterPorSituacao($situacao, $ordem);
 }

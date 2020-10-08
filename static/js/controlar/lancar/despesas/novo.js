@@ -4,11 +4,20 @@ const slPedido = document.getElementById("slPedido");
 const txConta = document.getElementById("txConta");
 const txDescricao = document.getElementById("txDescricao");
 const slTipo = document.getElementById("slTipo");
+const slFormaPagamento = document.getElementById("slFormaPagamento");
+const txIntervaloParcelas = document.getElementById("txIntervaloParcelas");
 const slFrequencia = document.getElementById("slFrequencia");
 const dtDespesa = document.getElementById("dtDespesa");
+const txValorPago = document.getElementById("txValorPago");
 const txParcelas = document.getElementById("txParcelas");
 const txValor = document.getElementById("txValor");
 const dtVencimento = document.getElementById("dtVencimento");
+
+const forma = document.getElementById("forma");
+const intervalo = document.getElementById("intervalo");
+const frequencia = document.getElementById("frequencia");
+const pago = document.getElementById("pago");
+const parcelas = document.getElementById("parcelas");
 
 let conta = 0;
 
@@ -16,8 +25,11 @@ let erroEmpresa = true;
 let erroCategoria = true;
 let erroDescricao = true;
 let erroTipo = true;
+let erroFormaPagamento = true;
+let erroIntervalo = true;
 let erroFrequencia = true;
 let erroData = true;
+let erroValorPago = true;
 let erroParcelas = true;
 let erroValor = true;
 let erroVencimento = true;
@@ -66,9 +78,37 @@ function validarTipo(event) {
     }
 }
 
+function validarFormaPagamento(event) {
+    let fp = Number.parseInt(slFormaPagamento.value);
+    let tipo = Number.parseInt(slTipo.value);
+
+    if (tipo === 1 && (fp === null || isNaN(fp) || fp === 0)) {
+        erroFormaPagamento = true;
+        $("#msforma").html('<span class="label label-danger">A Forma de pagamento usada deve ser selecionada.</span>');
+    } else {
+        erroFormaPagamento = false;
+        $("#msforma").html('');
+    }
+}
+
+function validarIntervalo(event) {
+    let dias = Number.parseInt(txIntervaloParcelas.value);
+    let tipo = Number.parseInt(slTipo.value);
+
+    if (tipo === 2 && (dias === null || isNaN(dias) || dias <= 0)) {
+        erroIntervalo = true;
+        $("#msintervalo").html('<span class="label label-danger">O intervalo em dias entre as parcelas deve ser informado.</span>');
+    } else {
+        erroIntervalo = false;
+        $("#msintervalo").html('');
+    }
+}
+
 function validarFrequencia(event) {
     let frequencia = Number.parseInt(slFrequencia.value);
-    if (frequencia === null || isNaN(frequencia) || frequencia === 0) {
+    let tipo = Number.parseInt(slTipo.value);
+
+    if (tipo === 3 && (frequencia === null || isNaN(frequencia) || frequencia === 0)) {
         erroFrequencia = true;
         $("#msfrequencia").html('<span class="label label-danger">A frequência das parces deve ser selecionada.</span>');
     } else {
@@ -91,6 +131,19 @@ function validarData(event) {
             erroData = false;
             $("#msdata").html('');
         }
+    }
+}
+
+function validarValorPago(event) {
+    let valor = Number.parseFloat(txValorPago.value.replace(",", "."));
+    let tipo = Number.parseInt(slTipo.value);
+
+    if (tipo === 1 && (valor === null || isNaN(valor) || valor <= 0)) {
+        erroValorPago = true;
+        $("#msvalorpago").html('<span class="label label-danger">O valor pago pela despesa deve ser informado.</span>');
+    } else {
+        erroValorPago = false;
+        $("#msvalorpago").html('');
     }
 }
 
@@ -158,28 +211,88 @@ function mudarTipo(event) {
     if (tipo !== null && !isNaN(tipo) && tipo >= 0) {
         switch (tipo) {
             case 1:
+                slFormaPagamento.value = 0;
+                if (forma.classList.contains("hidden"))
+                    forma.classList.remove("hidden");
+
+                txIntervaloParcelas.value = 1;
+                if (!intervalo.classList.contains("hidden"))
+                    intervalo.classList.add("hidden");
+
                 slFrequencia.value = 1;
-                slFrequencia.disabled = true;
+                if (!frequencia.classList.contains("hidden"))
+                    frequencia.classList.add("hidden");
+
+                txValorPago.value = "0,00";
+                if (pago.classList.contains("hidden"))
+                    pago.classList.remove("hidden");
+
                 txParcelas.value = 1;
-                txParcelas.disabled = true;
+                if (!parcelas.classList.contains("hidden"))
+                    parcelas.classList.add("hidden");
                 break;
             case 2:
-                slFrequencia.disabled = false;
-                slFrequencia.value = 0;
-                txParcelas.disabled = false;
+                slFormaPagamento.value = 0;
+                if (!forma.classList.contains("hidden"))
+                    forma.classList.add("hidden");
+
+                txIntervaloParcelas.value = 1;
+                if (intervalo.classList.contains("hidden"))
+                    intervalo.classList.remove("hidden");
+
+                slFrequencia.value = 1;
+                if (!frequencia.classList.contains("hidden"))
+                    frequencia.classList.add("hidden");
+
+                txValorPago.value = "0,00";
+                if (!pago.classList.contains("hidden"))
+                    pago.classList.add("hidden");
+
                 txParcelas.value = 1;
+                if (parcelas.classList.contains("hidden"))
+                    parcelas.classList.remove("hidden");
                 break;
             case 3:
-                slFrequencia.disabled = false;
+                slFormaPagamento.value = 0;
+                if (!forma.classList.contains("hidden"))
+                    forma.classList.add("hidden");
+
+                txIntervaloParcelas.value = 1;
+                if (!intervalo.classList.contains("hidden"))
+                    intervalo.classList.add("hidden");
+
                 slFrequencia.value = 0;
-                txParcelas.disabled = true;
-                txParcelas.value = 60;
+                if (frequencia.classList.contains("hidden"))
+                    frequencia.classList.remove("hidden");
+
+                txValorPago.value = "0,00";
+                if (!pago.classList.contains("hidden"))
+                    pago.classList.add("hidden");
+
+                txParcelas.value = 1;
+                if (parcelas.classList.contains("hidden"))
+                    parcelas.classList.remove("hidden");
                 break;
             case 0:
-                slFrequencia.disabled = false;
-                slFrequencia.value = 0;
-                txParcelas.disabled = false;
+                slFormaPagamento.value = 0;
+                if (!forma.classList.contains("hidden"))
+                    forma.classList.add("hidden");
+
+                txIntervaloParcelas.value = 1;
+                if (intervalo.classList.contains("hidden"))
+                    intervalo.classList.remove("hidden");
+
+                slFrequencia.value = 1;
+                if (!frequencia.classList.contains("hidden"))
+                    frequencia.classList.add("hidden");
+
+                txValorPago.value = "0,00";
+                if (!pago.classList.contains("hidden"))
+                    pago.classList.add("hidden");
+
                 txParcelas.value = 1;
+                if (parcelas.classList.contains("hidden"))
+                    parcelas.classList.remove("hidden");
                 break;
         }
     }
@@ -198,35 +311,79 @@ function limparCampos() {
     txDescricao.value = "";
     slTipo.value = 0;
 
+    slFormaPagamento.value = 0;
+    txIntervaloParcelas.value = 1;
     slFrequencia.value = 0;
     dtDespesa.value = "";
+    txValorPago.value = "0,00";
     txParcelas.value = 1;
     txValor.value = "0,00";
     dtVencimento.value = "";
 }
 
 function validarCampos() {
+    let tipo = Number.parseInt(slTipo.value);
+
     validarEmpresa();
     validarCategoria();
     validarDescricao();
     validarTipo();
-    validarFrequencia();
+    switch (tipo) {
+        case 1:
+            validarFormaPagamento();
+            validarValorPago();
+            break;
+        case 2:
+            validarIntervalo();
+            validarParcelas();
+            break;
+        case 3:
+            validarFrequencia();
+            validarParcelas();
+            break;
+    }
     validarData();
-    validarParcelas();
     validarValor();
     validarVencimento();
-
-    return (
-        !erroEmpresa &&
-        !erroCategoria &&
-        !erroDescricao &&
-        !erroTipo &&
-        !erroFrequencia &&
-        !erroData &&
-        !erroParcelas &&
-        !erroValor &&
-        !erroVencimento
-    );
+    
+    switch (tipo) {
+        case 1:
+            return (
+                !erroEmpresa &&
+                !erroCategoria &&
+                !erroDescricao &&
+                !erroTipo &&
+                !erroFormaPagamento &&
+                !erroData &&
+                !erroValorPago &&
+                !erroValor &&
+                !erroVencimento
+            );
+        case 2:
+            return (
+                !erroEmpresa &&
+                !erroCategoria &&
+                !erroDescricao &&
+                !erroTipo &&
+                !erroIntervalo &&
+                !erroData &&
+                !erroParcelas &&
+                !erroValor &&
+                !erroVencimento
+            );
+        case 3:
+            return (
+                !erroEmpresa &&
+                !erroCategoria &&
+                !erroDescricao &&
+                !erroTipo &&
+                !erroFrequencia &&
+                !erroData &&
+                !erroParcelas &&
+                !erroValor &&
+                !erroVencimento
+            );
+    }
 }
 
 function lancarDespesa() {
@@ -235,8 +392,11 @@ function lancarDespesa() {
     let pedido = 0;
     let descricao = "";
     let tipo = 0;
+    let forma = 0;
+    let intervalo = 0;
     let frequencia = 0;
     let data = "";
+    let valorPago = 0.0;
     let parcelas = 0;
     let valor = 0.0;
     let vencimento = "";
@@ -247,8 +407,11 @@ function lancarDespesa() {
         pedido = slPedido.value;
         descricao = txDescricao.value;
         tipo = slTipo.value;
+        forma = slFormaPagamento.value;
+        intervalo = Number.parseInt(txIntervaloParcelas.value);
         frequencia = slFrequencia.value;
         data = dtDespesa.value;
+        valorPago = Number.parseFloat(txValorPago.value.replace(",", "."));
         parcelas = txParcelas.value;
         valor = Number.parseFloat(txValor.value.replace(",", "."));
         vencimento = dtVencimento.value;
@@ -261,8 +424,11 @@ function lancarDespesa() {
         uri += "&conta=" + conta;
         uri += "&descricao=" + descricao;
         uri += "&tipo=" + tipo;
+        uri += "&forma=" + forma;
+        uri += "&intervalo=" + intervalo;
         uri += "&frequencia=" + frequencia;
         uri += "&data=" + data;
+        uri += "&valorPago=" + valorPago;
         uri += "&parcelas=" + parcelas;
         uri += "&valor=" + valor;
         uri += "&vencimento=" + vencimento;
@@ -330,6 +496,7 @@ function get(url_i) {
 
 $(document).ready(() => {
     $(txValor).mask("000000000,00", { reverse: true });
+    $(txValorPago).mask("000000000,00", { reverse: true });
 
     let categorias = get("/representacoes/controlar/lancar/despesas/novo/obter-categorias.php");
     if (categorias !== null || categorias !== "" || categorias.length !== 0) {
@@ -351,5 +518,17 @@ $(document).ready(() => {
         }
     }
 
+    let formas = get("/representacoes/controlar/lancar/despesas/novo/obter-formas.php");
+    if (formas !== null && formas.length !== 0) {
+        for (let i = 0; i < formas.length; i++) {
+            let option = document.createElement("option");
+            option.value = formas[i].id;
+            option.text = formas[i].descricao;
+            slFormaPagamento.appendChild(option);
+        }
+    }
+
     obterConta();
+
+    mudarTipo();
 });

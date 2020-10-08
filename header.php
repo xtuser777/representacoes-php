@@ -28,6 +28,7 @@ require ROOT . "/src/model/ItemOrcamentoVenda.php";
 require ROOT . "/src/model/OrcamentoFrete.php";
 require ROOT . "/src/model/ItemOrcamentoFrete.php";
 require ROOT . "/src/model/PedidoVenda.php";
+require ROOT . "/src/model/ItemPedidoVenda.php";
 require ROOT . "/src/model/PedidoFrete.php";
 require ROOT . "/src/model/ContaPagar.php";
 
@@ -99,3 +100,6 @@ require ROOT . "/src/control/LancarDespesasControl.php";
 require ROOT . "/src/control/LancarDespesasNovoControl.php";
 require ROOT . "/src/control/ContasPagarControl.php";
 require ROOT . "/src/control/ContasPagarDetalhesControl.php";
+require ROOT . "/src/control/PedidoVendaControl.php";
+require ROOT . "/src/control/PedidoVendaNovoControl.php";
+require ROOT . "/src/control/PedidoVendaNovoItemControl.php";

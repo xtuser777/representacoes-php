@@ -92,8 +92,8 @@ if (!isset($_COOKIE['USER_ID'])) {
                         <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pedido <span class="caret"></span></a>
                         <!-- Popup botao pedido -->
                         <ul class="dropdown-menu">
-                            <li><a href="/pedido/venda/index">Venda</a></li>
-                            <li><a href="/pedido/frete/index">Frete</a></li>
+                            <li><a href="/representacoes/pedido/venda">Venda</a></li>
+                            <li><a href="/representacoes/pedido/frete">Frete</a></li>
                             <li><a href="/pedido/status/index">Alterar status</a></li>
                             <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
                                 <li><a href="/pedido/autorizar/index">Autorizar Carregamento</a></li>
@@ -209,12 +209,12 @@ if (!isset($_COOKIE['USER_ID'])) {
                 </div>
 
                 <div class="col-sm-2">
-                    <label for="txDataInicio">Data Início:</label>
+                    <label for="txDataInicio">Data Despesa Início:</label>
                     <input type="date" id="txDataInicio" class="form-control input-sm" style="width: 100%;" />
                 </div>
 
                 <div class="col-sm-2">
-                    <label for="txDataFim">Data Fim:</label>
+                    <label for="txDataFim">Data Despesa Fim:</label>
                     <input type="date" id="txDataFim" class="form-control input-sm" style="width: 100%;" />
                 </div>
 
@@ -234,22 +234,23 @@ if (!isset($_COOKIE['USER_ID'])) {
                 <div class="col-sm-10">
                     <label for="cbord">Ordenar por:</label>
                     <select id="cbord" class="form-control input-sm" onchange="ordenar();">
-                        <option value="1">DESCRIÇÂO (CRESCENTE)</option>
-                        <option value="2">DESCRIÇÂO (DECRESCENTE)</option>
-                        <option value="3">CONTA (CRESCENTE)</option>
-                        <option value="4">CONTA (DECRESCENTE)</option>
-                        <option value="5">PARCELA (CRESCENTE)</option>
-                        <option value="6">PARCELA (DECRESCENTE)</option>
-                        <option value="7">CATEGORIA (CRESCENTE)</option>
-                        <option value="8">CATEGORIA (DECRESCENTE)</option>
-                        <option value="9">DATA (CRESCENTE)</option>
-                        <option value="10">DATA (DECRESCENTE)</option>
-                        <option value="11">VENCIMENTO (CRESCENTE)</option>
-                        <option value="12">VENCIMENTO (DECRESCENTE)</option>
-                        <option value="13">AUTOR (CRESCENTE)</option>
-                        <option value="14">AUTOR (DECRESCENTE)</option>
-                        <option value="15">VALOR (CRESCENTE)</option>
-                        <option value="16">VALOR (DECRESCENTE)</option>
+                        <option value="1">CONTA/PARCELA (CRESCENTE)</option>
+                        <option value="2">CONTA (CRESCENTE)</option>
+                        <option value="3">CONTA (DECRESCENTE)</option>
+                        <option value="4">DESCRIÇÂO (CRESCENTE)</option>
+                        <option value="5">DESCRIÇÂO (DECRESCENTE)</option>
+                        <option value="6">PARCELA (CRESCENTE)</option>
+                        <option value="7">PARCELA (DECRESCENTE)</option>
+                        <option value="8">CATEGORIA (CRESCENTE)</option>
+                        <option value="9">CATEGORIA (DECRESCENTE)</option>
+                        <option value="10">DATA (CRESCENTE)</option>
+                        <option value="11">DATA (DECRESCENTE)</option>
+                        <option value="12">VENCIMENTO (CRESCENTE)</option>
+                        <option value="13">VENCIMENTO (DECRESCENTE)</option>
+                        <option value="14">AUTOR (CRESCENTE)</option>
+                        <option value="15">AUTOR (DECRESCENTE)</option>
+                        <option value="16">VALOR (CRESCENTE)</option>
+                        <option value="17">VALOR (DECRESCENTE)</option>
                     </select>
                 </div>
 
@@ -263,8 +264,8 @@ if (!isset($_COOKIE['USER_ID'])) {
                 <thead>
                 <tr>
                     <th class="hidden">ID</th>
-                    <th style="width: 20%;">DESCRIÇÃO</th>
                     <th style="width: 6%;">CONTA</th>
+                    <th style="width: 20%;">DESCRIÇÃO</th>
                     <th style="width: 6%;">PARCELA</th>
                     <th style="width: 14%;">CATEGORIA</th>
                     <th style="width: 8%;">DATA</th>

@@ -1,4 +1,4 @@
-CREATE TABLE estado 
+CREATE TABLE estado
 (
     est_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     est_nome VARCHAR(50) NOT NULL,
@@ -320,6 +320,18 @@ CREATE TABLE pedido_venda
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
 );
 
+CREATE TABLE pedido_venda_produto
+(
+    ped_ven_id INTEGER NOT NULL,
+    pro_id INTEGER NOT NULL,
+    ped_ven_pro_quantidade INTEGER NOT NULL,
+    ped_ven_pro_valor DECIMAL(10,2) NOT NULL,
+    ped_ven_pro_peso DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (ped_ven_id) REFERENCES pedido_venda(ped_ven_id),
+    FOREIGN KEY (pro_id) REFERENCES produto(pro_id),
+    PRIMARY KEY (ped_ven_id, pro_id)
+);
+
 CREATE TABLE pedido_frete
 (
     ped_fre_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -382,5 +394,32 @@ CREATE TABLE conta_pagar
     FOREIGN KEY (cat_id) REFERENCES categoria(cat_id),
     FOREIGN KEY (ped_fre_id) REFERENCES pedido_frete(ped_fre_id),
     FOREIGN KEY (ped_ven_id) REFERENCES pedido_venda(ped_ven_id),
+    FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
+);
+
+CREATE TABLE conta_receber (
+    con_rec_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    con_rec_data DATE NOT NULL,
+    con_rec_conta INTEGER NOT NULL,
+    con_rec_descricao VARCHAR(255) NOT NULL,
+    con_rec_pagador VARCHAR(255) NOT NULL,
+    con_rec_valor DECIMAL(10,2) NOT NULL,
+    con_rec_situacao INTEGER NOT NULL,
+    con_rec_vencimento DATE NOT NULL,
+    con_rec_valor_recebido DECIMAL(10,2),
+    con_rec_data_recebimento DATE,
+    con_rec_pendencia INTEGER,
+    cat_id INTEGER NOT NULL,
+    for_pag_id INTEGER,
+    rep_id INTEGER,
+    ped_ven_id INTEGER,
+    ped_fre_id INTEGER,
+    usu_id INTEGER NOT NULL,
+    FOREIGN KEY (con_rec_pendencia) REFERENCES conta_receber(con_rec_id),
+    FOREIGN KEY (cat_id) REFERENCES categoria(cat_id),
+    FOREIGN KEY (for_pag_id) REFERENCES forma_pagamento(for_pag_id),
+    FOREIGN KEY (rep_id) REFERENCES representacao(rep_id),
+    FOREIGN KEY (ped_ven_id) REFERENCES pedido_venda(ped_ven_id),
+    FOREIGN KEY (ped_fre_id) REFERENCES pedido_frete(ped_fre_id),
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
 );

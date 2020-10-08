@@ -91,9 +91,9 @@ if (!isset($_COOKIE['USER_ID'])) {
                                 <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pedido <span class="caret"></span></a>
                                 <!-- Popup botao pedido -->
                                 <ul class="dropdown-menu">
-                                    <li><a href="/pedido/venda/index">Venda</a></li>
-                                    <li><a href="/pedido/frete/index">Frete</a></li>
-                                    <li><a href="/pedido/status/index">Alterar status</a></li>
+                                    <li><a href="/representacoes/pedido/venda">Venda</a></li>
+                                    <li><a href="/representacoes/pedido/frete">Frete</a></li>
+                                    <li><a href="/representacoes/pedido/status">Alterar status</a></li>
                                     <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
                                         <li><a href="/pedido/autorizar/index">Autorizar Carregamento</a></li>
                                     <?php endif; ?>
@@ -318,6 +318,7 @@ if (!isset($_COOKIE['USER_ID'])) {
         <script src="/representacoes/static/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="/representacoes/static/js/site.js"></script>
         <script src="/representacoes/static/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
+        <script src="/representacoes/static/lib/bootbox/bootbox.min.js"></script>
         <script src="/representacoes/static/js/controlar/contas/pagar/detalhes.js"></script>
     </body>
 </html>
