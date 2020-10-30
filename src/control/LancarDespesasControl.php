@@ -4,7 +4,7 @@
 namespace scr\control;
 
 
-use scr\model\Categoria;
+use scr\model\CategoriaContaPagar;
 use scr\model\ContaPagar;
 use scr\util\Banco;
 
@@ -30,11 +30,15 @@ class LancarDespesasControl
 
     public function obterCategorias()
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $cats = Categoria::findAll();
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $cats = (new CategoriaContaPagar)->findAll();
+
         Banco::getInstance()->getConnection()->close();
+
         $serial = [];
-        /** @var $cat Categoria */
+        /** @var $cat CategoriaContaPagar */
         foreach ($cats as $cat) {
             $serial[] = $cat->jsonSerialize();
         }
@@ -44,9 +48,13 @@ class LancarDespesasControl
 
     public function obterPorFiltro(string $filtro)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $contas = (new ContaPagar())->findByDescription($filtro);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByDescription($filtro, "con_pag_conta, con_pag_parcela");
+
         Banco::getInstance()->getConnection()->close();
+
         $serial = [];
         /** @var $conta ContaPagar */
         foreach ($contas as $conta) {
@@ -58,8 +66,11 @@ class LancarDespesasControl
 
     public function obterPorData(string $data)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $contas = (new ContaPagar())->findByDate($data);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByDate($data, "con_pag_conta, con_pag_parcela");
+
         Banco::getInstance()->getConnection()->close();
         $serial = [];
         /** @var $conta ContaPagar */
@@ -72,9 +83,13 @@ class LancarDespesasControl
 
     public function obterPorPeriodo(string $data1, string $data2)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $contas = (new ContaPagar())->findByPeriod($data1, $data2);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByPeriod($data1, $data2, "con_pag_conta, con_pag_parcela");
+
         Banco::getInstance()->getConnection()->close();
+
         $serial = [];
         /** @var $conta ContaPagar */
         foreach ($contas as $conta) {
@@ -86,9 +101,13 @@ class LancarDespesasControl
 
     public function obterPorFiltroData(string $filtro, string $data)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $contas = (new ContaPagar())->findByDescriptionDate($filtro, $data);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByDescriptionDate($filtro, $data, "con_pag_conta, con_pag_parcela");
+
         Banco::getInstance()->getConnection()->close();
+
         $serial = [];
         /** @var $conta ContaPagar */
         foreach ($contas as $conta) {
@@ -100,9 +119,13 @@ class LancarDespesasControl
 
     public function obterPorFiltroPeriodo(string $filtro, string $data1, string $data2)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $contas = (new ContaPagar())->findByDescriptionPeriod($filtro, $data1, $data2);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaPagar())->findByDescriptionPeriod($filtro, $data1, $data2, "con_pag_conta, con_pag_parcela");
+
         Banco::getInstance()->getConnection()->close();
+
         $serial = [];
         /** @var $conta ContaPagar */
         foreach ($contas as $conta) {

@@ -17,7 +17,7 @@ require ROOT . '/src/model/Cliente.php';
 require ROOT . '/src/model/Representacao.php';
 require ROOT . "/src/model/TipoCaminhao.php";
 require ROOT . "/src/model/Produto.php";
-require ROOT . "/src/model/Categoria.php";
+require ROOT . "/src/model/CategoriaContaPagar.php";
 require ROOT . "/src/model/FormaPagamento.php";
 require ROOT . "/src/model/DadosBancarios.php";
 require ROOT . "/src/model/Motorista.php";
@@ -31,6 +31,7 @@ require ROOT . "/src/model/PedidoVenda.php";
 require ROOT . "/src/model/ItemPedidoVenda.php";
 require ROOT . "/src/model/PedidoFrete.php";
 require ROOT . "/src/model/ContaPagar.php";
+require ROOT . "/src/model/ContaReceber.php";
 
 require ROOT . '/src/util/Banco.php';
 
@@ -44,7 +45,6 @@ require ROOT . '/src/dao/ParametrizacaoDAO.php';
 require ROOT . '/src/dao/ClienteDAO.php';
 require ROOT . '/src/dao/RepresentacaoDAO.php';
 require ROOT . "/src/dao/TipoCaminhaoDAO.php";
-require ROOT . "/src/dao/CategoriaDAO.php";
 require ROOT . "/src/dao/DadosBancariosDAO.php";
 require ROOT . "/src/dao/MotoristaDAO.php";
 
@@ -103,3 +103,6 @@ require ROOT . "/src/control/ContasPagarDetalhesControl.php";
 require ROOT . "/src/control/PedidoVendaControl.php";
 require ROOT . "/src/control/PedidoVendaNovoControl.php";
 require ROOT . "/src/control/PedidoVendaNovoItemControl.php";
+require ROOT . "/src/control/PedidoVendaDetalhesControl.php";
+require ROOT . "/src/control/ContasReceberControl.php";
+require ROOT . "/src/control/ContasReceberDetalhesControl.php";

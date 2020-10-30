@@ -92,9 +92,9 @@ if (!isset($_COOKIE['USER_ID'])) {
                                 <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pedido <span class="caret"></span></a>
                                 <!-- Popup botao pedido -->
                                 <ul class="dropdown-menu">
-                                    <li><a href="/pedido/venda/index">Venda</a></li>
-                                    <li><a href="/pedido/frete/index">Frete</a></li>
-                                    <li><a href="/pedido/status/index">Alterar status</a></li>
+                                    <li><a href="/representacoes/pedido/venda">Venda</a></li>
+                                    <li><a href="/representacoes/pedido/frete">Frete</a></li>
+                                    <li><a href="/representacoes/pedido/status">Alterar status</a></li>
                                     <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
                                         <li><a href="/pedido/autorizar/index">Autorizar Carregamento</a></li>
                                     <?php endif; ?>
@@ -112,10 +112,10 @@ if (!isset($_COOKIE['USER_ID'])) {
                                     <!-- Popup botao controlar -->
                                     <ul class="dropdown-menu">
                                         <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
-                                        <li><a href="/controlar/contas/receber/index">Contas a Receber</a></li>
+                                        <li><a href="/representacoes/controlar/contas/receber">Contas a Receber</a></li>
                                         <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
                                         <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
-                                            <li><a href="/controlar/comissao/index">Comissões</a></li>
+                                            <li><a href="/representacoes/controlar/comissao">Comissões</a></li>
                                         <?php endif; ?>
                                     </ul>
                                     <!-- Fim popup botao controlar -->
@@ -192,7 +192,7 @@ if (!isset($_COOKIE['USER_ID'])) {
             <div class="card-title">
                 <div class="card-title-container" style="text-align: center;">
                     <h4>
-                        <b>SCR - Gerenciar Orçamentos de Vendas</b>
+                        <b>SCR - Gerenciar Orçamentos de Venda</b>
                     </h4>
                 </div>
             </div>

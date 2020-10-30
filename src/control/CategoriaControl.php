@@ -4,20 +4,22 @@
 namespace scr\control;
 
 
-use scr\dao\CategoriaDAO;
-use scr\model\Categoria;
+use scr\model\CategoriaContaPagar;
 use scr\util\Banco;
 
 class CategoriaControl
 {
     public function obter()
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $categorias = CategoriaDAO::select();
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $categorias = (new CategoriaContaPagar)->findAll();
+
         Banco::getInstance()->getConnection()->close();
 
         $jarray = [];
-        /** @var Categoria $categoria */
+        /** @var CategoriaContaPagar $categoria */
         foreach ($categorias as $categoria) {
             $jarray[] = $categoria->jsonSerialize();
         }
@@ -27,12 +29,15 @@ class CategoriaControl
 
     public function obterPorChave(string $chave)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $categorias = CategoriaDAO::selectkey($chave);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $categorias = CategoriaContaPagar::findByKey($chave);
+
         Banco::getInstance()->getConnection()->close();
 
         $jarray = [];
-        /** @var Categoria $categoria */
+        /** @var CategoriaContaPagar $categoria */
         foreach ($categorias as $categoria) {
             $jarray[] = $categoria->jsonSerialize();
         }
@@ -42,32 +47,35 @@ class CategoriaControl
 
     public function ordenar(string $col)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
-        $categorias = CategoriaDAO::select();
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $categorias = (new CategoriaContaPagar)->findAll();
+
         Banco::getInstance()->getConnection()->close();
 
         if (count($categorias) > 0) {
             switch ($col) {
                 case "1":
-                    usort($categorias, function (Categoria $a, Categoria $b) {
+                    usort($categorias, function (CategoriaContaPagar $a, CategoriaContaPagar $b) {
                         if ($a->getId() === $b->getId()) return 0;
                         return (($a->getId() < $b->getId()) ? -1 : 1);
                     });
                     break;
                 case "2":
-                    usort($categorias, function (Categoria $a, Categoria $b) {
+                    usort($categorias, function (CategoriaContaPagar $a, CategoriaContaPagar $b) {
                         if ($a->getId() === $b->getId()) return 0;
                         return (($a->getId() > $b->getId()) ? -1 : 1);
                     });
                     break;
                 case "3":
-                    usort($categorias, function (Categoria $a, Categoria $b) {
+                    usort($categorias, function (CategoriaContaPagar $a, CategoriaContaPagar $b) {
                         if (strcasecmp($a->getDescricao(), $b->getDescricao()) === 0) return 0;
                         return ((strcasecmp($a->getDescricao(), $b->getDescricao()) < 0) ? -1 : 1);
                     });
                     break;
                 case "4":
-                    usort($categorias, function (Categoria $a, Categoria $b) {
+                    usort($categorias, function (CategoriaContaPagar $a, CategoriaContaPagar $b) {
                         if (strcasecmp($a->getDescricao(), $b->getDescricao()) === 0) return 0;
                         return ((strcasecmp($a->getDescricao(), $b->getDescricao()) > 0) ? -1 : 1);
                     });
@@ -76,7 +84,7 @@ class CategoriaControl
         }
 
         $jarray = [];
-        /** @var Categoria $categoria */
+        /** @var CategoriaContaPagar $categoria */
         foreach ($categorias as $categoria) {
             $jarray[] = $categoria->jsonSerialize();
         }
@@ -94,9 +102,10 @@ class CategoriaControl
 
     public function excluir(int $id)
     {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados,");
+        if (!Banco::getInstance()->open())
+            return json_encode("Erro ao conectar-se ao banco de dados,");
 
-        $cat = Categoria::findById($id);
+        $cat = CategoriaContaPagar::findById($id);
 
         Banco::getInstance()->getConnection()->begin_transaction();
 

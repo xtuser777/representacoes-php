@@ -1,5 +1,7 @@
 <?php
 
+use scr\control\PedidoVendaNovoControl;
+
 require '../../../header.php';
 
 if (!isset($_COOKIE["USER_ID"])) {
@@ -8,6 +10,7 @@ if (!isset($_COOKIE["USER_ID"])) {
     echo "Método não suportado.";
 } else {
     $cli = $_POST["cli"];
+    $orc = $_POST["orc"];
     $desc = $_POST["desc"];
     $vdd = $_POST["vdd"];
     $cid = $_POST["cid"];
@@ -15,9 +18,11 @@ if (!isset($_COOKIE["USER_ID"])) {
     $valor = str_replace(",", ".", $_POST["valor"]);
     $forma = $_POST["forma"];
     $valorPago = $_POST["valorPago"];
+    $porcComissaoVendedor = $_POST["porcVdd"];
+    $comissoes = json_decode($_POST["comissoes"]);
     $itens = json_decode($_POST["itens"]);
 
-    echo (new scr\control\PedidoVendaNovoControl())->gravar(
-        $cli, $desc, $vdd, $cid, $peso, $valor, $forma, $valorPago, $itens
+    echo (new PedidoVendaNovoControl())->gravar(
+        $cli, $orc, $desc, $vdd, $cid, $peso, $valor, $forma, $valorPago, $porcComissaoVendedor, $comissoes, $itens
     );
 }

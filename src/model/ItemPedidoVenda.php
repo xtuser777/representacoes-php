@@ -102,12 +102,11 @@ class ItemPedidoVenda
     }
 
     /**
-     * @param mysqli_result $result
+     * @param array $row
      * @return ItemPedidoVenda
      */
-    public function resultToObject(mysqli_result $result): ItemPedidoVenda
+    private function rowToObject(array $row): ItemPedidoVenda
     {
-        $row = $result->fetch_row();
         $item = new ItemPedidoVenda();
         $item->setProduto(Produto::findById($row["pro_id"]));
         $item->setQuantidade($row["ped_ven_pro_quantidade"]);
@@ -119,19 +118,24 @@ class ItemPedidoVenda
 
     /**
      * @param mysqli_result $result
+     * @return ItemPedidoVenda
+     */
+    private function resultToObject(mysqli_result $result): ItemPedidoVenda
+    {
+        $row = $result->fetch_assoc();
+
+        return $this->rowToObject($row);
+    }
+
+    /**
+     * @param mysqli_result $result
      * @return array
      */
-    public function resultToList(mysqli_result $result): array
+    private function resultToList(mysqli_result $result): array
     {
         $itens = [];
-        while ($row = $result->fetch_row()) {
-            $item = new ItemPedidoVenda();
-            $item->setProduto(Produto::findById($row["pro_id"]));
-            $item->setQuantidade($row["ped_ven_pro_quantidade"]);
-            $item->setValor($row["ped_ven_pro_valor"]);
-            $item->setPeso($row["ped_ven_pro_peso"]);
-
-            $itens[] = $item;
+        while ($row = $result->fetch_assoc()) {
+            $itens[] = $this->rowToObject($row);
         }
 
         return $itens;
@@ -198,7 +202,7 @@ class ItemPedidoVenda
             return [];
         }
 
-        $stmt->bind_param("ii", $pedido, $produto);
+        $stmt->bind_param("i", $pedido);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];

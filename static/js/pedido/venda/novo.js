@@ -7,10 +7,15 @@ const selectCidade = document.getElementById("select_cid_dest");
 const selectEstado = document.getElementById("select_est_dest");
 const tbodyItens = document.getElementById("tbody_itens");
 const textPesoItens = document.getElementById("text_peso_itens");
+const textPorcentagemComisaoVendedor = document.getElementById("textPorcentagemComissaoVendedor");
+const tableComissoes = document.getElementById("tableComissoes");
+const tbodyComissoes = document.getElementById("tbodyComissoes");
 const textValorItens = document.getElementById("text_valor_itens");
 const textValorPago = document.getElementById("text_valor_pago");
 
 var itens = [];
+
+var comissoes = [];
 
 let erroCliente = true;
 let erroDesc = true;
@@ -35,6 +40,158 @@ function get(url_i) {
     });
 
     return res;
+}
+
+function selecionarVendedor() {
+    let vdd = Number.parseInt(selectVendedor.value);
+
+    if (vdd === 0 || isNaN(vdd)) {
+        textPorcentagemComisaoVendedor.value = 0;
+        textPorcentagemComisaoVendedor.disabled = true;
+    } else {
+        textPorcentagemComisaoVendedor.value = 1;
+        textPorcentagemComisaoVendedor.disabled = false;
+    }
+}
+
+function carregarTiposItem(itemId) {
+    let request = new XMLHttpRequest();
+    request.open('POST', '/representacoes/pedido/venda/novo/item/obter-tipos-por-item.php', false);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(encodeURI('item='+itemId));
+
+    if (request.DONE === 4 && request.status === 200) {
+        let res = JSON.parse(request.responseText);
+        if (res !== null && typeof res !== "string" && res.length !== 0) {
+            let tmp = [];
+
+            if (tipos.length === 0) {
+                tmp = res;
+            } else {
+                for (let i = 0; i < res.length; i++) {
+                    if (tipos.findIndex((element) => {
+                        return (element.id === res[i].id);
+                    }) !== -1) {
+                        tmp.push(res[i]);
+                    }
+                }
+            }
+
+            tipos = tmp;
+        } else {
+            mostraDialogo(
+                res,
+                "danger",
+                3000
+            );
+        }
+    } else {
+        mostraDialogo(
+            "Erro na requisição da URL obter-tipos-por-item.php. <br />" +
+            "Status: "+request.status+" "+request.statusText,
+            "danger",
+            3000
+        );
+    }
+}
+
+function selecionarOrcamento() {
+    let orc = Number.parseInt(selectOrcamento.value);
+
+    if (orc === null || isNaN(orc) || orc === 0) {
+        textDesc.readOnly = false;
+        selectCliente.disabled = false;
+        selectEstado.disabled = false;
+        selectCidade.disabled = false;
+        selectVendedor.disabled = false;
+
+        buttonLimparClick();
+    } else {
+        let orcamento = get("/representacoes/pedido/venda/novo/obter-orcamento.php?id="+orc);
+
+        limparOrcamento();
+
+        textDesc.value = orcamento.descricao;
+        selectCliente.value = (
+            (orcamento.cliente)
+            ? orcamento.cliente.id : 0
+        );
+        selectEstado.value = orcamento.destino.estado.id;
+        selectEstadoChange();
+        selectCidade.value = orcamento.destino.id;
+        selectVendedor.value = (orcamento.vendedor) ? orcamento.vendedor.id : 0;
+        selecionarVendedor();
+
+        textPesoItens.value = formatarPeso(orcamento.peso);
+
+        textValorItens.value = formatarValor(orcamento.valor);
+
+        $.ajax({
+            type: "POST",
+            url: "/representacoes/pedido/venda/novo/obter-itens-por-orcamento.php",
+            data: { orc: orc },
+            dataType: "json",
+            async: false,
+            success: (response) => {
+                if (response !== null && response !== []) {
+                    for (let i = 0; i < response.length; i++) {
+                        carregarTiposItem(response[i].produto.id);
+
+                        let item = {
+                            pedido: 0,
+                            produto: {
+                                id: response[i].produto.id,
+                                descricao: response[i].produto.descricao,
+                                peso: response[i].produto.peso,
+                                preco: response[i].produto.preco,
+                                precoOut: response[i].produto.precoOut,
+                                estado: response[i].produto.representacao.pessoa.contato.endereco.cidade.estado.id,
+                                representacao: response[i].produto.representacao.pessoa.nomeFantasia
+                            },
+                            quantidade: response[i].quantidade,
+                            valor: response[i].valor,
+                            peso: response[i].peso
+                        };
+                        itens.push(item);
+
+                        let itemComissao = {
+                            produto: {
+                                id: response[i].produto.id,
+                                descricao: response[i].produto.descricao,
+                                peso: response[i].produto.peso,
+                                preco: response[i].produto.preco,
+                                precoOut: response[i].produto.precoOut,
+                                estado: response[i].produto.representacao.pessoa.contato.endereco.cidade.estado.id,
+                                representacao: {
+                                    id: response[i].produto.representacao.id,
+                                    nomeFantasia: response[i].produto.representacao.pessoa.nomeFantasia
+                                }
+                            },
+                            valor: response[i].valor,
+                            peso: response[i].peso
+                        };
+
+                        adicionarComissao(itemComissao);
+                    }
+                    preencheTabelaItens(itens);
+                }
+            },
+            error: (xhr, status, thrown) => {
+                console.error(thrown);
+                mostraDialogo(
+                    "Erro ao processar a requisição, Código: " + status,
+                    "danger",
+                    3000
+                );
+            }
+        });
+
+        textDesc.readOnly = true;
+        selectCliente.disabled = true;
+        selectEstado.disabled = true;
+        selectCidade.disabled = true;
+        selectVendedor.disabled = true;
+    }
 }
 
 function selectClienteBlur() {
@@ -166,8 +323,8 @@ function textValorPagoBlur() {
 function buttonClrItensClick() {
     itens = [];
     $(tbodyItens).html('');
-    textPesoItens.value = 0.0;
-    textValorItens.value = 0.0;
+    textPesoItens.value = "0,0";
+    textValorItens.value = "0,00";
 }
 
 function validar() {
@@ -188,16 +345,37 @@ function buttonCancelarClick() {
     location.href = '../../venda';
 }
 
-function buttonLimparClick() {
+function limparOrcamento() {
     selectCliente.value = 0;
     textDesc.value = "";
-    selectVendedor.value = 0;
     selectEstado.value = 0;
     selectCidade.value = 0;
     itens = [];
     $(tbodyItens).html("");
-    textPesoItens.value = 0;
-    textValorItens.value = 0;
+    comissoes = [];
+    $(tbodyComissoes).html("");
+    selectVendedor.value = 0;
+    selecionarVendedor();
+    textPesoItens.value = "0,0";
+    textValorItens.value = "0,00";
+    selectForma.value = 0;
+    textValorPago.value = 0;
+}
+
+function buttonLimparClick() {
+    selectOrcamento.value = 0;
+    selectCliente.value = 0;
+    textDesc.value = "";
+    selectEstado.value = 0;
+    selectCidade.value = 0;
+    itens = [];
+    $(tbodyItens).html("");
+    comissoes = [];
+    $(tbodyComissoes).html("");
+    selectVendedor.value = 0;
+    selecionarVendedor();
+    textPesoItens.value = "0,0";
+    textValorItens.value = "0,00";
     selectForma.value = 0;
     textValorPago.value = 0;
 
@@ -210,9 +388,11 @@ function buttonLimparClick() {
 }
 
 function buttonSalvarClick() {
+    let orc = 0;
     let cli = 0;
     let desc = "";
     let vdd = 0;
+    let porcVdd = 0;
     let est = 0;
     let cid = 0;
     let peso = 0.0;
@@ -222,25 +402,30 @@ function buttonSalvarClick() {
 
     if (validar()) {
         if (itens.length > 0) {
+            orc = selectOrcamento.value;
             cli = selectCliente.value;
             desc = textDesc.value;
             vdd = selectVendedor.value;
+            porcVdd = textPorcentagemComisaoVendedor.value;
             cid = selectCidade.value;
             peso = textPesoItens.value;
             valor = textValorItens.value;
             forma = selectForma.value;
-            valorPago = Number.parseFloat(textValorPago.value);
+            valorPago = textValorPago.value.toString().replace(",", ".");
 
             let frm = new FormData();
+            frm.append("orc", orc);
             frm.append("cli", cli);
             frm.append("desc", desc);
             frm.append("vdd", vdd);
+            frm.append("porcVdd", porcVdd);
             frm.append("cid", cid);
             frm.append("peso", peso);
             frm.append("valor", valor);
             frm.append("forma", forma);
             frm.append("valorPago", valorPago);
             frm.append("itens", JSON.stringify(itens));
+            frm.append("comissoes", JSON.stringify(comissoes));
 
             $.ajax({
                 type: "POST",
@@ -313,7 +498,7 @@ $(document).ready((event) => {
     let orcamentos = get("/representacoes/pedido/venda/novo/obter-orcamentos.php");
     if (orcamentos !== null && orcamentos.length !== 0) {
         for (let i = 0; i < orcamentos.length; i++) {
-            let option = document.getElementById("option");
+            let option = document.createElement("option");
             option.value = orcamentos[i].id;
             option.text = orcamentos[i].descricao;
             selectOrcamento.appendChild(option);
@@ -350,6 +535,8 @@ $(document).ready((event) => {
             selectEstado.appendChild(option);
         }
     }
+
+    selecionarVendedor();
 
     buttonLimparClick();
     $(textValorPago).mask("000000000,00", { reverse: true });

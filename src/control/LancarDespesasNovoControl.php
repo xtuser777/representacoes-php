@@ -6,7 +6,7 @@ namespace scr\control;
 
 use DateInterval;
 use DateTime;
-use scr\model\Categoria;
+use scr\model\CategoriaContaPagar;
 use scr\model\ContaPagar;
 use scr\model\FormaPagamento;
 use scr\model\PedidoFrete;
@@ -20,11 +20,11 @@ class LancarDespesasNovoControl
         if (Banco::getInstance()->open() === false)
             return json_encode([]);
 
-        $categorias = Categoria::findAll();
+        $categorias = CategoriaContaPagar::findAll();
         Banco::getInstance()->getConnection()->close();
 
         $serial = [];
-        /** @var $categoria Categoria */
+        /** @var $categoria CategoriaContaPagar */
         foreach ($categorias as $categoria) {
             $serial[] = $categoria->jsonSerialize();
         }
@@ -83,7 +83,7 @@ class LancarDespesasNovoControl
         if (Banco::getInstance()->open() === false)
             return json_encode("Problema ao conectar-se ao bano de dados.");
 
-        $cat = Categoria::findById($categoria);
+        $cat = CategoriaContaPagar::findById($categoria);
         $ped = ($pedido > 0) ? (new PedidoFrete())->findById($pedido) : null;
         $fp = ($forma > 0) ? FormaPagamento::findById($forma) : null;
         $autor = Usuario::getById($_COOKIE["USER_ID"]);

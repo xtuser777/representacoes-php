@@ -113,10 +113,10 @@ if (!isset($_COOKIE['USER_ID'])) {
                                     <!-- Popup botao controlar -->
                                     <ul class="dropdown-menu">
                                         <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
-                                        <li><a href="/controlar/contas/receber/index">Contas a Receber</a></li>
+                                        <li><a href="/representacoes/controlar/contas/receber">Contas a Receber</a></li>
                                         <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
                                         <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
-                                            <li><a href="/controlar/comissao/index">Comissões</a></li>
+                                            <li><a href="/representacoes/controlar/comissao">Comissões</a></li>
                                         <?php endif; ?>
                                     </ul>
                                     <!-- Fim popup botao controlar -->
@@ -204,7 +204,7 @@ if (!isset($_COOKIE['USER_ID'])) {
                     <div class="row">
                         <div class="col-sm-5">
                             <label for="select_orcamento">Orçamento:</label>
-                            <select id="select_orcamento" class="form-control input-sm">
+                            <select id="select_orcamento" class="form-control input-sm" onchange="selecionarOrcamento();">
                                 <option value="0">SELECIONAR</option>
                             </select>
                         </div>
@@ -217,19 +217,12 @@ if (!isset($_COOKIE['USER_ID'])) {
                     </div>
 
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-5">
                             <label for="select_cliente">Cliente <span style="color: red;">*</span>:</label>
                             <select id="select_cliente" class="form-control input-sm" onblur="selectClienteBlur();">
                                 <option value="0">SELECIONAR</option>
                             </select>
                             <div id="mscliente"></div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <label for="select_vendedor">Vendedor:</label>
-                            <select id="select_vendedor" class="form-control input-sm">
-                                <option value="0">SELECIONAR</option>
-                            </select>
                         </div>
 
                         <div class="col-sm-3">
@@ -240,7 +233,7 @@ if (!isset($_COOKIE['USER_ID'])) {
                             <div id="msest"></div>
                         </div>
 
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label for="select_cid_dest">Cidade de Destino <span style="color: red;">*</span>:</label>
                             <select id="select_cid_dest" class="form-control input-sm" onblur="selectCidadeBlur();">
                                 <option value="0">SELECIONE</option>
@@ -287,6 +280,65 @@ if (!isset($_COOKIE['USER_ID'])) {
 
                         <div class="col-sm-2">
                             <button id="button_add_item" class="btn btn-success btn-sm" onclick="abrirAdicionarItem();" style="width: 100%;">ADICIONAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="fieldset-card">
+                        <div class="fieldset-card-legend" style="width: 200px;">Vendedor externo</div>
+
+                        <div class="fieldset-card-container">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label for="select_vendedor">Vendedor:</label>
+                                    <select id="select_vendedor" class="form-control input-sm" onchange="selecionarVendedor();">
+                                        <option value="0">SELECIONAR</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label for="textPorcentagemComissaoVendedor">Porcentagem de comissão ao vendedor:</label>
+                                    <div class="input-group">
+                                        <input type="number" id="textPorcentagemComissaoVendedor" class="form-control input-sm" value="1" />
+                                        <div class="input-group-addon">%</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div style="height: 40px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-8">
+                    <div class="fieldset-card">
+                        <div class="fieldset-card-legend">Comissões</div>
+
+                        <div class="fieldset-card-container">
+                            <div class="table-container" style="height: 150px;">
+                                <table id="tableComissoes" class="table table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>REPRESENTAÇÃO</th>
+                                        <th>VALOR (R$)</th>
+                                        <th>PORCENTAGEM</th>
+                                        <th>&nbsp;</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody id="tbodyComissoes">
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>

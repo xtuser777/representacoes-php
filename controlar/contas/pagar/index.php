@@ -112,10 +112,10 @@ if (!isset($_COOKIE['USER_ID'])) {
                                     <!-- Popup botao controlar -->
                                     <ul class="dropdown-menu">
                                         <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
-                                        <li><a href="/controlar/contas/receber/index">Contas a Receber</a></li>
+                                        <li><a href="/representacoes/controlar/contas/receber">Contas a Receber</a></li>
                                         <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
                                         <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
-                                            <li><a href="/controlar/comissao/index">Comissões</a></li>
+                                            <li><a href="/representacoes/controlar/comissao">Comissões</a></li>
                                         <?php endif; ?>
                                     </ul>
                                     <!-- Fim popup botao controlar -->
@@ -209,12 +209,12 @@ if (!isset($_COOKIE['USER_ID'])) {
                         </div>
 
                         <div class="col-sm-3">
-                            <label for="txDataInicio">Data Início:</label>
+                            <label for="txDataInicio">Data Vencimento Início:</label>
                             <input type="date" id="txDataInicio" class="form-control input-sm" style="width: 100%;" />
                         </div>
 
                         <div class="col-sm-3">
-                            <label for="txDataFim">Data Fim:</label>
+                            <label for="txDataFim">Data Vencimento Fim:</label>
                             <input type="date" id="txDataFim" class="form-control input-sm" style="width: 100%;" />
                         </div>
                     </div>
@@ -277,13 +277,13 @@ if (!isset($_COOKIE['USER_ID'])) {
                         <thead>
                         <tr>
                             <th class="hidden">ID</th>
-                            <th style="width: 6%;">CONTA</th>
-                            <th style="width: 20%;">DESCRIÇÃO</th>
+                            <th style="width: 5%;">CONTA</th>
+                            <th style="width: 28%;">DESCRIÇÃO</th>
                             <th style="width: 6%;">PARCELA</th>
                             <th>VALOR (R$)</th>
                             <th style="width: 10%;">VENCIMENTO</th>
                             <th>VALOR PAGO (R$)</th>
-                            <th style="width: 14%;">DATA PAGAMENTO</th>
+                            <th style="width: 13%;">DATA PAGAMENTO</th>
                             <th>SITUAÇÃO</th>
                             <th style="width: 2%;">&nbsp;</th>
                             <th style="width: 2%;">&nbsp;</th>

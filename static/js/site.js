@@ -6,7 +6,7 @@
  * @return {string}
  */
 function FormatarData(data) {
-    var d = data.split("-");
+    let d = data.split("-");
     return d[2] + "/" + d[1] + "/" + d[0];
 }
 
@@ -15,8 +15,36 @@ function FormatarData(data) {
  */
 function FormatarDataIso(data) {
     data = FormatarData(data);
-    var d = data.split("/");
+    let d = data.split("/");
     return d[2] + "-" + d[1] + "-" + d[0];
+}
+
+function formatarPeso(peso) {
+    let pesoFormat = peso.toString();
+    pesoFormat = pesoFormat.replace(".", "#");
+    if (pesoFormat.search("#") < 0) {
+        pesoFormat = pesoFormat + ",0";
+    } else {
+        pesoFormat = pesoFormat.replace("#", ",");
+    }
+
+    return pesoFormat;
+}
+
+function formatarValor(valor) {
+    let valorFormat = valor.toString();
+    valorFormat = valorFormat.replace(".", "#");
+    if (valorFormat.search("#") < 0) {
+        valorFormat = valorFormat + ",00";
+    } else {
+        if (valorFormat.split("#")[1].length === 1) {
+            valorFormat = valorFormat + "0";
+        }
+
+        valorFormat = valorFormat.replace("#", ",");
+    }
+
+    return valorFormat;
 }
 
 function mostraDialogo(mensagem, tipo, tempo){
@@ -28,20 +56,20 @@ function mostraDialogo(mensagem, tipo, tempo){
 
     // se não setar o tempo, o padrão é 3 segundos
     if(!tempo){
-        var tempo = 3000;
+        let tempo = 3000;
     }
 
     // se não setar o tipo, o padrão é alert-info
     if(!tipo){
-        var tipo = "info";
+        let tipo = "info";
     }
 
     // monta o css da mensagem para que fique flutuando na frente de todos elementos da página
-    var cssMessage = "display: block; position: fixed; top: 60px; left: 20%; right: 20%; width: 60%; padding-top: 10px; z-index: 9999";
-    var cssInner = "margin: 0 auto; box-shadow: 1px 1px 5px black;";
+    let cssMessage = "display: block; position: fixed; top: 60px; left: 20%; right: 20%; width: 60%; padding-top: 10px; z-index: 9999";
+    let cssInner = "margin: 0 auto; box-shadow: 1px 1px 5px black;";
 
     // monta o html da mensagem com Bootstrap
-    var dialogo = "";
+    let dialogo = "";
     dialogo += '<div id="message" style="'+cssMessage+'">';
     dialogo += '    <div class="alert alert-'+tipo+' alert-dismissable" style="'+cssInner+'">';
     dialogo += '    <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>';

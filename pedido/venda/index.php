@@ -112,10 +112,10 @@ if (!isset($_COOKIE['USER_ID'])) {
                                     <!-- Popup botao controlar -->
                                     <ul class="dropdown-menu">
                                         <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
-                                        <li><a href="/controlar/contas/receber/index">Contas a Receber</a></li>
+                                        <li><a href="/representacoes/controlar/contas/receber">Contas a Receber</a></li>
                                         <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
                                         <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
-                                            <li><a href="/controlar/comissao/index">Comissões</a></li>
+                                            <li><a href="/representacoes/controlar/comissao">Comissões</a></li>
                                         <?php endif; ?>
                                     </ul>
                                     <!-- Fim popup botao controlar -->
@@ -203,19 +203,24 @@ if (!isset($_COOKIE['USER_ID'])) {
 
                 <div class="fieldset-card-container">
                     <div class="row">
-                        <div class="col-sm-6">
-                            <label for="filtro">Filtro:</label>
-                            <input type="text" id="filtro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por descrição e cliente..." />
+                        <div class="col-sm-5">
+                            <label for="textFiltro">Filtro:</label>
+                            <input type="text" id="textFiltro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por descrição e cliente..." />
                         </div>
 
                         <div class="col-sm-2">
-                            <label for="filtro_data">Filtro Data:</label>
-                            <input type="date" id="filtro_data" class="form-control input-sm" style="width: 100%;" />
+                            <label for="dateFiltroDataInicio">Filtro Data Início:</label>
+                            <input type="date" id="dateFiltroDataInicio" class="form-control input-sm" style="width: 100%;" />
                         </div>
 
-                        <div class="col-sm-4">
-                            <label for="slOrdem">Ordenar por:</label>
-                            <select id="slOrdem" class="form-control input-sm">
+                        <div class="col-sm-2">
+                            <label for="dateFiltroDataFim">Filtro Data Fim:</label>
+                            <input type="date" id="dateFiltroDataFim" class="form-control input-sm" style="width: 100%;" />
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="selectOrdem">Ordenar por:</label>
+                            <select id="selectOrdem" class="form-control input-sm">
                                 <option value="1">DESCRIÇÂO (CRESCENTE)</option>
                                 <option value="2">DESCRIÇÂO (DECRESCENTE)</option>
                                 <option value="3">CLIENTE (CRESCENTE)</option>
@@ -254,11 +259,6 @@ if (!isset($_COOKIE['USER_ID'])) {
                 <div class="fieldset-card-legend" style="width: 200px;">Pedidos Abertos</div>
 
                 <div class="fieldset-card-container">
-                    <div class="row" style="margin-bottom: 10px;">
-
-
-
-                    </div>
 
                     <table id="table_pedidos" class="table table-responsive" style="width: 100%;">
                         <thead>

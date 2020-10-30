@@ -155,10 +155,10 @@ CREATE TABLE produto_tipo_caminhao
     FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id)
 );
 
-CREATE TABLE categoria
+CREATE TABLE categoria_conta_pagar
 (
-    cat_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    cat_descricao VARCHAR(50) NOT NULL
+    cat_con_pag_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    cat_con_pag_descricao VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE forma_pagamento
@@ -307,14 +307,12 @@ CREATE TABLE pedido_venda
     fun_id INTEGER,
     cid_id INTEGER NOT NULL,
     orc_ven_id INTEGER,
-    tip_cam_id INTEGER NOT NULL,
     cli_id INTEGER NOT NULL,
     for_pag_id INTEGER NOT NULL,
     usu_id INTEGER NOT NULL,
     FOREIGN KEY (fun_id) REFERENCES funcionario(fun_id),
     FOREIGN KEY (cid_id) REFERENCES cidade(cid_id),
     FOREIGN KEY (orc_ven_id) REFERENCES orcamento_venda(orc_ven_id),
-    FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
     FOREIGN KEY (cli_id) REFERENCES cliente(cli_id),
     FOREIGN KEY (for_pag_id) REFERENCES forma_pagamento(for_pag_id),
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
@@ -376,6 +374,7 @@ CREATE TABLE conta_pagar
     con_pag_parcela INTEGER NOT NULL,
     con_pag_valor DECIMAL(10,2) NOT NULL,
     con_pag_situacao INTEGER NOT NULL,
+    con_pag_comissao BOOLEAN DEFAULT FALSE NOT NULL,
     con_pag_vencimento DATE NOT NULL,
     con_pag_data_pagamento DATE,
     con_pag_valor_pago DECIMAL(10,2),
@@ -383,7 +382,7 @@ CREATE TABLE conta_pagar
     for_pag_id INTEGER,
     mot_id INTEGER,
     fun_id INTEGER,
-    cat_id INTEGER NOT NULL,
+    cat_con_pag_id INTEGER NOT NULL,
     ped_fre_id INTEGER,
     ped_ven_id INTEGER,
     usu_id INTEGER NOT NULL,
@@ -391,7 +390,7 @@ CREATE TABLE conta_pagar
     FOREIGN KEY (for_pag_id) REFERENCES forma_pagamento(for_pag_id),
     FOREIGN KEY (mot_id) REFERENCES motorista(mot_id),
     FOREIGN KEY (fun_id) REFERENCES funcionario(fun_id),
-    FOREIGN KEY (cat_id) REFERENCES categoria(cat_id),
+    FOREIGN KEY (cat_con_pag_id) REFERENCES categoria_conta_pagar(cat_con_pag_id),
     FOREIGN KEY (ped_fre_id) REFERENCES pedido_frete(ped_fre_id),
     FOREIGN KEY (ped_ven_id) REFERENCES pedido_venda(ped_ven_id),
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
@@ -405,18 +404,17 @@ CREATE TABLE conta_receber (
     con_rec_pagador VARCHAR(255) NOT NULL,
     con_rec_valor DECIMAL(10,2) NOT NULL,
     con_rec_situacao INTEGER NOT NULL,
+    con_rec_comissao BOOLEAN DEFAULT FALSE NOT NULL,
     con_rec_vencimento DATE NOT NULL,
     con_rec_valor_recebido DECIMAL(10,2),
     con_rec_data_recebimento DATE,
     con_rec_pendencia INTEGER,
-    cat_id INTEGER NOT NULL,
     for_pag_id INTEGER,
     rep_id INTEGER,
     ped_ven_id INTEGER,
     ped_fre_id INTEGER,
     usu_id INTEGER NOT NULL,
     FOREIGN KEY (con_rec_pendencia) REFERENCES conta_receber(con_rec_id),
-    FOREIGN KEY (cat_id) REFERENCES categoria(cat_id),
     FOREIGN KEY (for_pag_id) REFERENCES forma_pagamento(for_pag_id),
     FOREIGN KEY (rep_id) REFERENCES representacao(rep_id),
     FOREIGN KEY (ped_ven_id) REFERENCES pedido_venda(ped_ven_id),

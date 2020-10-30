@@ -111,10 +111,10 @@ if (!isset($_COOKIE['USER_ID'])) {
                                     <!-- Popup botao controlar -->
                                     <ul class="dropdown-menu">
                                         <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
-                                        <li><a href="/controlar/contas/receber/index">Contas a Receber</a></li>
+                                        <li><a href="/representacoes/controlar/contas/receber">Contas a Receber</a></li>
                                         <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
                                         <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
-                                            <li><a href="/controlar/comissao/index">Comissões</a></li>
+                                            <li><a href="/representacoes/controlar/comissao">Comissões</a></li>
                                         <?php endif; ?>
                                     </ul>
                                     <!-- Fim popup botao controlar -->

@@ -4,6 +4,8 @@
 namespace scr\control;
 
 
+use scr\model\ContaPagar;
+use scr\model\ContaReceber;
 use scr\model\ItemPedidoVenda;
 use scr\model\PedidoFrete;
 use scr\model\PedidoVenda;
@@ -11,13 +13,15 @@ use scr\util\Banco;
 
 class PedidoVendaControl
 {
-    public function obter()
+    public function obter(int $ordem)
     {
         if (!Banco::getInstance()->open())
             return json_encode([]);
 
-        $pedidos = (new PedidoVenda())->findAll();
+        $pedidos = (new PedidoVenda())->findAll($this->traduzirOrdem($ordem));
+
         Banco::getInstance()->getConnection()->close();
+
         $serial = [];
         /** @var $pedido PedidoVenda */
         foreach ($pedidos as $pedido) {
@@ -63,6 +67,24 @@ class PedidoVendaControl
         return json_encode($serial);
     }
 
+    public function obterPorPeriod(string $dataInicio, string $dataFim, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $pedidos = (new PedidoVenda())->findByPeriod($dataInicio, $dataFim, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $pedido PedidoVenda */
+        foreach ($pedidos as $pedido) {
+            $serial[] = $pedido->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
     public function obterPorFiltroData(string $filtro, string $data, int $ordem)
     {
         if (!Banco::getInstance()->open())
@@ -81,23 +103,41 @@ class PedidoVendaControl
         return json_encode($serial);
     }
 
+    public function obterPorFiltroPeriod(string $filtro, string $dataInicio, string $dataFim, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $pedidos = (new PedidoVenda())->findByFilterPeriod($filtro, $dataInicio, $dataFim, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $pedido PedidoVenda */
+        foreach ($pedidos as $pedido) {
+            $serial[] = $pedido->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
     public function traduzirOrdem(int $ordem)
     {
         $ordemTraduzida = "";
 
         switch ($ordem) {
-            case "1": $ordemTraduzida = "ped_ven_descricao"; break;
-            case "2": $ordemTraduzida = "ped_ven_descricao DESC"; break;
-            case "3": $ordemTraduzida = "pf.pf_nome, pj.pj_nome_fantasia"; break;
-            case "4": $ordemTraduzida = "pf.pf_nome, pj.pj_nome_fantasia DESC"; break;
-            case "5": $ordemTraduzida = "ped_ven_data"; break;
-            case "6": $ordemTraduzida = "ped_ven_data DESC"; break;
-            case "7": $ordemTraduzida = "autor_pf.pf_nome"; break;
-            case "8": $ordemTraduzida = "autor_pf.pf_nome DESC"; break;
-            case "9": $ordemTraduzida = "fp.for_pag_descricao"; break;
-            case "10": $ordemTraduzida = "fp.for_pag_descricao DESC"; break;
-            case "11": $ordemTraduzida = "ped_ven_valor"; break;
-            case "12": $ordemTraduzida = "ped_ven_valor DESC"; break;
+            case 1: $ordemTraduzida = "pv.ped_ven_descricao"; break;
+            case 2: $ordemTraduzida = "pv.ped_ven_descricao DESC"; break;
+            case 3: $ordemTraduzida = "pf.pf_nome, pj.pj_nome_fantasia"; break;
+            case 4: $ordemTraduzida = "pf.pf_nome DESC, pj.pj_nome_fantasia DESC"; break;
+            case 5: $ordemTraduzida = "pv.ped_ven_data"; break;
+            case 6: $ordemTraduzida = "pv.ped_ven_data DESC"; break;
+            case 7: $ordemTraduzida = "autor_pf.pf_nome"; break;
+            case 8: $ordemTraduzida = "autor_pf.pf_nome DESC"; break;
+            case 9: $ordemTraduzida = "fp.for_pag_descricao"; break;
+            case 10: $ordemTraduzida = "fp.for_pag_descricao DESC"; break;
+            case 11: $ordemTraduzida = "pv.ped_ven_valor"; break;
+            case 12: $ordemTraduzida = "pv.ped_ven_valor DESC"; break;
         }
 
         return $ordemTraduzida;
@@ -135,6 +175,25 @@ class PedidoVendaControl
             return json_encode("Registro não encontrado.");
 
         Banco::getInstance()->getConnection()->begin_transaction();
+
+        $contas = $this->deletarContas($pedido);
+        if ($contas === -10) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Ocorreram problemas na exclusão das comissões do pedido ou algum registronão foi encontrado.");
+        }
+
+        if ($contas === -5) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Algum parâmetro foi passado incorretamente.");
+        }
+
+        if ($contas === -15) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Não foi possível deletar uma comissao ou pendência que já tenha sido recebida.");
+        }
 
         if (!$this->excluirItens($id))
             return json_encode("Erro ao excluir os itens do pedido.");
@@ -175,5 +234,63 @@ class PedidoVendaControl
         }
 
         return true;
+    }
+
+    /**
+     * @param int $pedido
+     * @return int
+     */
+    private function deletarContas(PedidoVenda $pedido): int
+    {
+        $response = 0;
+
+        if ($pedido->getId() <= 0)
+            return -5;
+
+        $contaPedido = (new ContaReceber())->findReceiveBySale($pedido->getId());
+        if (!$contaPedido)
+            return -10;
+
+        if ($contaPedido->getPendencia() && $contaPedido->getPendencia()->getValorRecebido() > 0)
+            return -15;
+
+        if ($contaPedido->getPendencia()) {
+            $response = $contaPedido->getPendencia()->delete();
+            if ($response < 0)
+                return $response;
+        }
+
+        $response = $contaPedido->delete();
+        if ($response < 0)
+            return $response;
+
+        if ($pedido->getVendedor()) {
+            $contaComissaoVendedor = (new ContaPagar())->findComissionBySale($pedido->getId());
+            if (!$contaComissaoVendedor)
+                return -10;
+
+            if ($contaComissaoVendedor->getSituacao() > 1)
+                return -15;
+
+            $response = $contaComissaoVendedor->delete();
+            if ($response < 0)
+                return $response;
+        }
+
+        $comissoes = (new ContaReceber())->findComissionsBySale($pedido->getId());
+        if (!$comissoes || count($comissoes) === 0)
+            return -10;
+
+        /** @var $comissao ContaReceber */
+        foreach ($comissoes as $comissao) {
+            if ($comissao->getSituacao() > 1)
+                return -15;
+
+            $response = $comissao->delete();
+            if ($response < 0)
+                return $response;
+        }
+
+        return $response;
     }
 }

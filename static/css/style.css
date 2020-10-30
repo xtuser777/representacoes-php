@@ -92,8 +92,7 @@ label {
     font-weight: bold;
     width: 380px;
     text-align: center;
-    margin:0 auto;
-    margin-bottom: 7px;
+    margin: 0 auto 7px;
 }
 
 .fieldset-card-legend-obg {

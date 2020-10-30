@@ -322,13 +322,11 @@ class PedidoVenda
     }
 
     /**
-     * @param mysqli_result $result
+     * @param array $row
      * @return PedidoVenda
      */
-    public function resultToObject(mysqli_result $result): PedidoVenda
+    private function rowToObject(array $row): PedidoVenda
     {
-        $row = $result->fetch_row();
-
         $pedido = new PedidoVenda();
         $pedido->setId($row["ped_ven_id"]);
         $pedido->setData($row["ped_ven_data"]);
@@ -338,7 +336,6 @@ class PedidoVenda
         $pedido->setVendedor(($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null);
         $pedido->setDestino((new Cidade())->getById($row["cid_id"]));
         $pedido->setOrcamento(($row["orc_ven_id"] !== null) ? OrcamentoVenda::findById($row["orc_ven_id"]) : null);
-        $pedido->setTipoCaminhao(TipoCaminhao::findById($row["tip_cam_id"]));
         $pedido->setCliente(Cliente::getById($row["cli_id"]));
         $pedido->setFormaPagamento(FormaPagamento::findById($row["for_pag_id"]));
         $pedido->setAutor(Usuario::getById($row["usu_id"]));
@@ -349,29 +346,25 @@ class PedidoVenda
 
     /**
      * @param mysqli_result $result
+     * @return PedidoVenda
+     */
+    private function resultToObject(mysqli_result $result): PedidoVenda
+    {
+        $row = $result->fetch_assoc();
+
+        return $this->rowToObject($row);
+    }
+
+    /**
+     * @param mysqli_result $result
      * @return array
      */
-    public function resultToList(mysqli_result $result): array
+    private function resultToList(mysqli_result $result): array
     {
         $pedidos = [];
 
-        while ($row = $result->fetch_row()) {
-            $pedido = new PedidoVenda();
-            $pedido->setId($row["ped_ven_id"]);
-            $pedido->setData($row["ped_ven_data"]);
-            $pedido->setDescricao($row["ped_ven_descricao"]);
-            $pedido->setPeso($row["ped_ven_peso"]);
-            $pedido->setValor($row["ped_ven_valor"]);
-            $pedido->setVendedor(($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null);
-            $pedido->setDestino((new Cidade())->getById($row["cid_id"]));
-            $pedido->setOrcamento(($row["orc_ven_id"] !== null) ? OrcamentoVenda::findById($row["orc_ven_id"]) : null);
-            $pedido->setTipoCaminhao(TipoCaminhao::findById($row["tip_cam_id"]));
-            $pedido->setCliente(Cliente::getById($row["cli_id"]));
-            $pedido->setFormaPagamento(FormaPagamento::findById($row["for_pag_id"]));
-            $pedido->setAutor(Usuario::getById($row["usu_id"]));
-            $pedido->setItens((new ItemPedidoVenda())->findByPrice($pedido->getId()));
-
-            $pedidos[] = $pedido;
+        while ($row = $result->fetch_assoc()) {
+            $pedidos[] = $this->rowToObject($row);
         }
 
         return $pedidos;
@@ -383,7 +376,7 @@ class PedidoVenda
 
         $sql = "
             SELECT ped_ven_id, ped_ven_data, ped_ven_descricao, ped_ven_peso, ped_ven_valor,
-                   fun_id, cid_id, orc_ven_id, tip_cam_id, cli_id, for_pag_id, usu_id
+                   fun_id, cid_id, orc_ven_id, cli_id, for_pag_id, usu_id
             FROM pedido_venda
             WHERE ped_ven_id = ?;
         ";
@@ -408,8 +401,6 @@ class PedidoVenda
             return null;
         }
 
-        $row = $result->fetch_assoc();
-
         return $this->resultToObject($result);
     }
 
@@ -420,7 +411,7 @@ class PedidoVenda
 
         $sql = "
             SELECT ped_ven_id, ped_ven_data, ped_ven_descricao, ped_ven_peso, ped_ven_valor,
-                   fun_id, cid_id, orc_ven_id, tip_cam_id, cli_id, for_pag_id, usu_id
+                   fun_id, cid_id, orc_ven_id, cli_id, for_pag_id, usu_id
             FROM pedido_venda
             WHERE orc_ven_id = ?;
         ";
@@ -445,11 +436,14 @@ class PedidoVenda
             return null;
         }
 
-        $row = $result->fetch_assoc();
-
         return $this->resultToObject($result);
     }
 
+    /**
+     * @param string $filter
+     * @param string $ordem
+     * @return array
+     */
     public function findByFilter(string $filter, string $ordem): array
     {
       if (strlen(trim($filter)) === 0)
@@ -457,7 +451,7 @@ class PedidoVenda
 
       $sql = "
           SELECT pv.ped_ven_id, pv.ped_ven_data, pv.ped_ven_descricao, pv.ped_ven_peso, pv.ped_ven_valor,
-                 pv.fun_id, pv.cid_id, pv.orc_ven_id, pv.tip_cam_id, pv.cli_id, pv.for_pag_id, pv.usu_id
+                 pv.fun_id, pv.cid_id, pv.orc_ven_id, pv.cli_id, pv.for_pag_id, pv.usu_id
           FROM pedido_venda pv
           INNER JOIN cliente cli ON cli.cli_id = pv.cli_id
           left join cliente_pessoa_fisica cpf on cli.cli_id = cpf.cli_id
@@ -498,6 +492,11 @@ class PedidoVenda
       return $this->resultToList($result);
     }
 
+    /**
+     * @param string $date
+     * @param string $ordem
+     * @return array
+     */
     public function findByDate(string $date, string $ordem): array
     {
       if (strlen(trim($date)) === 0)
@@ -505,12 +504,17 @@ class PedidoVenda
 
       $sql = "
           SELECT ped_ven_id, ped_ven_data, ped_ven_descricao, ped_ven_peso, ped_ven_valor,
-                 pv.fun_id, cid_id, orc_ven_id, tip_cam_id, cli_id, pv.for_pag_id, pv.usu_id
-          FROM pedido_venda pv
-          INNER JOIN usuario autor ON autor.usu_id = pv.usu_id
-          INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
-          INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
-          INNER JOIN forma_pagamento fp ON fp.for_pag_id = pv.for_pag_id
+                 pv.fun_id, cid_id, orc_ven_id, pv.cli_id, pv.for_pag_id, pv.usu_id
+            FROM pedido_venda pv
+            INNER JOIN cliente cli ON cli.cli_id = pv.cli_id
+            left join cliente_pessoa_fisica cpf on cli.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cli.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id    
+            INNER JOIN usuario autor ON autor.usu_id = pv.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pv.for_pag_id
           WHERE ped_ven_data = ?
           ORDER BY " . $ordem . ";
       ";
@@ -538,28 +542,82 @@ class PedidoVenda
       return $this->resultToList($result);
     }
 
+    /**
+     * @param string $dateInit
+     * @param string $dateFinal
+     * @param string $ordem
+     * @return array
+     */
+    public function findByPeriod(string $dateInit, string $dateFinal, string $ordem): array
+    {
+        if (strlen(trim($dateInit)) === 0 || strlen(trim($dateFinal)) === 0)
+            return [];
+
+        $sql = "
+          SELECT ped_ven_id, ped_ven_data, ped_ven_descricao, ped_ven_peso, ped_ven_valor,
+                 pv.fun_id, cid_id, orc_ven_id, pv.cli_id, pv.for_pag_id, pv.usu_id
+            FROM pedido_venda pv
+            INNER JOIN cliente cli ON cli.cli_id = pv.cli_id
+            left join cliente_pessoa_fisica cpf on cli.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cli.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id    
+            INNER JOIN usuario autor ON autor.usu_id = pv.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pv.for_pag_id
+          WHERE ped_ven_data >= ? AND ped_ven_data <= ?
+          ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("ss", $dateInit, $dateFinal);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    /**
+     * @param string $filter
+     * @param string $date
+     * @param string $ordem
+     * @return array
+     */
     public function findByFilterDate(string $filter, string $date, string $ordem): array
     {
       if (strlen(trim($filter)) === 0 || strlen(trim($date)) === 0)
           return [];
 
       $sql = "
-          SELECT pv.ped_ven_id, pv.ped_ven_data, pv.ped_ven_descricao, pv.ped_ven_peso, pv.ped_ven_valor,
-                 pv.fun_id, pv.cid_id, pv.orc_ven_id, pv.tip_cam_id, pv.cli_id, pv.for_pag_id, pv.usu_id
-          FROM pedido_venda pv
-          INNER JOIN cliente cli ON cli.cli_id = pv.cli_id
-          left join cliente_pessoa_fisica cpf on cli.cli_id = cpf.cli_id
-          left join cliente_pessoa_juridica cpj on cli.cli_id = cpj.cli_id
-          left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
-          left join pessoa_juridica pj on cpj.pj_id = pj.pj_id
-          INNER JOIN usuario autor ON autor.usu_id = pv.usu_id
-          INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
-          INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
-          INNER JOIN forma_pagamento fp ON fp.for_pag_id = pv.for_pag_id
-          WHERE ped_ven_data = ?
-          AND (ped_ven_descricao LIKE ?
-          OR pf.pf_nome LIKE ?
-          OR pj.pj_nome_fantasia LIKE ?)
+          SELECT ped_ven_id, ped_ven_data, ped_ven_descricao, ped_ven_peso, ped_ven_valor,
+                 pv.fun_id, cid_id, orc_ven_id, pv.cli_id, pv.for_pag_id, pv.usu_id
+            FROM pedido_venda pv
+            INNER JOIN cliente cli ON cli.cli_id = pv.cli_id
+            left join cliente_pessoa_fisica cpf on cli.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cli.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id    
+            INNER JOIN usuario autor ON autor.usu_id = pv.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pv.for_pag_id
+          WHERE pv.ped_ven_data = ? AND (pv.ped_ven_descricao LIKE ? OR pf.pf_nome LIKE ? OR pj.pj_nome_fantasia LIKE ?)
           ORDER BY " . $ordem . ";
       ";
 
@@ -588,14 +646,81 @@ class PedidoVenda
     }
 
     /**
+     * @param string $filter
+     * @param string $dateInit
+     * @param string $dateFinal
+     * @param string $ordem
      * @return array
      */
-    public function findAll(): array
+    public function findByFilterPeriod(string $filter, string $dateInit, string $dateFinal, string $ordem): array
+    {
+        if (strlen(trim($filter)) === 0 || strlen(trim($dateInit)) === 0 || strlen(trim($dateFinal)) === 0)
+            return [];
+
+        $sql = "
+          SELECT ped_ven_id, ped_ven_data, ped_ven_descricao, ped_ven_peso, ped_ven_valor,
+                 pv.fun_id, cid_id, orc_ven_id, pv.cli_id, pv.for_pag_id, pv.usu_id
+            FROM pedido_venda pv
+            INNER JOIN cliente cli ON cli.cli_id = pv.cli_id
+            left join cliente_pessoa_fisica cpf on cli.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cli.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id    
+            INNER JOIN usuario autor ON autor.usu_id = pv.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pv.for_pag_id
+          WHERE ped_ven_data >= ? AND ped_ven_data <= ? 
+          AND (ped_ven_descricao LIKE ?
+          OR pf.pf_nome LIKE ?
+          OR pj.pj_nome_fantasia LIKE ?)
+          ORDER BY " . $ordem . ";
+      ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $filtro = "%" . $filter . "%";
+        $stmt->bind_param("sssss", $dateInit, $dateFinal, $filtro, $filtro, $filtro);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    /**
+     * @param string $ordem
+     * @return array
+     */
+    public function findAll(string $ordem = "ped_ven_descricao"): array
     {
         $sql = "
-            SELECT *
-            FROM pedido_venda 
-            ORDER BY ped_ven_descricao;
+            SELECT ped_ven_id, ped_ven_data, ped_ven_descricao, ped_ven_peso, ped_ven_valor,
+                 pv.fun_id, cid_id, orc_ven_id, pv.cli_id, pv.for_pag_id, pv.usu_id
+            FROM pedido_venda pv
+            INNER JOIN cliente cli ON cli.cli_id = pv.cli_id
+            left join cliente_pessoa_fisica cpf on cli.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cli.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id    
+            INNER JOIN usuario autor ON autor.usu_id = pv.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pv.for_pag_id
+            ORDER BY " . $ordem . ";
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -629,7 +754,6 @@ class PedidoVenda
         $this->peso <= 0 ||
         $this->valor <= 0 ||
         $this->destino === null ||
-        $this->tipoCaminhao === null ||
         $this->cliente === null ||
         $this->formaPagamento === null ||
         $this->autor === null
@@ -646,12 +770,77 @@ class PedidoVenda
             fun_id,
             cid_id,
             orc_ven_id,
-            tip_cam_id,
             cli_id,
             for_pag_id,
             usu_id
             )
-          VALUES (?,?,?,?,?,?,?,?,?,?,?);
+          VALUES (?,?,?,?,?,?,?,?,?,?);
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+          echo Banco::getInstance()->getConnection()->error;
+          return -10;
+        }
+
+        $vdd = ($this->vendedor) ? $this->vendedor->getId() : null;
+        $dest = $this->destino->getId();
+        $orc = ($this->orcamento) ? $this->orcamento->getId() : null;
+        $cli = $this->cliente->getId();
+        $fp = $this->formaPagamento->getId();
+        $autor = $this->autor->getId();
+
+        $stmt->bind_param(
+          "ssddiiiiii",
+          $this->data,
+          $this->descricao,
+          $this->peso,
+          $this->valor,
+          $vdd,
+          $dest,
+          $orc,
+          $cli,
+          $fp,
+          $autor
+        );
+
+        if (!$stmt->execute()) {
+          echo $stmt->error;
+          return -10;
+        }
+
+        return $stmt->insert_id;
+    }
+
+    public function update(): int
+    {
+      if (
+        $this->id <= 0 ||
+        strlen(trim($this->data)) === 0 ||
+        strlen(trim($this->descricao)) === 0 ||
+        $this->peso <= 0 ||
+        $this->valor <= 0 ||
+        $this->destino === null ||
+        $this->cliente === null ||
+        $this->formaPagamento === null ||
+        $this->autor === null
+        )
+        return -5;
+
+        $sql = "
+          UPDATE pedido_venda
+          SET  ped_ven_data = ?,
+               ped_ven_descricao = ?,
+               ped_ven_peso = ?,
+               ped_ven_valor = ?,
+               fun_id = ?,
+               cid_id = ?,
+               orc_ven_id = ?,
+               cli_id = ?,
+               for_pag_id = ?,
+               usu_id = ?
+          WHERE ped_ven_id = ?;
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -678,77 +867,6 @@ class PedidoVenda
           $vdd,
           $dest,
           $orc,
-          $tip,
-          $cli,
-          $fp,
-          $autor
-        );
-
-        if (!$stmt->execute()) {
-          echo $stmt->error;
-          return -10;
-        }
-
-        return $stmt->insert_id;
-    }
-
-    public function update(): int
-    {
-      if (
-        $this->id <= 0 ||
-        strlen(trim($this->data)) === 0 ||
-        strlen(trim($this->descricao)) === 0 ||
-        $this->peso <= 0 ||
-        $this->valor <= 0 ||
-        $this->destino === null ||
-        $this->tipoCaminhao === null ||
-        $this->cliente === null ||
-        $this->formaPagamento === null ||
-        $this->autor === null
-        )
-        return -5;
-
-        $sql = "
-          UPDATE pedido_venda
-          SET  ped_ven_data = ?,
-               ped_ven_descricao = ?,
-               ped_ven_peso = ?,
-               ped_ven_valor = ?,
-               fun_id = ?,
-               cid_id = ?,
-               orc_ven_id = ?,
-               tip_cam_id = ?,
-               cli_id = ?,
-               for_pag_id = ?,
-               usu_id = ?
-          WHERE ped_ven_id = ?;
-        ";
-
-        /** @var $stmt mysqli_stmt */
-        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
-        if (!$stmt) {
-          echo Banco::getInstance()->getConnection()->error;
-          return -10;
-        }
-
-        $vdd = ($this->vendedor) ? $this->vendedor->getId() : null;
-        $dest = $this->destino->getId();
-        $orc = ($this->orcamento) ? $this->orcamento->getId() : null;
-        $tip = $this->tipoCaminhao->getId();
-        $cli = $this->cliente->getId();
-        $fp = $this->formaPagamento->getId();
-        $autor = $this->autor->getId();
-
-        $stmt->bind_param(
-          "ssddiiiiiiii",
-          $this->data,
-          $this->descricao,
-          $this->peso,
-          $this->valor,
-          $vdd,
-          $dest,
-          $orc,
-          $tip,
           $cli,
           $fp,
           $autor,
@@ -799,7 +917,6 @@ class PedidoVenda
         $vendedor = ($this->vendedor !== null) ? $this->vendedor->jsonSerialize() : null;
         $destino = $this->destino->jsonSerialize();
         $orcamento = ($this->orcamento !== null) ? $this->orcamento->jsonSerialize() : null;
-        $tipoCaminhao = $this->tipoCaminhao->jsonSerialize();
         $cliente = $this->cliente->jsonSerialize();
         $formaPagamento = $this->formaPagamento->jsonSerialize();
         $autor = $this->autor->jsonSerialize();
@@ -818,7 +935,6 @@ class PedidoVenda
             "vendedor" => $vendedor,
             "destino" => $destino,
             "orcamento" => $orcamento,
-            "tipoCaminhao" => $tipoCaminhao,
             "cliente" => $cliente,
             "formaPagamento" => $formaPagamento,
             "autor" => $autor,

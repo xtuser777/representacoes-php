@@ -29,17 +29,22 @@ var erroValidade = true;
 
 function get(url_i) {
     let res;
+
     $.ajax({
         type: 'GET',
         url: url_i,
         async: false,
         contentType: 'application/json',
         dataType: 'json',
-        success: function (result) {res = result;},
-        error: function (xhr, status, thrown) {
-            console.error(thrown);
-            alert(thrown);
-        }
+        success:
+            function (result) {
+                res = result;
+            },
+        error:
+            function (xhr, status, thrown) {
+                console.error(thrown);
+                alert(thrown);
+            }
     });
 
     return res;

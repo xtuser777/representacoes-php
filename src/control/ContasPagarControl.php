@@ -347,34 +347,4 @@ class ContasPagarControl
 
         return json_encode("");
     }
-
-    /*
-    public function excluir(int $id)
-    {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
-        $conta = (new ContaPagar())->findById($id);
-        if (!$conta)
-            return json_encode("Registro não encontrado.");
-
-        if ($conta->getSituacao() > 1 || strlen($conta->getDataPagamento()) > 0)
-            return json_encode("Não é possível remover uma conta já paga.");
-
-        Banco::getInstance()->getConnection()->begin_transaction();
-        $cp = $conta->delete();
-        if ($cp == -10 || $cp == -1) {
-            Banco::getInstance()->getConnection()->rollback();
-            Banco::getInstance()->getconnection()->close();
-            return json_encode("Ocorreu um problema ao excluir a despesa.");
-        }
-        if ($cp == -5) {
-            Banco::getInstance()->getConnection()->rollback();
-            Banco::getInstance()->getconnection()->close();
-            return json_encode("Parâmetro inválido.");
-        }
-        Banco::getInstance()->getConnection()->commit();
-        Banco::getInstance()->getconnection()->close();
-
-        return json_encode("");
-    }
-    */
 }

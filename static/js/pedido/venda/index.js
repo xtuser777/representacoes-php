@@ -1,18 +1,16 @@
-const textFiltro = document.getElementById("filtro");
-const filtroData = document.getElementById("filtro_data");
-const slOrdem = document.getElementById("slOrdem");
+const textFiltro = document.getElementById("textFiltro");
+const dateFiltroDataInicio = document.getElementById("dateFiltroDataInicio");
+const dateFiltroDataFim = document.getElementById("dateFiltroDataFim");
+const selectOrdem = document.getElementById("selectOrdem");
 const tablePedidos = document.getElementById("table_pedidos");
 const tbodyPedidos = document.getElementById("tbody_pedidos");
 
 function preencherTabela(dados) {
-    var txt = "";
+    let txt = "";
+
     $.each(dados, function () {
         let cliente = (this.cliente.tipo === 1) ? this.cliente.pessoaFisica.nome : this.cliente.pessoaJuridica.nomeFantasia;
 
-        let valorFormat = this.valor.toString();
-        valorFormat = valorFormat.replace('.', '#');
-        if (valorFormat.search('#') === -1) valorFormat += ',00';
-        else valorFormat = valorFormat.replace('#', ',');
         txt +=
             '<tr>\
                 <td class="hidden">' + this.id + '</td>\
@@ -21,8 +19,8 @@ function preencherTabela(dados) {
                 <td>' + FormatarData(this.data) + '</td>\
                 <td>' + this.autor.funcionario.pessoa.nome + '</td>\
                 <td>' + this.formaPagamento.descricao + '</td>\
-                <td>'+ valorFormat +'</td>\
-                <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
+                <td>'+ formatarValor(this.valor) +'</td>\
+                <td><a role="button" class="glyphicon glyphicon-plus" data-toggle="tooltip" data-placement="top" title="MAIS DETALHES" href="javascript:alterar(' + this.id + ')"></a></td>\
                 <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
             </tr>';
     });
@@ -46,9 +44,21 @@ function get(url_i) {
     return res;
 }
 
-function obter() {
-    let data = get("/representacoes/pedido/venda/obter.php");
-    preencherTabela(data);
+function obter(ordem = "1") {
+    $.ajax({
+        type: "POST",
+        url: "/representacoes/pedido/venda/obter.php",
+        data: {
+            ordem: ordem
+        },
+        async: false,
+        success: function (response) {
+            preencherTabela(response);
+        },
+        error: function (xhr, status, thrown) {
+
+        }
+    });
 }
 
 $(document).ready(function (event) {
@@ -62,32 +72,73 @@ $(document).ready(function (event) {
 
 function filtrar() {
     let filtro = textFiltro.value;
-    let data = filtroData.value;
-    let ordem = slOrdem.value;
+    let dataInicio = dateFiltroDataInicio.value;
+    let dataFim = dateFiltroDataFim.value;
+    let ordem = selectOrdem.value;
 
-    if (filtro === "" && data === "") {
-        obter();
+    let inicio = new Date(dataInicio + " 12:00:01");
+    let fim = new Date(dataFim + " 12:00:01");
+
+    if (filtro === "" && dataInicio === "" && dataFim === "") {
+        obter(ordem);
     } else {
-        if (filtro !== "" && data !== "") {
-            $.ajax({
-                type: 'POST',
-                url: '/representacoes/pedido/venda/obter-por-filtro-data.php',
-                data: { filtro: filtro, data: data, ordem: ordem },
-                success: function (response) {
-                    if (response != null && response !== ""){
-                        preencherTabela(response);
-                    }
-                },
-                error: function () {
-                    alert("Ocorreu um erro ao comunicar-se com o servidor...");
+        if (filtro !== "" && dataInicio !== "" && dataFim !== "") {
+            if (inicio > fim) {
+                mostraDialogo(
+                    "A data de início deve ser igual ou menor que a data final.",
+                    "danger",
+                    3000
+                );
+            } else {
+                if (dataInicio === dataFim) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/representacoes/pedido/venda/obter-por-filtro-data.php',
+                        data: {
+                            filtro: filtro,
+                            data: dataInicio,
+                            ordem: ordem
+                        },
+                        success: function (response) {
+                            if (response != null && response !== ""){
+                                preencherTabela(response);
+                            }
+                        },
+                        error: function () {
+                            alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/representacoes/pedido/venda/obter-por-filtro-periodo.php',
+                        data: {
+                            filtro: filtro,
+                            inicio: dataInicio,
+                            fim: dataFim,
+                            ordem: ordem
+                        },
+                        success: function (response) {
+                            if (response != null && response !== ""){
+                                preencherTabela(response);
+                            }
+                        },
+                        error: function () {
+                            alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                        }
+                    });
                 }
-            });
+            }
+
         } else {
-            if (filtro !== "") {
+            if (filtro !== "" && dataInicio === "" && dataFim === "") {
                 $.ajax({
                     type: 'POST',
                     url: '/representacoes/pedido/venda/obter-por-filtro.php',
-                    data: { filtro: filtro, ordem: ordem },
+                    data: {
+                        filtro: filtro,
+                        ordem: ordem
+                    },
                     success: function (response) {
                         if (response != null && response !== ""){
                             preencherTabela(response);
@@ -98,20 +149,61 @@ function filtrar() {
                     }
                 });
             } else {
-                if (data !== ""){
-                    $.ajax({
-                        type: 'POST',
-                        url: '/representacoes/pedido/venda/obter-por-data.php',
-                        data: { data: data, ordem: ordem },
-                        success: function (response) {
-                            if (response != null && response !== ""){
-                                preencherTabela(response);
-                            }
-                        },
-                        error: function () {
-                            alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                if (filtro === "" && dataInicio !== "" && dataFim !== "") {
+                    if (inicio > fim) {
+                        mostraDialogo(
+                            "A data de início deve ser igual ou menor que a data final.",
+                            "danger",
+                            3000
+                        );
+                    } else {
+                        if (dataInicio === dataFim) {
+                            $.ajax({
+                                type: 'POST',
+                                url: '/representacoes/pedido/venda/obter-por-data.php',
+                                data: {
+                                    filtro: filtro,
+                                    data: dataInicio,
+                                    ordem: ordem
+                                },
+                                success: function (response) {
+                                    if (response != null && response !== ""){
+                                        preencherTabela(response);
+                                    }
+                                },
+                                error: function () {
+                                    alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                                }
+                            });
+                        } else {
+                            $.ajax({
+                                type: 'POST',
+                                url: '/representacoes/pedido/venda/obter-por-periodo.php',
+                                data: {
+                                    filtro: filtro,
+                                    inicio: dataInicio,
+                                    fim: dataFim,
+                                    ordem: ordem
+                                },
+                                success: function (response) {
+                                    if (response != null && response !== ""){
+                                        preencherTabela(response);
+                                    }
+                                },
+                                error: function () {
+                                    alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                                }
+                            });
                         }
-                    });
+                    }
+                } else {
+                    if (dataInicio === "" || dataFim === "") {
+                        mostraDialogo(
+                            "A data de início e a data final devem estar preenchidas.",
+                            "danger",
+                            3000
+                        );
+                    }
                 }
             }
         }

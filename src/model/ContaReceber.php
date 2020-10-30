@@ -28,6 +28,9 @@ class ContaReceber
     /** @var float */
     private $valor;
 
+    /** @var bool */
+    private $comissao;
+
     /** @var int */
     private $situacao;
 
@@ -45,9 +48,6 @@ class ContaReceber
 
     /** @var FormaPagamento|null */
     private $formaRecebimento;
-
-    /** @var Categoria */
-    private $categoria;
 
     /** @var Representacao|null */
     private $representacao;
@@ -69,19 +69,19 @@ class ContaReceber
      * @param string $descricao
      * @param string $pagador
      * @param float $valor
+     * @param bool $comissao
      * @param int $situacao
      * @param string $vencimento
      * @param string $dataRecebimento
      * @param float $valorRecebido
      * @param ContaReceber|null $pendencia
      * @param FormaPagamento|null $formaRecebimento
-     * @param Categoria|null $categoria
      * @param Representacao|null $representacao
      * @param PedidoVenda|null $pedidoVenda
      * @param PedidoFrete|null $pedidoFrete
      * @param Usuario|null $autor
      */
-    public function __construct(int $id = 0, string $data = "", int $conta = 0, string $descricao = "", string $pagador = "", float $valor = 0.0, int $situacao = 0, string $vencimento = "", string $dataRecebimento = "", float $valorRecebido = 0.0, ?ContaReceber $pendencia = null, ?FormaPagamento $formaRecebimento = null, Categoria $categoria = null, ?Representacao $representacao = null, ?PedidoVenda $pedidoVenda = null, ?PedidoFrete $pedidoFrete = null, Usuario $autor = null)
+    public function __construct(int $id = 0, string $data = "", int $conta = 0, string $descricao = "", string $pagador = "", float $valor = 0.0, bool $comissao = false, int $situacao = 0, string $vencimento = "", string $dataRecebimento = "", float $valorRecebido = 0.0, ?ContaReceber $pendencia = null, ?FormaPagamento $formaRecebimento = null, ?Representacao $representacao = null, ?PedidoVenda $pedidoVenda = null, ?PedidoFrete $pedidoFrete = null, Usuario $autor = null)
     {
         $this->id = $id;
         $this->data = $data;
@@ -89,13 +89,13 @@ class ContaReceber
         $this->descricao = $descricao;
         $this->pagador = $pagador;
         $this->valor = $valor;
+        $this->comissao = $comissao;
         $this->situacao = $situacao;
         $this->vencimento = $vencimento;
         $this->dataRecebimento = $dataRecebimento;
         $this->valorRecebido = $valorRecebido;
         $this->pendencia = $pendencia;
         $this->formaRecebimento = $formaRecebimento;
-        $this->categoria = $categoria;
         $this->representacao = $representacao;
         $this->pedidoVenda = $pedidoVenda;
         $this->pedidoFrete = $pedidoFrete;
@@ -199,6 +199,22 @@ class ContaReceber
     }
 
     /**
+     * @return bool
+     */
+    public function isComissao(): bool
+    {
+        return $this->comissao;
+    }
+
+    /**
+     * @param bool $comissao
+     */
+    public function setComissao(bool $comissao): void
+    {
+        $this->comissao = $comissao;
+    }
+
+    /**
      * @return int
      */
     public function getSituacao(): int
@@ -295,22 +311,6 @@ class ContaReceber
     }
 
     /**
-     * @return Categoria
-     */
-    public function getCategoria(): Categoria
-    {
-        return $this->categoria;
-    }
-
-    /**
-     * @param Categoria $categoria
-     */
-    public function setCategoria(Categoria $categoria): void
-    {
-        $this->categoria = $categoria;
-    }
-
-    /**
      * @return Representacao|null
      */
     public function getRepresentacao(): ?Representacao
@@ -375,27 +375,62 @@ class ContaReceber
     }
 
     /**
-     * @param mysqli_result $result
+     * @return int
+     */
+    public function findNewCount(): int
+    {
+        $sql = "
+            SELECT MAX(con_rec_conta) AS CONTA
+            FROM conta_receber;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if ($stmt === null) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if ($result === null || $result->num_rows === 0) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        $row = $result->fetch_assoc();
+
+        $conta = ($row["CONTA"]) ? (int) $row["CONTA"] : 0;
+
+        return $conta + 1;
+    }
+
+    /**
+     * @param array $row
      * @return ContaReceber
      */
-    public function resultToObject(mysqli_result $result) : ContaReceber
+    public function rowToObject(array $row) : ContaReceber
     {
-        $row = $result->fetch_row();
-
         $conta = new ContaReceber();
+
         $conta->setId($row["con_rec_id"]);
         $conta->setConta($row["con_rec_conta"]);
         $conta->setData($row["con_rec_data"]);
         $conta->setDescricao($row["con_rec_descricao"]);
         $conta->setPagador($row["con_rec_pagador"]);
         $conta->setValor($row["con_rec_valor"]);
+        $conta->setComissao($row["con_rec_comissao"]);
         $conta->setSituacao($row["con_rec_situacao"]);
         $conta->setVencimento($row["con_rec_vencimento"]);
         $conta->setDataRecebimento(($row["con_rec_data_recebimento"]) ? $row["con_rec_data_recebimento"] : "");
-        $conta->setValorRecebido(($row["con_rec_valor_recebido"]) ? $row["con_rec_valor_recebido"] : "");
+        $conta->setValorRecebido(($row["con_rec_valor_recebido"]) ? $row["con_rec_valor_recebido"] : 0.0);
         $conta->setPendencia(($row["con_rec_pendencia"]) ? (new ContaReceber())->findById($row["con_rec_pendencia"]) : null);
         $conta->setFormaRecebimento(($row["for_pag_id"]) ? FormaPagamento::findById($row["for_pag_id"]) : null);
-        $conta->setCategoria(Categoria::findById($row["cat_id"]));
         $conta->setRepresentacao(($row["rep_id"]) ? Representacao::getById($row["rep_id"]) : null);
         $conta->setPedidoVenda(($row["ped_ven_id"]) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null);
         $conta->setPedidoFrete(($row["ped_fre_id"]) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null);
@@ -406,32 +441,24 @@ class ContaReceber
 
     /**
      * @param mysqli_result $result
+     * @return ContaReceber
+     */
+    public function resultToObject(mysqli_result $result) : ContaReceber
+    {
+        $row = $result->fetch_assoc();
+
+        return $this->rowToObject($row);
+    }
+
+    /**
+     * @param mysqli_result $result
      * @return array
      */
     public function resultToList(mysqli_result $result): array
     {
         $contas = [];
-        while ($row = $result->fetch_row()) {
-            $conta = new ContaReceber();
-            $conta->setId($row["con_rec_id"]);
-            $conta->setConta($row["con_rec_conta"]);
-            $conta->setData($row["con_rec_data"]);
-            $conta->setDescricao($row["con_rec_descricao"]);
-            $conta->setPagador($row["con_rec_pagador"]);
-            $conta->setValor($row["con_rec_valor"]);
-            $conta->setSituacao($row["con_rec_situacao"]);
-            $conta->setVencimento($row["con_rec_vencimento"]);
-            $conta->setDataRecebimento(($row["con_rec_data_recebimento"]) ? $row["con_rec_data_recebimento"] : "");
-            $conta->setValorRecebido(($row["con_rec_valor_recebido"]) ? $row["con_rec_valor_recebido"] : "");
-            $conta->setPendencia(($row["con_rec_pendencia"]) ? (new ContaReceber())->findById($row["con_rec_pendencia"]) : null);
-            $conta->setFormaRecebimento(($row["for_pag_id"]) ? FormaPagamento::findById($row["for_pag_id"]) : null);
-            $conta->setCategoria(Categoria::findById($row["cat_id"]));
-            $conta->setRepresentacao(($row["rep_id"]) ? Representacao::getById($row["rep_id"]) : null);
-            $conta->setPedidoVenda(($row["ped_ven_id"]) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null);
-            $conta->setPedidoFrete(($row["ped_fre_id"]) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null);
-            $conta->setAutor(Usuario::getById($row["usu_id"]));
-
-            $contas[] = $conta;
+        while ($row = $result->fetch_assoc()) {
+            $contas[] = $this->rowToObject($row);
         }
 
         return $contas;
@@ -449,8 +476,7 @@ class ContaReceber
         $sql = "
             SELECT * 
             FROM conta_receber 
-            WHERE con_rec_id = ?
-            ORDER BY con_rec_conta;
+            WHERE con_rec_id = ?;
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -476,6 +502,681 @@ class ContaReceber
         return $this->resultToObject($result);
     }
 
+    public function findByDescription(string $description, string $ordem): array
+    {
+        if ($description === null || strlen($description) <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $desc = "%".$description."%";
+        $stmt->bind_param("s", $desc);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionSituation(string $description, int $situation, string $ordem): array
+    {
+        if ($description === null || strlen($description) <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? 
+            AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $desc = "%".$description."%";
+        $stmt->bind_param("si", $desc, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findBySituation(int $situation, string $ordem): array
+    {
+        if ($situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber 
+            WHERE con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("i", $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDate(string $date, string $ordem): array
+    {
+        if ($date === null || strlen($date) <= 0) return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("s", $date);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDateSituation(string $date, int $situation, string $ordem): array
+    {
+        if ($date === null || strlen($date) <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento = ? 
+            AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("si", $date, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByPeriod(string $date1, string $date2, string $ordem): array
+    {
+        if ($date1 === null || strlen($date1) <= 0 || $date2 === null || strlen($date2) <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento >= ?
+            AND con_rec_vencimento <= ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("ss", $date1, $date2);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByPeriodSituation(string $date1, string $date2, int $situation, string $ordem): array
+    {
+        if ($date1 === null || strlen($date1) <= 0 || $date2 === null || strlen($date2) <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento >= ?
+            AND con_rec_vencimento <= ? 
+            AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("ssi", $date1, $date2, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionDate(string $description, string $date, string $ordem): array
+    {
+        if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ?
+            AND con_rec_vencimento = ?
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $desc = "%".$description."%";
+        $stmt->bind_param("ss", $desc, $date);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionDateSituation(string $description, string $date, int $situation, string $ordem): array
+    {
+        if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ?
+            AND con_rec_vencimento = ? 
+            AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $desc = "%".$description."%";
+        $stmt->bind_param("ssi", $desc, $date, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionPeriod(string $description, string $date1, string $date2, string $ordem): array
+    {
+        if (
+            $description === null || strlen($description) <= 0 ||
+            $date1 === null || strlen($date1) <= 0 ||
+            $date2 === null || strlen($date2) <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ?
+            AND con_rec_vencimento >= ?
+            AND con_rec_vencimento <= ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $desc = "%".$description."%";
+        $stmt->bind_param("sss", $desc, $date1, $date2);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionPeriodSituation(string $description, string $date1, string $date2, int $situation, string $ordem): array
+    {
+        if (
+            $description === null || strlen($description) <= 0 ||
+            $date1 === null || strlen($date1) <= 0 ||
+            $date2 === null || strlen($date2) <= 0 || $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ?
+            AND con_rec_vencimento >= ?
+            AND con_rec_vencimento <= ? 
+            AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        
+        $desc = "%".$description."%";
+        $stmt->bind_param("sssi", $desc, $date1, $date2, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    /**
+     * @param int $sale
+     * @return array
+     */
+    public function findComissionsBySale(int $sale): array
+    {
+        if ($sale <= 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM conta_receber 
+            WHERE con_rec_comissao = TRUE AND rep_id IS NOT NULL AND ped_ven_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("i", $sale);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    /**
+     * @param int $sale
+     * @return ContaReceber|null
+     */
+    public function findReceiveBySale(int $sale): ?ContaReceber
+    {
+        if ($sale <= 0)
+            return null;
+
+        $sql = "
+            SELECT * 
+            FROM conta_receber 
+            WHERE con_rec_comissao = FALSE AND ped_ven_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return null;
+        }
+
+        $stmt->bind_param("i", $sale);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return null;
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result) {
+            echo $stmt->error;
+            return null;
+        }
+
+        return $this->resultToObject($result);
+    }
+
+    /**
+     * @return array
+     */
+    public function findAll(string $ordem = "con_rec_conta"): array
+    {
+        $sql = "
+            SELECT * 
+            FROM conta_receber 
+            ORDER BY ". $ordem .";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    /**
+     * @return int
+     */
+    public function save(): int
+    {
+        if (
+            $this->id != 0 ||
+            $this->conta <= 0 ||
+            strlen($this->data) === 0 ||
+            strlen(trim($this->descricao)) === 0 ||
+            strlen(trim($this->pagador)) === 0 ||
+            $this->valor <= 0 ||
+            $this->situacao <= 0 ||
+            strlen($this->vencimento) === 0 ||
+            $this->autor === null
+        )
+            return -5;
+
+        $sql = "
+            INSERT 
+            INTO conta_receber (
+                con_rec_conta,
+                con_rec_data,
+                con_rec_descricao,
+                con_rec_pagador,
+                con_rec_valor,
+                con_rec_comissao,                
+                con_rec_situacao,
+                con_rec_vencimento,
+                rep_id,
+                ped_ven_id,
+                ped_fre_id,
+                usu_id
+            )
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $representacao = ($this->representacao) ? $this->representacao->getId() : null;
+        $pedidoVenda = ($this->pedidoVenda) ? $this->pedidoVenda->getId() : null;
+        $pedidoFrete = ($this->pedidoFrete) ? $this->pedidoFrete->getId() : null;
+        $autor = $this->autor->getId();
+
+        $stmt->bind_param(
+            "isssdiisiiii",
+            $this->conta,
+            $this->data,
+            $this->descricao,
+            $this->pagador,
+            $this->valor,
+            $this->comissao,
+            $this->situacao,
+            $this->vencimento,
+            $representacao,
+            $pedidoVenda,
+            $pedidoFrete,
+            $autor
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->insert_id;
+    }
+
+    /**
+     * @param int $forma
+     * @param float $valor
+     * @param string $data
+     * @param int $situacao
+     * @param int $pendencia
+     * @return int
+     */
+    public function receber(int $forma, float $valor, string $data, int $situacao, int $pendencia): int
+    {
+        if (
+            $this->id <= 0 ||
+            $valor <= 0 ||
+            strlen($data) === 0 ||
+            $situacao === 0 ||
+            $forma === 0
+        )
+            return -5;
+
+        $sql = "
+            UPDATE conta_receber
+            SET con_rec_valor_recebido = ?,
+            con_rec_data_recebimento = ?,
+            con_rec_situacao = ?,
+            con_rec_pendencia = ?, 
+            for_pag_id = ?
+            WHERE con_rec_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $pen = ($pendencia > 0) ? $pendencia : null;
+        $stmt->bind_param(
+            "dsiiii",
+            $valor,
+            $data,
+            $situacao,
+            $pen,
+            $forma,
+            $this->id
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
+    }
+
+    public function delete(): int
+    {
+        if ($this->id <= 0)
+            return -5;
+
+        $sql = "
+            DELETE
+            FROM conta_receber
+            WHERE con_rec_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if ($stmt === null) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $stmt->bind_param("i", $this->id);
+        if ($stmt->execute() === false) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
+    }
+
     /**
      * @return array
      */
@@ -483,7 +1184,6 @@ class ContaReceber
     {
         $pendencia = ($this->pendencia) ? $this->pendencia->jsonSerialize() : null;
         $formaRecebimento = ($this->formaRecebimento) ? $this->formaRecebimento->jsonSerialize() : null;
-        $categoria = $this->categoria->jsonSerialize();
         $representacao = ($this->representacao) ? $this->representacao->jsonSerialize() : null;
         $pedidoVenda = ($this->pedidoVenda) ? $this->pedidoVenda->jsonSerialize() : null;
         $pedidoFrete = ($this->pedidoFrete) ? $this->pedidoFrete->jsonSerialize() : null;
@@ -496,13 +1196,13 @@ class ContaReceber
             "descricao" => $this->descricao,
             "pagador" => $this->pagador,
             "valor" => $this->valor,
+            "comissao" => $this->comissao,
             "situacao" => $this->situacao,
             "vencimento" => $this->vencimento,
             "dataRecebimento" => $this->dataRecebimento,
             "valorRecebido" => $this->valorRecebido,
             "pendencia" => $pendencia,
             "formaRecebimento" => $formaRecebimento,
-            "categoria" => $categoria,
             "representacao" => $representacao,
             "pedidoVenda" => $pedidoVenda,
             "pedidoFrete" => $pedidoFrete,

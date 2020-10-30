@@ -19,24 +19,16 @@ var selecionado = {
 var tipos = [];
 
 function preencheTabelaItens(dados) {
-    var txt = "";
-    $.each(dados, function () {
-        let valorFormat = this.valor.toString();
-        valorFormat = valorFormat.replace('.', '#');
-        if (valorFormat.search('#') === -1) valorFormat += ',00';
-        else valorFormat = valorFormat.replace('#', ',');
+    let txt = "";
 
-        let precoFormat = this.produto.preco.toString();
-        precoFormat = precoFormat.replace('.', '#');
-        if (precoFormat.search('#') === -1) precoFormat += ',00';
-        else precoFormat = precoFormat.replace('#', ',');
+    $.each(dados, function () {
         txt +=
             '<tr>\
                 <td>' + this.produto.descricao + '</td>\
                 <td>' + this.produto.representacao + '</td>\
-                <td>' + precoFormat + '</td>\
+                <td>' + formatarValor(this.produto.preco) + '</td>\
                 <td>' + this.quantidade + '</td>\
-                <td>' + valorFormat + '</td>\
+                <td>' + formatarValor(this.valor) + '</td>\
                 <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluirItem(' + this.produto.id +')"></a></td>\
             </tr>';
     });
@@ -44,18 +36,15 @@ function preencheTabelaItens(dados) {
 }
 
 function preencheTabelaProd(dados) {
-    var txt = "";
+    let txt = "";
+
     $.each(dados, function () {
-        let valorFormat = this.preco.toString();
-        valorFormat = valorFormat.replace('.', '#');
-        if (valorFormat.search('#') === -1) valorFormat += ',00';
-        else valorFormat = valorFormat.replace('#', ',');
         txt +=
             '<tr>\
                 <td>' + this.descricao + '</td>\
                 <td>' + this.medida + '</td>\
                 <td>' + this.representacao.pessoa.nomeFantasia + '</td>\
-                <td>' + valorFormat + '</td>\
+                <td>' + formatarValor(this.preco) + '</td>\
                 <td><a role="button" class="glyphicon glyphicon-ok-circle" data-toggle="tooltip" data-placement="top" title="SELECIONAR" href="javascript:selecionar(' + this.id + ',\''+ this.descricao +'\','+ this.peso +','+ this.preco +','+ this.precoOut +','+ this.representacao.pessoa.contato.endereco.cidade.estado.id +',\''+ this.representacao.pessoa.nomeFantasia +'\');"></a></td>\
             </tr>';
     });
@@ -82,6 +71,7 @@ function get(url_i) {
 
 function buttonFiltrarProdClick() {
     let filtro = textFiltroProd.value.toString();
+
     if (filtro.trim().length === 0) {
         obterProdutos();
     } else {
@@ -115,14 +105,8 @@ function selecionar(id,desc,peso,preco,precoOut,est,rep) {
         }
 
         let valor = (Number.parseInt(selectEstado.value) === Number.parseInt(est)) ? preco : precoOut;
-        let valorBR = valor.toString();
-        valorBR = valorBR.replace(".", "#");
-        if (valorBR.split("#")[1].length === 1) {
-            valorBR = valorBR + "0";
-        }
-        valorBR = valorBR.replace("#", ",");
 
-        textValor.value = valorBR;
+        textValor.value = formatarValor(valor);
         textProdSel.value = desc;
     }
 }
@@ -148,6 +132,7 @@ function cancelarAdicao() {
     textQtde.value = 0;
     textValor.value = 0.0;
     textProdSel.value = "";
+    textValorTotal.value = "0,00";
 
     $("#msqtdeprod").html('');
 
@@ -358,6 +343,7 @@ async function adicionarItem() {
                     textQtde.value = 0;
                     textValor.value = 0.0;
                     textProdSel.value = "";
+                    textValorTotal.value = "0,00";
 
                     erroQtde = true;
                     $("#msqtdeprod").html('');
