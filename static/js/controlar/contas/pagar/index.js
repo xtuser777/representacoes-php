@@ -9,20 +9,6 @@ const tbodyContas = document.getElementById("tbodyContas");
 function preencherTabela(dados) {
     let txt = "";
     $.each(dados, function () {
-        let valorFormat = this.valor.toString();
-        valorFormat = valorFormat.replace('.', '#');
-        if (valorFormat.search('#') === -1) 
-            valorFormat += ',00';
-        else 
-            valorFormat = valorFormat.replace('#', ',');
-        
-        let valorPagoFormat = this.valorPago.toString();
-        valorPagoFormat = valorPagoFormat.replace('.', '#');
-        if (valorPagoFormat.search('#') === -1) 
-            valorPagoFormat += ',00';
-        else 
-            valorPagoFormat = valorPagoFormat.replace('#', ',');
-
         let sit = "";
         switch (this.situacao) {
             case 1:
@@ -42,9 +28,9 @@ function preencherTabela(dados) {
                 <td>' + this.conta + '</td>\
                 <td>' + this.descricao + '</td>\
                 <td>' + this.parcela + '</td>\
-                <td>'+ valorFormat +'</td>\
+                <td>'+ formatarValor(this.valor) +'</td>\
                 <td>' + FormatarData(this.vencimento) + '</td>\
-                <td>'+ valorPagoFormat +'</td>\
+                <td>'+ formatarValor(this.valorPago) +'</td>\
                 <td>' + ( (this.dataPagamento === "") ? "" : FormatarData(this.dataPagamento) ) + '</td>\
                 <td>'+ sit +'</td>\
                 <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="DETALHES" href="javascript:alterar(' + this.id + ')"></a></td>\

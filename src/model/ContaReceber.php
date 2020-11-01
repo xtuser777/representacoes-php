@@ -1150,6 +1150,44 @@ class ContaReceber
         return $stmt->affected_rows;
     }
 
+    /**
+     * @return int
+     */
+    public function estornar(): int
+    {
+        if ($this->id <= 0)
+            return -5;
+
+        $sql = "
+            UPDATE conta_receber
+            SET con_rec_valor_recebido = null,
+            con_rec_data_recebimento = null,
+            con_rec_situacao = 1,
+            con_rec_pendencia = null, 
+            for_pag_id = null
+            WHERE con_rec_id = ?;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return -10;
+        }
+
+        $stmt->bind_param(
+            "i",
+            $this->id
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return -10;
+        }
+
+        return $stmt->affected_rows;
+    }
+
     public function delete(): int
     {
         if ($this->id <= 0)

@@ -6,9 +6,11 @@ namespace scr\control;
 
 use scr\model\ContaPagar;
 use scr\model\ContaReceber;
+use scr\model\Evento;
 use scr\model\ItemPedidoVenda;
 use scr\model\PedidoFrete;
 use scr\model\PedidoVenda;
+use scr\model\Usuario;
 use scr\util\Banco;
 
 class PedidoVendaControl
@@ -174,6 +176,8 @@ class PedidoVendaControl
         if ($pedido === null)
             return json_encode("Registro não encontrado.");
 
+        $usuario = Usuario::getById($_COOKIE["USER_ID"]);
+
         Banco::getInstance()->getConnection()->begin_transaction();
 
         $contas = $this->deletarContas($pedido);
@@ -202,12 +206,25 @@ class PedidoVendaControl
         if ($ped == -10 || $ped == -1) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getconnection()->close();
-            return json_encode("Ocorreu um problema ao excluir o orçamento.");
+            return json_encode("Ocorreu um problema ao excluir o pedido.");
         }
         if ($ped == -5) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getconnection()->close();
             return json_encode("Parâmetro inválido.");
+        }
+
+        $re = $this->criarEvento($pedido, $usuario);
+        if ($re === -10 || $re === -1) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Ocorreram problemas ao criar o evento.");
+        }
+
+        if ($re === -5) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Campos inválidos ou incorretos no evento.");
         }
 
         Banco::getInstance()->getConnection()->commit();
@@ -292,5 +309,25 @@ class PedidoVendaControl
         }
 
         return $response;
+    }
+
+    /**
+     * @param PedidoVenda $pedido
+     * @param Usuario $usuario
+     * @return int
+     */
+    private function criarEvento(PedidoVenda $pedido, Usuario $usuario): int
+    {
+        if ($pedido === null || $usuario === null)
+            return -5;
+
+        $evento = new Evento();
+        $evento->setDescricao("O pedido de venda ". $pedido->getId() . " foi deletado.");
+        $evento->setData(date("Y-m-d"));
+        $evento->setHora(date("H:i:s"));
+        $evento->setPedidoVenda($pedido);
+        $evento->setAutor($usuario);
+
+        return $evento->save();
     }
 }

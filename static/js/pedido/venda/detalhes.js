@@ -152,6 +152,8 @@ function carregarComissaoVendedor(pedidoId, valorPedido) {
         async: false,
         success: (response) => {
             let porc = response.valor * 100 / valorPedido;
+            porc = porc.toString().replace('.', '#');
+            porc = porc.substring(0, porc.search('#'));
             textPorcentagemComisaoVendedor.value = porc;
         },
         error: (xhr, status, thrown) => {

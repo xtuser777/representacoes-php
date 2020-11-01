@@ -273,9 +273,10 @@ if (!isset($_COOKIE['USER_ID'])) {
                             <th style="width: 28%;">DESCRIÇÃO</th>
                             <th>VALOR (R$)</th>
                             <th style="width: 10%;">VENCIMENTO</th>
-                            <th>VALOR PAGO (R$)</th>
-                            <th style="width: 13%;">DATA RECEBIMENTO</th>
+                            <th style="width: 14%;">VALOR PAGO (R$)</th>
+                            <th style="width: 16%;">DATA RECEBIMENTO</th>
                             <th>SITUAÇÃO</th>
+                            <th style="width: 2%;">&nbsp;</th>
                             <th style="width: 2%;">&nbsp;</th>
                         </tr>
                         </thead>

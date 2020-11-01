@@ -291,4 +291,56 @@ class ContasReceberControl
 
         return json_encode("");
     }
+
+    public function estornar(int $id)
+    {
+        if ($id <= 0)
+            return json_encode("Parâmetro inválido.");
+
+        if (!Banco::getInstance()->open())
+            return json_encode("Problemas ao se conectar com o banco de dados.");
+
+        $conta = (new ContaReceber())->findById($id);
+        if ($conta === null)
+            return json_encode("Registro não encontrado.");
+
+        if ($conta->getSituacao() === 1)
+            return json_encode("Esta conta ainda não foi recebida...");
+
+        if ($conta->getPendencia() !== null && $conta->getPendencia()->getSituacao() > 1)
+            return json_encode("Esta conta possui pendências recebidas... Estorne-as primeiro.");
+
+        Banco::getInstance()->getConnection()->begin_transaction();
+
+        $cp = $conta->estornar();
+        if ($cp == -10 || $cp == -1) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getconnection()->close();
+            return json_encode("Ocorreu um problema ao estornar a despesa.");
+        }
+        if ($cp == -5) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getconnection()->close();
+            return json_encode("Parâmetro inválido.");
+        }
+
+        if ($conta->getPendencia() !== null) {
+            $cpp = $conta->getPendencia()->delete();
+            if ($cpp == -10 || $cpp == -1) {
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getconnection()->close();
+                return json_encode("Ocorreu um problema ao excluir a pendência da despesa.");
+            }
+            if ($cpp == -5) {
+                Banco::getInstance()->getConnection()->rollback();
+                Banco::getInstance()->getconnection()->close();
+                return json_encode("Parâmetro inválido.");
+            }
+        }
+
+        Banco::getInstance()->getConnection()->commit();
+        Banco::getInstance()->getconnection()->close();
+
+        return json_encode("");
+    }
 }

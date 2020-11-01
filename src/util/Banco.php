@@ -36,7 +36,7 @@ class Banco
     {
         if (($this->conn != null && $this->conn->server_info == null) || $this->conn == null)
         {
-            $this->conn = new mysqli('192.168.0.70', 'scr', 'scr123globo', 'scr');
+            $this->conn = new mysqli('localhost', 'scr', 'scr123globo', 'scr');
             $this->conn->set_charset('utf8');
 
             if ($this->conn->connect_errno) {

@@ -34,6 +34,7 @@ function preencherTabela(dados) {
                 <td>' + ( (this.dataRecebimento === "") ? "" : FormatarData(this.dataRecebimento) ) + '</td>\
                 <td>'+ sit +'</td>\
                 <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="DETALHES" href="javascript:alterar(' + this.id + ')"></a></td>\
+                <td><a role="button" class="glyphicon glyphicon-remove" data-toggle="tooltip" data-placement="top" title="ESTORNAR" href="javascript:estornar(' + this.id + ')"></a></td>\
             </tr>';
     });
     $(tbodyContas).html(txt);
@@ -473,4 +474,54 @@ function alterar(id) {
             3000
         );
     }
+}
+
+function estornar(id) {
+    bootbox.confirm({
+        message: "Confirma o estorno deste recebimento?",
+        buttons: {
+            confirm: {
+                label: 'Sim',
+                className: 'btn-success'
+            },
+            cancel: {
+                label: 'Não',
+                className: 'btn-danger'
+            }
+        },
+        callback: function (result) {
+            if (result) {
+                let request = new XMLHttpRequest();
+                request.open("POST", "/representacoes/controlar/contas/receber/estornar.php", false);
+                request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                request.send(encodeURI('id='+id));
+
+                if (request.DONE === 4 && request.status === 200) {
+                    let res = JSON.parse(request.responseText);
+                    if (res !== null && res.length === 0) {
+                        mostraDialogo(
+                            "<strong>Conta a receber estornada com sucesso.</strong>" +
+                            "<br /> O valor pago anteriormente foi estornado da parcela selecionada.",
+                            "success",
+                            3000
+                        );
+                        obter();
+                    } else {
+                        mostraDialogo(
+                            res,
+                            "danger",
+                            3000
+                        );
+                    }
+                } else {
+                    mostraDialogo(
+                        "Erro na requisição da URL.<br />" +
+                        "Status: "+request.status+" "+request.statusText,
+                        "danger",
+                        3000
+                    );
+                }
+            }
+        }
+    });
 }

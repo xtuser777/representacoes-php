@@ -32,6 +32,7 @@ require ROOT . "/src/model/ItemPedidoVenda.php";
 require ROOT . "/src/model/PedidoFrete.php";
 require ROOT . "/src/model/ContaPagar.php";
 require ROOT . "/src/model/ContaReceber.php";
+require ROOT . "/src/model/Evento.php";
 
 require ROOT . '/src/util/Banco.php';
 

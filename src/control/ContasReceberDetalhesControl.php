@@ -86,7 +86,7 @@ class ContasReceberDetalhesControl
             $pendencia->setPedidoVenda($conta->getPedidoVenda());
             $pendencia->setPedidoFrete($conta->getPedidoFrete());
             $pendencia->setConta($conta->getConta());
-            $pendencia->setComissao($conta->gerComissao());
+            $pendencia->setComissao($conta->isComissao());
             $pendencia->setDescricao($conta->getDescricao());
             $pendencia->setData($conta->getData());
             $pendencia->setValor($restante);

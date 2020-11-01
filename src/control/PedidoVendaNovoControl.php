@@ -9,6 +9,7 @@ use scr\model\Cidade;
 use scr\model\Cliente;
 use scr\model\ContaPagar;
 use scr\model\ContaReceber;
+use scr\model\Evento;
 use scr\model\FormaPagamento;
 use scr\model\Funcionario;
 use scr\model\ItemOrcamentoVenda;
@@ -199,6 +200,19 @@ class PedidoVendaNovoControl
             Banco::getInstance()->getConnection()->close();
             return json_encode("Campos inválidos ou incorretos nas contas.");
         }
+
+        $re = $this->criarEvento($pedido, $usuario);
+        if ($re === -10 || $re === -1) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Ocorreram problemas ao criar o evento.");
+        }
+
+        if ($re === -5) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Campos inválidos ou incorretos no evento.");
+        }
         
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getConnection()->close();
@@ -343,5 +357,25 @@ class PedidoVendaNovoControl
         $conta->setAutor($autor);
 
         return $conta->save();
+    }
+
+    /**
+     * @param PedidoVenda $pedido
+     * @param Usuario $usuario
+     * @return int
+     */
+    private function criarEvento(PedidoVenda $pedido, Usuario $usuario): int
+    {
+        if ($pedido === null || $usuario === null)
+            return -5;
+
+        $evento = new Evento();
+        $evento->setDescricao("Abertura do pedido de venda ". $pedido->getId() . ": " . $pedido->getDescricao());
+        $evento->setData(date("Y-m-d"));
+        $evento->setHora(date("H:i:s"));
+        $evento->setPedidoVenda($pedido);
+        $evento->setAutor($usuario);
+
+        return $evento->save();
     }
 }

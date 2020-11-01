@@ -421,3 +421,14 @@ CREATE TABLE conta_receber (
     FOREIGN KEY (ped_fre_id) REFERENCES pedido_frete(ped_fre_id),
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
 );
+
+CREATE TABLE evento (
+    evt_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    evt_descricao VARCHAR(255) NOT NULL,
+    evt_data DATE NOT NULL,
+    evt_hora TIME NOT NULL,
+    ped_ven_id INTEGER,
+    ped_fre_id INTEGER,
+    usu_id INTEGER NOT NULL,
+    FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
+);
