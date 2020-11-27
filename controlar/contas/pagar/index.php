@@ -114,9 +114,6 @@ if (!isset($_COOKIE['USER_ID'])) {
                                         <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
                                         <li><a href="/representacoes/controlar/contas/receber">Contas a Receber</a></li>
                                         <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
-                                        <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
-                                            <li><a href="/representacoes/controlar/comissao">Comissões</a></li>
-                                        <?php endif; ?>
                                     </ul>
                                     <!-- Fim popup botao controlar -->
                                 </li>
@@ -220,7 +217,33 @@ if (!isset($_COOKIE['USER_ID'])) {
                     </div>
 
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-3">
+                            <label for="slSituacao">Situação:</label>
+                            <select id="slSituacao" class="form-control input-sm">
+                                <option value="0">SELECIONE</option>
+                                <option value="1">PENDENTE</option>
+                                <option value="2">PAGO PARCIALMENTE</option>
+                                <option value="3">PAGO</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="selectComissao">Comissão:</label>
+                            <select id="selectComissao" class="form-control input-sm" onchange="selecionarComissao();">
+                                <option value="0">SELECIONE</option>
+                                <option value="1">SIM</option>
+                                <option value="2">NÃO</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="selectVendedor">Vendedor:</label>
+                            <select id="selectVendedor" class="form-control input-sm">
+                                <option value="0">SELECIONE</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3">
                             <label for="slOrdenar">Ordenar por:</label>
                             <select id="slOrdenar" class="form-control input-sm">
                                 <option value="1">CONTA/PARCELA (CRESCENTE)</option>
@@ -236,16 +259,6 @@ if (!isset($_COOKIE['USER_ID'])) {
                                 <option value="11">VENCIMENTO (DECRESCENTE)</option>
                                 <option value="12">SITUAÇÃO (CRESCENTE)</option>
                                 <option value="13">SITUAÇÃO (DECRESCENTE)</option>
-                            </select>
-                        </div>
-
-                        <div class="col-sm-6">
-                            <label for="slSituacao">Situação:</label>
-                            <select id="slSituacao" class="form-control input-sm">
-                                <option value="0">SELECIONE</option>
-                                <option value="1">PENDENTE</option>
-                                <option value="2">PAGO PARCIALMENTE</option>
-                                <option value="3">PAGO</option>
                             </select>
                         </div>
                     </div>

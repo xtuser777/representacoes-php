@@ -11,38 +11,12 @@ const textPorcentagemComisaoVendedor = document.getElementById("textPorcentagemC
 const tableComissoes = document.getElementById("tableComissoes");
 const tbodyComissoes = document.getElementById("tbodyComissoes");
 const textValorItens = document.getElementById("text_valor_itens");
-const textValorPago = document.getElementById("text_valor_pago");
 
 var _pedido = {};
 
 var itens = [];
 
 var comissoes = [];
-
-let erroCliente = true;
-let erroDesc = true;
-let erroEstado = true;
-let erroCidade = true;
-let erroForma = true;
-let erroValor = true;
-
-function get(url_i) {
-    let res;
-    $.ajax({
-        type: 'GET',
-        url: url_i,
-        async: false,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function (result) {res = result;},
-        error: function (xhr, status, thrown) {
-            console.error(thrown);
-            alert(thrown);
-        }
-    });
-
-    return res;
-}
 
 function selecionarVendedor() {
     let vdd = Number.parseInt(selectVendedor.value);
@@ -132,14 +106,6 @@ function buttonLimparClick() {
     textPesoItens.value = "0,0";
     textValorItens.value = "0,00";
     selectForma.value = 0;
-    textValorPago.value = 0;
-
-    erroCliente = true;
-    erroDesc = true;
-    erroEstado = true;
-    erroCidade = true;
-    erroForma = true;
-    erroValor = true;
 }
 
 function carregarComissaoVendedor(pedidoId, valorPedido) {
@@ -153,7 +119,7 @@ function carregarComissaoVendedor(pedidoId, valorPedido) {
         success: (response) => {
             let porc = response.valor * 100 / valorPedido;
             porc = porc.toString().replace('.', '#');
-            porc = porc.substring(0, porc.search('#'));
+            porc = porc.search('#') > 0 ? porc.substring(0, porc.search('#')) : porc;
             textPorcentagemComisaoVendedor.value = porc;
         },
         error: (xhr, status, thrown) => {
@@ -196,7 +162,7 @@ function carregarComissoesVenda(pedidoId) {
                 let porcentagem = response[i].valor * 100 / totalRepresentacao;
 
                 comissao.valor = truncate(totalRepresentacao);
-                comissao.porcentagem = porcentagem;
+                comissao.porcentagem = Math.round(porcentagem);
 
                 comissoes.push(comissao);
 
@@ -204,28 +170,6 @@ function carregarComissoesVenda(pedidoId) {
             }
 
             preencheTabelaComissoes(comissoes);
-        },
-        error: (xhr, status, thrown) => {
-            console.error(thrown);
-            mostraDialogo(
-                "Erro no processamento da requisição, Código "+status,
-                "danger",
-                3000
-            );
-        }
-    });
-}
-
-function carregarRecebimentoVenda(pedidoId) {
-    $.ajax({
-        type: "POST",
-        url: "/representacoes/pedido/venda/detalhes/obter-recebimento-venda.php",
-        data: {
-            pedido: pedidoId
-        },
-        async: false,
-        success: (response) => {
-            textValorPago.value = formatarValor(response.valorRecebido);
         },
         error: (xhr, status, thrown) => {
             console.error(thrown);
@@ -293,7 +237,6 @@ $(document).ready((event) => {
     selecionarVendedor();
 
     buttonLimparClick();
-    $(textValorPago).mask("000000000,00", { reverse: true });
 
     _pedido = get("/representacoes/pedido/venda/detalhes/obter.php");
     if (_pedido === null || typeof _pedido === "string") {
@@ -317,7 +260,6 @@ $(document).ready((event) => {
         textPesoItens.value = formatarPeso(_pedido.peso);
         textValorItens.value = formatarValor(_pedido.valor);
         selectForma.value = _pedido.formaPagamento.id;
-        carregarRecebimentoVenda(_pedido.id);
 
         selectOrcamento.disabled = true;
         textDesc.readOnly = true;
@@ -327,7 +269,6 @@ $(document).ready((event) => {
         selectVendedor.disabled = true;
         textPorcentagemComisaoVendedor.readOnly = true;
         selectForma.disabled = true;
-        textValorPago.readOnly = true;
     }
 });
 

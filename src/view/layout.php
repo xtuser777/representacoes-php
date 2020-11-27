@@ -87,7 +87,7 @@
                             <li><a href="/representacoes/pedido/frete">Frete</a></li>
                             <li><a href="/representacoes/pedido/status">Alterar status</a></li>
                             <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
-                                <li><a href="/pedido/autorizar/index">Autorizar Carregamento</a></li>
+                                <li><a href="/representacoes/pedido/autorizar">Autorizar Carregamento</a></li>
                             <?php endif; ?>
                         </ul>
                         <!-- Fim popup botao pedido -->
@@ -105,9 +105,6 @@
                                 <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
                                 <li><a href="/representacoes/controlar/contas/receber">Contas a Receber</a></li>
                                 <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
-                                <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
-                                    <li><a href="/representacoes/controlar/comissao">Comissões</a></li>
-                                <?php endif; ?>
                             </ul>
                             <!-- Fim popup botao controlar -->
                         </li>

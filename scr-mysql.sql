@@ -347,9 +347,9 @@ CREATE TABLE pedido_frete
     cid_id INTEGER NOT NULL,
     tip_cam_id INTEGER NOT NULL,
     cam_id INTEGER NOT NULL,
-    mot_id INTEGER NOT NULL,
+    prp_id INTEGER NOT NULL,
     for_pag_fre INTEGER NOT NULL,
-    for_pag_mot INTEGER NOT NULL,
+    for_pag_mot INTEGER,
     usu_id INTEGER NOT NULL,
     FOREIGN KEY (orc_fre_id) REFERENCES orcamento_frete(orc_fre_id),
     FOREIGN KEY (ped_ven_id) REFERENCES pedido_venda(ped_ven_id),
@@ -357,10 +357,20 @@ CREATE TABLE pedido_frete
     FOREIGN KEY (cid_id) REFERENCES cidade(cid_id),
     FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
     FOREIGN KEY (cam_id) REFERENCES caminhao(cam_id),
-    FOREIGN KEY (mot_id) REFERENCES motorista(mot_id),
+    FOREIGN KEY (prp_id) REFERENCES proprietario(prp_id),
     FOREIGN KEY (for_pag_fre) REFERENCES forma_pagamento(for_pag_id),
     FOREIGN KEY (for_pag_mot) REFERENCES forma_pagamento(for_pag_id),
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
+);
+
+CREATE TABLE pedido_frete_produto (
+    ped_fre_id INTEGER NOT NULL,
+    pro_id INTEGER NOT NULL,
+    ped_fre_pro_quantidade INTEGER NOT NULL,
+    ped_fre_pro_peso INTEGER NOT NULL,
+    PRIMARY KEY (ped_fre_id, pro_id),
+    FOREIGN KEY (ped_fre_id) REFERENCES pedido_frete(ped_fre_id),
+    FOREIGN KEY (pro_id) REFERENCES produto(pro_id)
 );
 
 CREATE TABLE conta_pagar
@@ -431,4 +441,33 @@ CREATE TABLE evento (
     ped_fre_id INTEGER,
     usu_id INTEGER NOT NULL,
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
+);
+
+CREATE TABLE status (
+    sts_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    sts_descricao VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE pedido_frete_status (
+    ped_fre_id INTEGER NOT NULL,
+    sts_id INTEGER NOT NULL,
+    ped_fre_sts_data DATE NOT NULL,
+    ped_fre_sts_observacoes VARCHAR(255),
+    usu_id INTEGER NOT NULL,
+    PRIMARY KEY (ped_fre_id, sts_id),
+    FOREIGN KEY (ped_fre_id) REFERENCES pedido_frete(ped_fre_id),
+    FOREIGN KEY (sts_id) REFERENCES status(sts_id),
+    FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)
+);
+
+CREATE TABLE etapa_carregamento (
+    eta_car_id INTEGER NOT NULL AUTO_INCREMENT,
+    ped_fre_id INTEGER NOT NULL,
+    eta_car_ordem INTEGER NOT NULL,
+    eta_car_status INTEGER NOT NULL,
+    eta_car_carga DECIMAL(10,2) NOT NULL,
+    rep_id INTEGER NOT NULL,
+    PRIMARY KEY (eta_car_id, ped_fre_id),
+    FOREIGN KEY (rep_id) REFERENCES representacao(rep_id),
+    FOREIGN KEY (ped_fre_id) REFERENCES pedido_frete(ped_fre_id)
 );

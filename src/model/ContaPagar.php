@@ -55,8 +55,8 @@ class ContaPagar
     /** @var FormaPagamento|null */
     private $formaPagamento;
 
-    /** @var Motorista|null */
-    private $motorista;
+    /** @var Proprietario|null */
+    private $proprietario;
 
     /** @var Funcionario|null */
     private $vendedor;
@@ -90,14 +90,14 @@ class ContaPagar
      * @param float $valorPago
      * @param ContaPagar|null $pendencia
      * @param FormaPagamento|null $formaPagamento
-     * @param Motorista|null $motorista
+     * @param Proprietario|null $proprietario
      * @param Funcionario|null $vendedor
      * @param CategoriaContaPagar|null $categoria
      * @param PedidoFrete|null $pedidoFrete
      * @param PedidoVenda|null $pedidoVenda
      * @param Usuario|null $autor
      */
-    public function __construct(int $id = 0, int $conta = 0, string $data = "", int $tipo = 0, string $descricao = "", string $empresa = "", int $parcela = 0, float $valor = 0.0, bool $comissao = false, int $situacao = 0, string $vencimento = "", string $dataPagamento = "", float $valorPago = 0.0, ?ContaPagar $pendencia = null, ?FormaPagamento $formaPagamento = null, ?Motorista $motorista = null, ?Funcionario $vendedor = null, ?CategoriaContaPagar $categoria = null, ?PedidoFrete $pedidoFrete = null, ?PedidoVenda $pedidoVenda = null, ?Usuario $autor = null)
+    public function __construct(int $id = 0, int $conta = 0, string $data = "", int $tipo = 0, string $descricao = "", string $empresa = "", int $parcela = 0, float $valor = 0.0, bool $comissao = false, int $situacao = 0, string $vencimento = "", string $dataPagamento = "", float $valorPago = 0.0, ?ContaPagar $pendencia = null, ?FormaPagamento $formaPagamento = null, ?Proprietario $proprietario = null, ?Funcionario $vendedor = null, ?CategoriaContaPagar $categoria = null, ?PedidoFrete $pedidoFrete = null, ?PedidoVenda $pedidoVenda = null, ?Usuario $autor = null)
     {
         $this->id = $id;
         $this->conta = $conta;
@@ -114,7 +114,7 @@ class ContaPagar
         $this->valorPago = $valorPago;
         $this->pendencia = $pendencia;
         $this->formaPagamento = $formaPagamento;
-        $this->motorista = $motorista;
+        $this->proprietario = $proprietario;
         $this->vendedor = $vendedor;
         $this->categoria = $categoria;
         $this->pedidoFrete = $pedidoFrete;
@@ -363,19 +363,19 @@ class ContaPagar
     }
 
     /**
-     * @return Motorista|null
+     * @return Proprietario|null
      */
-    public function getMotorista(): ?Motorista
+    public function getProprietario(): ?Proprietario
     {
-        return $this->motorista;
+        return $this->proprietario;
     }
 
     /**
-     * @param Motorista|null $motorista
+     * @param Proprietario|null $proprietario
      */
-    public function setMotorista(?Motorista $motorista): void
+    public function setProprietario(?Proprietario $proprietario): void
     {
-        $this->motorista = $motorista;
+        $this->proprietario = $proprietario;
     }
 
     /**
@@ -539,7 +539,7 @@ class ContaPagar
             (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
             ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
             ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
-            ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
+            ($row["prp_id"] !== null) ? (new Proprietario())->findById($row["prp_id"]) : null,
             ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
             CategoriaContaPagar::findById($row["cat_con_pag_id"]),
             ($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null,
@@ -676,6 +676,80 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
+    public function findByDescriptionComission(string $description, int $comission, string $ordem): array
+    {
+        if (strlen($description) <= 0 || $comission <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND con_pag_comissao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+        $desc = "%".$description."%";
+        $stmt->bind_param("si", $desc, $comissao);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionComissionEmployee(string $description, int $comission, int $employee, string $ordem): array
+    {
+        if (strlen($description) <= 0 || $comission <= 0 || $employee <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND con_pag_comissao = ? AND fun_id = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+        $desc = "%".$description."%";
+        $stmt->bind_param("sii", $desc, $comissao, $employee);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByDescriptionSituation(string $description, int $situation, string $ordem): array
     {
         if ($description === null || strlen($description) <= 0 || $situation <= 0)
@@ -712,15 +786,15 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
-    public function findBySituation(int $situation, string $ordem): array
+    public function findByDescriptionComissionSituation(string $description, int $comission, int $situation, string $ordem): array
     {
-        if ($situation <= 0)
+        if (strlen($description) <= 0 || $comission <= 0 || $situation <= 0)
             return [];
 
         $sql = "
             SELECT *
-            FROM conta_pagar 
-            AND con_pag_situacao = ? 
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND con_pag_comissao = ? AND con_pag_situacao = ?  
             ORDER BY " . $ordem . ";
         ";
 
@@ -730,6 +804,79 @@ class ContaPagar
             echo Banco::getInstance()->getConnection()->error;
             return [];
         }
+        $desc = "%".$description."%";
+        $comissao = $comission === 1 ? true : false;
+        $stmt->bind_param("sii", $desc, $comissao, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionComissionEmployeeSituation(string $description, int $comission, int $employee, int $situation, string $ordem): array
+    {
+        if (strlen($description) <= 0 || $comission <= 0 || $employee <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND con_pag_comissao = ? AND fun_id = ? AND con_pag_situacao = ?  
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $desc = "%".$description."%";
+        $comissao = $comission === 1 ? true : false;
+        $stmt->bind_param("siii", $desc, $comissao, $employee, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findBySituation(int $situation, string $ordem): array
+    {
+        if ($situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar 
+            WHERE con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
         $stmt->bind_param("i", $situation);
         if (!$stmt->execute()) {
             echo $stmt->error;
@@ -746,14 +893,15 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
-    public function findByDate(string $date, string $ordem): array
+    public function findByComission(int $comission, string $ordem): array
     {
-        if ($date === null || strlen($date) <= 0) return [];
+        if ($comission <= 0)
+            return [];
 
         $sql = "
             SELECT *
-            FROM conta_pagar
-            WHERE con_pag_vencimento = ? 
+            FROM conta_pagar 
+            WHERE con_pag_comissao = ? 
             ORDER BY " . $ordem . ";
         ";
 
@@ -764,7 +912,9 @@ class ContaPagar
             return [];
         }
 
-        $stmt->bind_param("s", $date);
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("i", $comissao);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -780,16 +930,15 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
-    public function findByDateSituation(string $date, int $situation, string $ordem): array
+    public function findByComissionEmployee(int $comission, int $employee, string $ordem): array
     {
-        if ($date === null || strlen($date) <= 0 || $situation <= 0)
+        if ($comission <= 0 || $employee <= 0)
             return [];
 
         $sql = "
             SELECT *
-            FROM conta_pagar
-            WHERE con_pag_vencimento = ? 
-            AND con_pag_situacao = ? 
+            FROM conta_pagar 
+            WHERE con_pag_comissao = ? AND fun_id = ? 
             ORDER BY " . $ordem . ";
         ";
 
@@ -800,7 +949,83 @@ class ContaPagar
             return [];
         }
 
-        $stmt->bind_param("si", $date, $situation);
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("ii", $comissao, $employee);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByComissionSituation(int $comission, int $situation, string $ordem): array
+    {
+        if ($comission <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar 
+            WHERE con_pag_comissao = ? AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("ii", $comissao, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByComissionEmployeeSituation(int $comission, int $employee, int $situation, string $ordem): array
+    {
+        if ($comission <= 0 || $employee <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar 
+            WHERE con_pag_comissao = ? AND fun_id = ? AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("iii", $comissao, $employee, $situation);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -837,6 +1062,80 @@ class ContaPagar
         }
 
         $stmt->bind_param("ss", $date1, $date2);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByPeriodComission(string $date1, string $date2, int $comission, string $ordem): array
+    {
+        if (strlen($date1) <= 0 || strlen($date2) <= 0 || $comission <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_vencimento >= ? AND con_pag_vencimento <= ? AND con_pag_comissao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("ssi", $date1, $date2, $comissao);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByPeriodComissionEmployee(string $date1, string $date2, int $comission, int $employee, string $ordem): array
+    {
+        if (strlen($date1) <= 0 || strlen($date2) <= 0 || $comission <= 0 || $employee <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_vencimento >= ? AND con_pag_vencimento <= ? AND con_pag_comissao = ? AND fun_id = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1;
+
+        $stmt->bind_param("ssii", $date1, $date2, $comissao, $employee);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -889,16 +1188,15 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
-    public function findByDescriptionDate(string $description, string $date, string $ordem): array
+    public function findByPeriodComissionSituation(string $date1, string $date2, int $comission, int $situation, string $ordem): array
     {
-        if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0)
+        if (strlen($date1) <= 0 || strlen($date2) <= 0 || $comission <= 0 || $situation <= 0)
             return [];
 
         $sql = "
             SELECT *
             FROM conta_pagar
-            WHERE con_pag_descricao like ?
-            AND con_pag_vencimento = ?
+            WHERE con_pag_vencimento >= ? AND con_pag_vencimento <= ? AND con_pag_comissao = ? AND con_pag_situacao = ? 
             ORDER BY " . $ordem . ";
         ";
 
@@ -908,8 +1206,10 @@ class ContaPagar
             echo Banco::getInstance()->getConnection()->error;
             return [];
         }
-        $desc = "%".$description."%";
-        $stmt->bind_param("ss", $desc, $date);
+
+        $comissao = $comission === 1;
+
+        $stmt->bind_param("ssii", $date1, $date2, $comissao, $situation);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -925,17 +1225,15 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
-    public function findByDescriptionDateSituation(string $description, string $date, int $situation, string $ordem): array
+    public function findByPeriodComissionEmployeeSituation(string $date1, string $date2, int $comission, int $employee, int $situation, string $ordem): array
     {
-        if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0 || $situation <= 0)
+        if (strlen($date1) <= 0 || strlen($date2) <= 0 || $comission <= 0 || $employee <= 0 || $situation <= 0)
             return [];
 
         $sql = "
             SELECT *
             FROM conta_pagar
-            WHERE con_pag_descricao like ?
-            AND con_pag_vencimento = ? 
-            AND con_pag_situacao = ? 
+            WHERE con_pag_vencimento >= ? AND con_pag_vencimento <= ? AND con_pag_comissao = ? AND fun_id = ? AND con_pag_situacao = ? 
             ORDER BY " . $ordem . ";
         ";
 
@@ -945,8 +1243,10 @@ class ContaPagar
             echo Banco::getInstance()->getConnection()->error;
             return [];
         }
-        $desc = "%".$description."%";
-        $stmt->bind_param("ssi", $desc, $date, $situation);
+
+        $comissao = $comission === 1;
+
+        $stmt->bind_param("ssiii", $date1, $date2, $comissao, $employee, $situation);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -1003,13 +1303,85 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
+    public function findByDescriptionPeriodComission(string $description, string $date1, string $date2, int $comission, string $ordem): array
+    {
+        if (strlen($description) <= 0 || strlen($date1) <= 0 || strlen($date2) <= 0 || $comission <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND con_pag_vencimento >= ? AND con_pag_vencimento <= ? AND con_pag_comissao = ?  
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $desc = "%".$description."%";
+        $comissao = $comission === 1;
+
+        $stmt->bind_param("sssi", $desc, $date1, $date2, $comissao);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionPeriodComissionEmployee(string $description, string $date1, string $date2, int $comission, int $employee, string $ordem): array
+    {
+        if (strlen($description) <= 0 || strlen($date1) <= 0 || strlen($date2) <= 0 || $comission <= 0 || $employee <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND con_pag_vencimento >= ? AND con_pag_vencimento <= ? AND con_pag_comissao = ? AND fun_id = ?  
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $desc = "%".$description."%";
+        $comissao = $comission === 1;
+
+        $stmt->bind_param("sssii", $desc, $date1, $date2, $comissao, $employee);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByDescriptionPeriodSituation(string $description, string $date1, string $date2, int $situation, string $ordem): array
     {
-        if (
-            $description === null || strlen($description) <= 0 ||
-            $date1 === null || strlen($date1) <= 0 ||
-            $date2 === null || strlen($date2) <= 0 || $situation <= 0
-        )
+        if (strlen($description) <= 0 || strlen($date1) <= 0 || strlen($date2) <= 0 || $situation <= 0)
             return [];
 
         $sql = "
@@ -1043,6 +1415,109 @@ class ContaPagar
         }
 
         return $this->resultToList($result);
+    }
+
+    public function findByDescriptionPeriodComissionSituation(string $description, string $date1, string $date2, int $comission, int $situation, string $ordem): array
+    {
+        if (strlen($description) <= 0 || strlen($date1) <= 0 || strlen($date2) <= 0 || $comission <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND con_pag_vencimento >= ? AND con_pag_vencimento <= ? AND con_pag_comissao = ? AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $desc = "%".$description."%";
+        $comissao = $comission === 1;
+
+        $stmt->bind_param("sssii", $desc, $date1, $date2, $comissao, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionPeriodComissionEmployeeSituation(string $description, string $date1, string $date2, int $comission, int $employee, int $situation, string $ordem): array
+    {
+        if (strlen($description) <= 0 || strlen($date1) <= 0 || strlen($date2) <= 0 || $comission <= 0 || $employee <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND con_pag_vencimento >= ? AND con_pag_vencimento <= ? AND con_pag_comissao = ? AND fun_id = ? AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $desc = "%".$description."%";
+        $comissao = $comission === 1;
+
+        $stmt->bind_param("sssiii", $desc, $date1, $date2, $comissao, $employee, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    /**
+     * @param int $delivery
+     * @return ContaPagar|null
+     */
+    public function findByDelivery(int $delivery): ?ContaPagar
+    {
+        if ($delivery <= 0)
+            return null;
+
+        $sql = "
+            SELECT * 
+            FROM conta_pagar 
+            WHERE ped_fre_id = ?;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return null;
+
+        if (!Banco::getInstance()->addParameters("i", [ $delivery ]))
+            return null;
+
+        if (!Banco::getInstance()->executeStatement())
+            return null;
+
+        return $this->resultToObject(Banco::getInstance()->getResult());
     }
 
     /**
@@ -1083,12 +1558,12 @@ class ContaPagar
         return $this->resultToObject($result);
     }
 
-    public function findAll(): array
+    public function findAll(string $ordem = "con_pag_conta, con_pag_parcela"): array
     {
         $sql = "
             SELECT *
             FROM conta_pagar
-            ORDER BY con_pag_conta, con_pag_parcela;
+            ORDER BY " . $ordem . ";
         ";
 
         /** @var $stmt mysqli_stmt */
@@ -1143,7 +1618,7 @@ class ContaPagar
                 con_pag_comissao, 
                 con_pag_vencimento, 
                 con_pag_situacao, 
-                mot_id, 
+                prp_id, 
                 fun_id, 
                 cat_con_pag_id, 
                 ped_fre_id, 
@@ -1160,7 +1635,7 @@ class ContaPagar
             return -10;
         }
 
-        $mot = ($this->motorista) ? $this->motorista->getId() : null;
+        $prp = ($this->proprietario) ? $this->proprietario->getId() : null;
         $vdd = ($this->vendedor) ? $this->vendedor->getId() : null;
         $cat = $this->categoria->getId();
         $fre = ($this->pedidoFrete) ? $this->pedidoFrete->getId() : null;
@@ -1179,7 +1654,7 @@ class ContaPagar
             $this->comissao,
             $this->vencimento,
             $this->situacao,
-            $mot,
+            $prp,
             $vdd,
             $cat,
             $fre,
@@ -1308,7 +1783,7 @@ class ContaPagar
     {
         $pendencia = ($this->pendencia) ? $this->pendencia->jsonSerialize() : null;
         $formaPagamento = ($this->formaPagamento !== null) ? $this->formaPagamento->jsonSerialize() : null;
-        $motorista = ($this->motorista !== null) ? $this->motorista->jsonSerialize() : null;
+        $proprietario = ($this->proprietario !== null) ? $this->proprietario->jsonSerialize() : null;
         $vendedor = ($this->vendedor !== null) ? $this->vendedor->jsonSerialize() : null;
         $categoria = $this->categoria->jsonSerialize();
         $pedidoFrete = ($this->pedidoFrete !== null) ? $this->pedidoFrete->jsonSerialize() : null;
@@ -1331,7 +1806,7 @@ class ContaPagar
             "valorPago" => $this->valorPago,
             "pendencia" => $pendencia,
             "formaPagamento" => $formaPagamento,
-            "motorista" => $motorista,
+            "proprietario" => $proprietario,
             "vendedor" => $vendedor,
             "categoria" => $categoria,
             "pedidoFrete" => $pedidoFrete,

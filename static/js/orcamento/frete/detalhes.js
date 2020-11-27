@@ -29,24 +29,6 @@ var erroValor = true;
 var erroEntrega = true;
 var erroValidade = true;
 
-function get(url_i) {
-    let res;
-    $.ajax({
-        type: 'GET',
-        url: url_i,
-        async: false,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function (result) {res = result;},
-        error: function (xhr, status, thrown) {
-            console.error(thrown);
-            alert(thrown);
-        }
-    });
-
-    return res;
-}
-
 function textDescBlur() {
     let desc = textDesc.value.toString();
     if (desc.trim().length === 0) {
@@ -300,6 +282,23 @@ function selectTipoCaminhaoBlur() {
     } else {
         erroTipo = false;
         $("#mstipo").html('');
+    }
+}
+
+async function selectTipoCaminhaoChange() {
+    let tipo = Number.parseInt(selectTipoCam.value);
+
+    if (tipo !== null && !isNaN(tipo) && tipo > 0) {
+        let i = tipos.findIndex((element) => { return (element.id === tipo); })
+        if (tipos[i].capacidade < Number.parseFloat(textPesoItens.value.replace(',', '.'))) {
+            mostraDialogo(
+                'A capacidade deste tipo de caminhão é inferior ao peso total dos itens.',
+                'warning',
+                3000
+            );
+            selectTipoCam.value = 0;
+            await selectTipoCaminhaoChange();
+        }
     }
 }
 

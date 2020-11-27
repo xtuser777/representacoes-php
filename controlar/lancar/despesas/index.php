@@ -209,12 +209,12 @@ if (!isset($_COOKIE['USER_ID'])) {
                 </div>
 
                 <div class="col-sm-2">
-                    <label for="txDataInicio">Data Despesa Início:</label>
+                    <label for="txDataInicio">Data Vencimento Início:</label>
                     <input type="date" id="txDataInicio" class="form-control input-sm" style="width: 100%;" />
                 </div>
 
                 <div class="col-sm-2">
-                    <label for="txDataFim">Data Despesa Fim:</label>
+                    <label for="txDataFim">Data Vencimento Fim:</label>
                     <input type="date" id="txDataFim" class="form-control input-sm" style="width: 100%;" />
                 </div>
 
@@ -243,8 +243,6 @@ if (!isset($_COOKIE['USER_ID'])) {
                         <option value="7">PARCELA (DECRESCENTE)</option>
                         <option value="8">CATEGORIA (CRESCENTE)</option>
                         <option value="9">CATEGORIA (DECRESCENTE)</option>
-                        <option value="10">DATA (CRESCENTE)</option>
-                        <option value="11">DATA (DECRESCENTE)</option>
                         <option value="12">VENCIMENTO (CRESCENTE)</option>
                         <option value="13">VENCIMENTO (DECRESCENTE)</option>
                         <option value="14">AUTOR (CRESCENTE)</option>
@@ -268,7 +266,6 @@ if (!isset($_COOKIE['USER_ID'])) {
                     <th style="width: 20%;">DESCRIÇÃO</th>
                     <th style="width: 6%;">PARCELA</th>
                     <th style="width: 14%;">CATEGORIA</th>
-                    <th style="width: 8%;">DATA</th>
                     <th style="width: 8%;">VENC.</th>
                     <th style="width: 12%;">AUTOR</th>
                     <th>VALOR (R$)</th>

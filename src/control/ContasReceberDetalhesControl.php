@@ -4,8 +4,10 @@
 namespace scr\control;
 
 
+use scr\model\Evento;
 use scr\model\FormaPagamento;
 use scr\model\ContaReceber;
+use scr\model\Usuario;
 use scr\util\Banco;
 
 class ContasReceberDetalhesControl
@@ -67,6 +69,8 @@ class ContasReceberDetalhesControl
 
         $conta = (new ContaReceber())->findById($despesa);
 
+        $autor = Usuario::getById($_COOKIE["USER_ID"]);
+
         Banco::getInstance()->getConnection()->begin_transaction();
 
         $situacao = 0;
@@ -119,9 +123,49 @@ class ContasReceberDetalhesControl
             return json_encode("Parâmetros inválidos.");
         }
 
+        $evt = $this->criarEvento($conta, $autor, $situacao);
+        if ($evt === -10 || $evt === -1) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Problema ao criar o evento.");
+        }
+        if ($evt === -5) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode("Parâmetros inválidos.");
+        }
+
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getConnection()->close();
 
         return json_encode("");
+    }
+
+    /**
+     * @param ContaReceber $conta
+     * @param Usuario $autor
+     * @param int $situacao
+     * @return int
+     */
+    private function criarEvento(ContaReceber $conta, Usuario $autor, int $situacao): int
+    {
+        if ($conta === null || $autor == null || $situacao <= 0)
+            return -5;
+
+        $evento = new Evento();
+        if ($situacao === 2)
+            $evento->setDescricao("A conta a receber \"" . $conta->getDescricao() . "\" foi recebida parcialmente.");
+        else
+            $evento->setDescricao("A conta a receber \"" . $conta->getDescricao() . "\" foi recebida.");
+        $evento->setData(date("Y-m-d"));
+        $evento->setHora(date("H:i:s"));
+        $evento->setAutor($autor);
+        if ($conta->getPedidoVenda())
+            $evento->setPedidoVenda($conta->getPedidoVenda());
+
+        if ($conta->getPedidoFrete())
+            $evento->setPedidoFrete($conta->getPedidoFrete());
+
+        return $evento->save();
     }
 }

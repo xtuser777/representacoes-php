@@ -2,6 +2,8 @@ const txFiltro = document.getElementById("txFiltro");
 const txDataInicio = document.getElementById("txDataInicio");
 const txDataFim = document.getElementById("txDataFim");
 const slOrdenar = document.getElementById("slOrdenar");
+const selectComissao = document.getElementById("selectComissao");
+const selectRepresentacao = document.getElementById("selectRepresentacao");
 const slSituacao = document.getElementById("slSituacao");
 const tbContas = document.getElementById("tbContas");
 const tbodyContas = document.getElementById("tbodyContas");
@@ -40,25 +42,15 @@ function preencherTabela(dados) {
     $(tbodyContas).html(txt);
 }
 
-function get(url_i) {
-    let res = {};
+function selecionarComissao() {
+    let comissao = Number.parseInt(selectComissao.value);
 
-    let request = new XMLHttpRequest();
-    request.open("GET", url_i, false);
-    request.send();
-
-    if (request.DONE === 4 && request.status === 200) {
-        res = JSON.parse(request.responseText);
+    if (comissao === null || isNaN(comissao) || comissao === 0 || comissao === 2) {
+        selectRepresentacao.value = "0";
+        selectRepresentacao.disabled = true;
     } else {
-        mostraDialogo(
-            "Erro na requisição da URL " + url_i + ". <br />" +
-            "Status: "+request.status+" "+request.statusText,
-            "danger",
-            3000
-        );
+        selectRepresentacao.disabled = false;
     }
-
-    return res;
 }
 
 function obter(ordem = "1") {
@@ -92,56 +84,161 @@ $(document).ready(function (event) {
         location.href = "../../../gerenciar/formapagamento/";
     }
 
+    let representacoes = get("/representacoes/controlar/contas/receber/obter-representacoes.php");
+    if (representacoes !== null && representacoes.length > 0) {
+        for (let i = 0; i < representacoes.length; i++) {
+            let option = document.createElement("option");
+            option.text = representacoes[i].pessoa.nomeFantasia;
+            option.value = representacoes[i].id;
+
+            selectRepresentacao.appendChild(option);
+        }
+    }
+
+    selecionarComissao();
+
     obter();
 });
 
-function filtrar() {
+async function filtrar() {
     let filtro = txFiltro.value;
     let dataInicio = txDataInicio.value;
     let dataFim = txDataFim.value;
     let ordem = slOrdenar.value;
+    let comissao = Number.parseInt(selectComissao.value);
+    let representacao = Number.parseInt(selectRepresentacao.value);
     let situacao = Number.parseInt(slSituacao.value);
 
     let data1 = new Date(dataInicio);
     let data2 = new Date(dataFim);
 
-    if (filtro === "" && dataInicio === "" && dataFim === "" && situacao === 0) {
+    if (filtro === "" && dataInicio === "" && dataFim === "" && comissao === 0 && situacao === 0) {
         obter(ordem);
     } else {
-        if (filtro !== "" && dataInicio !== "" && dataFim !== "" && situacao > 0) {
-            if (data1 > Date.now() || data2 > Date.now()) {
+        if (filtro !== "" && dataInicio !== "" && dataFim !== "" && comissao > 0 && situacao > 0) {
+
+            if (data1 > data2) {
                 mostraDialogo(
-                    "As Datas de Início e Fim devem ser menor ou igual que a data atual.",
+                    "A Data de Início deve ser menor que a data Fim do filtro.",
                     "warning",
                     3000
                 );
             } else {
-                if (dataInicio === dataFim) {
-                    let request = new XMLHttpRequest();
-                    request.open("POST", "/representacoes/controlar/contas/receber/obter-por-filtro-data-situacao.php", false);
-                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                    request.send(encodeURI("filtro="+filtro+"&data="+dataInicio+"&situacao="+situacao+"&ordem="+ordem));
+                if (representacao > 0) {
+                    let params = new FormData();
+                    params.append('filtro', filtro);
+                    params.append('dataInicio', dataInicio);
+                    params.append('dataFim', dataFim);
+                    params.append('comissao', comissao.toString());
+                    params.append('representacao', representacao.toString());
+                    params.append('situacao', situacao.toString());
+                    params.append('ordem', ordem);
 
-                    if (request.DONE === 4 && request.status === 200) {
-                        let res = JSON.parse(request.responseText);
-                        if (res !== null && typeof res !== "string") {
-                            preencherTabela(res);
-                        } else {
-                            mostraDialogo(
-                                res,
-                                "danger",
-                                3000
-                            );
-                        }
+                    let res = await post(
+                        '/representacoes/controlar/contas/receber/obter-por-filtro-periodo-comissao-representacao-situacao.php',
+                        params
+                    );
+
+                    if (res.status) {
+                        preencherTabela(res.response);
                     } else {
                         mostraDialogo(
-                            "Erro na requisição da URL /representacoes/controlar/contas/receber/obter-por-filtro-data-situacao.php. <br />" +
-                            "Status: "+request.status+" "+request.statusText,
+                            res.error.message+"<br />" +
+                            "Status: "+res.error.code+" "+res.error.status,
                             "danger",
                             3000
                         );
                     }
                 } else {
+                    let params = new FormData();
+                    params.append('filtro', filtro);
+                    params.append('dataInicio', dataInicio);
+                    params.append('dataFim', dataFim);
+                    params.append('comissao', comissao.toString());
+                    params.append('situacao', situacao.toString());
+                    params.append('ordem', ordem);
+
+                    let res = await post(
+                        '/representacoes/controlar/contas/receber/obter-por-filtro-periodo-comissao-situacao.php',
+                        params
+                    );
+
+                    if (res.status) {
+                        preencherTabela(res.response);
+                    } else {
+                        mostraDialogo(
+                            res.error.message+"<br />" +
+                            "Status: "+res.error.code+" "+res.error.status,
+                            "danger",
+                            3000
+                        )
+                    }
+                }
+            }
+
+        } else {
+            if (filtro !== "" && dataInicio !== "" && dataFim !== "" && comissao > 0 && situacao === 0) {
+
+                if (data1 > data2) {
+                    mostraDialogo(
+                        "A Data de Início deve ser menor que a data Fim do filtro.",
+                        "warning",
+                        3000
+                    );
+                } else {
+                    if (representacao > 0) {
+                        let params = new FormData();
+                        params.append('filtro', filtro);
+                        params.append('dataInicio', dataInicio);
+                        params.append('dataFim', dataFim);
+                        params.append('comissao', comissao.toString());
+                        params.append('representacao', representacao.toString());
+                        params.append('ordem', ordem);
+
+                        let res = await post(
+                            '/representacoes/controlar/contas/receber/obter-por-filtro-periodo-comissao-representacao.php',
+                            params
+                        );
+
+                        if (res.status) {
+                            preencherTabela(res.response);
+                        } else {
+                            mostraDialogo(
+                                res.error.message + "<br />" +
+                                "Status: " + res.error.code + " " + res.error.status,
+                                "danger",
+                                3000
+                            );
+                        }
+                    } else {
+                        let params = new FormData();
+                        params.append('filtro', filtro);
+                        params.append('dataInicio', dataInicio);
+                        params.append('dataFim', dataFim);
+                        params.append('comissao', comissao.toString());
+                        params.append('ordem', ordem);
+
+                        let res = await post(
+                            '/representacoes/controlar/contas/receber/obter-por-filtro-periodo-comissao.php',
+                            params
+                        );
+
+                        if (res.status) {
+                            preencherTabela(res.response);
+                        } else {
+                            mostraDialogo(
+                                res.error.message + "<br />" +
+                                "Status: " + res.error.code + " " + res.error.status,
+                                "danger",
+                                3000
+                            );
+                        }
+                    }
+                }
+
+            } else {
+                if (filtro === "" && dataInicio !== "" && dataFim !== "" && comissao > 0 && situacao > 0) {
+
                     if (data1 > data2) {
                         mostraDialogo(
                             "A Data de Início deve ser menor que a data Fim do filtro.",
@@ -149,247 +246,257 @@ function filtrar() {
                             3000
                         );
                     } else {
-                        let request = new XMLHttpRequest();
-                        request.open("POST", "/representacoes/controlar/contas/receber/obter-por-filtro-periodo-situacao.php", false);
-                        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                        request.send(encodeURI("filtro="+filtro+"&dataInicio="+dataInicio+"&dataFim="+dataFim+"&situacao="+situacao+"&ordem="+ordem));
+                        if (representacao > 0) {
+                            let params = new FormData();
+                            params.append('dataInicio', dataInicio);
+                            params.append('dataFim', dataFim);
+                            params.append('comissao', comissao);
+                            params.append('representacao', representacao.toString());
+                            params.append('situacao', situacao.toString());
+                            params.append('ordem', ordem);
 
-                        if (request.DONE === 4 && request.status === 200) {
-                            let res = JSON.parse(request.responseText);
-                            if (res !== null && typeof res !== "string") {
-                                preencherTabela(res);
+                            let res = await post(
+                                '/representacoes/controlar/contas/receber/obter-por-periodo-comissao-representacao-situacao.php',
+                                params
+                            );
+
+                            if (res.status) {
+                                preencherTabela(res.response);
                             } else {
                                 mostraDialogo(
-                                    res,
+                                    res.error.message+"<br />" +
+                                    "Status: "+res.error.code+" "+res.error.status,
                                     "danger",
                                     3000
                                 );
                             }
                         } else {
-                            mostraDialogo(
-                                "Erro na requisição da URL /representacoes/controlar/contas/receber/obter-por-filtro-periodo-situacao.php. <br />" +
-                                "Status: "+request.status+" "+request.statusText,
-                                "danger",
-                                3000
+                            let params = new FormData();
+                            params.append('dataInicio', dataInicio);
+                            params.append('dataFim', dataFim);
+                            params.append('comissao', comissao.toString());
+                            params.append('situacao', situacao.toString());
+                            params.append('ordem', ordem);
+
+                            let res = await post(
+                                '/representacoes/controlar/contas/receber/obter-por-periodo-comissao-situacao.php',
+                                params
                             );
+
+                            if (res.status) {
+                                preencherTabela(res.response);
+                            } else {
+                                mostraDialogo(
+                                    res.error.message+"<br />" +
+                                    "Status: "+res.error.code+" "+res.error.status,
+                                    "danger",
+                                    3000
+                                );
+                            }
                         }
                     }
-                }
-            }
-        } else {
-            if (filtro !== "" && dataInicio !== "" && dataFim !== "" && situacao === 0) {
-                if (data1 > Date.now() || data2 > Date.now()) {
-                    mostraDialogo(
-                        "As Datas de Início e Fim devem ser menor ou igual que a data atual.",
-                        "warning",
-                        3000
-                    );
+
                 } else {
-                    if (dataInicio === dataFim) {
-                        let request = new XMLHttpRequest();
-                        request.open("POST", "/representacoes/controlar/contas/receber/obter-por-filtro-data.php", false);
-                        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                        request.send(encodeURI("filtro="+filtro+"&data="+dataInicio+"&ordem="+ordem));
+                    if (filtro !== "" && dataInicio === "" && dataFim === "" && comissao > 0 && situacao > 0) {
+                        if (representacao > 0) {
+                            let form = new FormData();
+                            form.append('filtro', filtro);
+                            form.append('comissao', comissao.toString());
+                            form.append('representacao', representacao.toString());
+                            form.append('situacao', situacao.toString());
+                            form.append('ordem', ordem);
 
-                        if (request.DONE === 4 && request.status === 200) {
-                            let res = JSON.parse(request.responseText);
-                            if (res !== null && typeof res !== "string") {
-                                preencherTabela(res);
+                            let res = await post(
+                                '/representacoes/controlar/contas/receber/obter-por-filtro-comissao-representacao-situacao.php',
+                                form
+                            );
+
+                            if (res.status) {
+                                preencherTabela(res.response);
                             } else {
                                 mostraDialogo(
-                                    res,
+                                    res.error.message + "<br />" +
+                                    "Status: "+res.error.code+" "+res.error.status,
                                     "danger",
                                     3000
                                 );
                             }
                         } else {
-                            mostraDialogo(
-                                "Erro na requisição da URL /representacoes/controlar/contas/receber/obter-por-filtro-data.php. <br />" +
-                                "Status: "+request.status+" "+request.statusText,
-                                "danger",
-                                3000
-                            );
-                        }
-                    } else {
-                        if (data1 > data2) {
-                            mostraDialogo(
-                                "A Data de Início deve ser menor que a data Fim do filtro.",
-                                "warning",
-                                3000
-                            );
-                        } else {
-                            let request = new XMLHttpRequest();
-                            request.open("POST", "/representacoes/controlar/contas/receber/obter-por-filtro-periodo.php", false);
-                            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                            request.send(encodeURI("filtro="+filtro+"&dataInicio="+dataInicio+"&dataFim="+dataFim+"&ordem="+ordem));
+                            let form = new FormData();
+                            form.append('filtro', filtro);
+                            form.append('comissao', comissao.toString());
+                            form.append('situacao', situacao.toString());
+                            form.append('ordem', ordem);
 
-                            if (request.DONE === 4 && request.status === 200) {
-                                let res = JSON.parse(request.responseText);
-                                if (res !== null && typeof res !== "string") {
-                                    preencherTabela(res);
-                                } else {
-                                    mostraDialogo(
-                                        res,
-                                        "danger",
-                                        3000
-                                    );
-                                }
+                            let res = await post(
+                                '/representacoes/controlar/contas/receber/obter-por-filtro-comissao-situacao.php',
+                                form
+                            );
+
+                            if (res.status) {
+                                preencherTabela(res.response);
                             } else {
                                 mostraDialogo(
-                                    "Erro na requisição da URL /representacoes/controlar/contas/receber/obter-por-filtro-periodo.php. <br />" +
-                                    "Status: "+request.status+" "+request.statusText,
+                                    res.error.message + "<br />" +
+                                    "Status: "+res.error.code+" "+res.error.status,
                                     "danger",
                                     3000
                                 );
                             }
                         }
-                    }
-                }
-            } else {
-                if (filtro === "" && dataInicio !== "" && dataFim !== "" && situacao > 0) {
-                    if (data1 > Date.now() || data2 > Date.now()) {
-                        mostraDialogo(
-                            "As Datas de Início e Fim devem ser menor ou igual que a data atual.",
-                            "warning",
-                            3000
-                        );
                     } else {
-                        if (dataInicio === dataFim) {
-                            let request = new XMLHttpRequest();
-                            request.open("POST", "/representacoes/controlar/contas/receber/obter-por-data-situacao.php", false);
-                            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                            request.send(encodeURI("data="+dataInicio+"&situacao="+situacao+"&ordem="+ordem));
+                        if (filtro !== "" && dataInicio === "" && dataFim === "" && comissao > 0 && situacao === 0) {
+                            if (representacao > 0) {
+                                let params = new FormData();
+                                params.append('filtro', filtro);
+                                params.append('comissao', comissao.toString());
+                                params.append('representacao', representacao.toString());
+                                params.append('ordem', ordem);
 
-                            if (request.DONE === 4 && request.status === 200) {
-                                let res = JSON.parse(request.responseText);
-                                if (res !== null && typeof res !== "string") {
-                                    preencherTabela(res);
+                                let res = await post(
+                                    '/representacoes/controlar/contas/receber/obter-por-filtro-comissao-representacao.php',
+                                    params
+                                );
+
+                                if (res.status) {
+                                    preencherTabela(res.response);
                                 } else {
                                     mostraDialogo(
-                                        res,
+                                        res.error.message + "<br />" +
+                                        "Status: "+res.error.code+" "+res.error.status,
                                         "danger",
                                         3000
                                     );
                                 }
                             } else {
-                                mostraDialogo(
-                                    "Erro na requisição da URL /representacoes/controlar/contas/receber/obter-por-data-situacao.php. <br />" +
-                                    "Status: "+request.status+" "+request.statusText,
-                                    "danger",
-                                    3000
+                                let params = new FormData();
+                                params.append('filtro', filtro);
+                                params.append('comissao', comissao.toString());
+                                params.append('ordem', ordem);
+
+                                let res = await post(
+                                    '/representacoes/controlar/contas/receber/obter-por-filtro-comissao.php',
+                                    params
                                 );
+
+                                if (res.status) {
+                                    preencherTabela(res.response);
+                                } else {
+                                    mostraDialogo(
+                                        res.error.message + "<br />" +
+                                        "Status: "+res.error.code+" "+res.error.status,
+                                        "danger",
+                                        3000
+                                    );
+                                }
                             }
                         } else {
-                            if (data1 > data2) {
-                                mostraDialogo(
-                                    "A Data de Início deve ser menor que a data Fim do filtro.",
-                                    "warning",
-                                    3000
-                                );
-                            } else {
-                                let request = new XMLHttpRequest();
-                                request.open("POST", "/representacoes/controlar/contas/receber/obter-por-periodo-situacao.php", false);
-                                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                                request.send(encodeURI("dataInicio="+dataInicio+"&dataFim="+dataFim+"&situacao="+situacao+"&ordem="+ordem));
+                            if (filtro === "" && dataInicio === "" && dataFim === "" && comissao > 0 && situacao > 0) {
+                                if (representacao > 0) {
+                                    let params = new FormData();
+                                    params.append('comissao', comissao.toString());
+                                    params.append('representacao', representacao.toString());
+                                    params.append('situacao', situacao.toString());
+                                    params.append('ordem', ordem);
 
-                                if (request.DONE === 4 && request.status === 200) {
-                                    let res = JSON.parse(request.responseText);
-                                    if (res !== null && typeof res !== "string") {
-                                        preencherTabela(res);
+                                    let res = await post(
+                                        '/representacoes/controlar/contas/receber/obter-por-comissao-representacao-situacao.php',
+                                        params
+                                    );
+
+                                    if (res.status) {
+                                        preencherTabela(res.response);
                                     } else {
                                         mostraDialogo(
-                                            res,
+                                            res.error.message + "<br />" +
+                                            "Status: "+res.error.code+" "+res.error.status,
                                             "danger",
                                             3000
                                         );
                                     }
                                 } else {
-                                    mostraDialogo(
-                                        "Erro na requisição da URL /representacoes/controlar/contas/receber/obter-por-periodo-situacao.php. <br />" +
-                                        "Status: "+request.status+" "+request.statusText,
-                                        "danger",
-                                        3000
-                                    );
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    if (filtro !== "" && dataInicio === "" && dataFim === "" && situacao > 0) {
-                        $.ajax({
-                            type: 'POST',
-                            url: '/representacoes/controlar/contas/receber/obter-por-filtro-situacao.php',
-                            data: { filtro: filtro, situacao: situacao, ordem: ordem },
-                            success: function (response) {
-                                if (response != null && response !== ""){
-                                    preencherTabela(response);
-                                }
-                            },
-                            error: function (xhr, status, thrown) {
-                                console.error(thrown);
-                                alert("Ocorreu um erro ao comunicar-se com o servidor...");
-                            }
-                        });
-                    } else {
-                        if (filtro !== "" && dataInicio === "" && dataFim === "" && situacao === 0) {
-                            $.ajax({
-                                type: 'POST',
-                                url: '/representacoes/controlar/contas/receber/obter-por-filtro.php',
-                                data: { filtro: filtro, ordem: ordem },
-                                success: function (response) {
-                                    if (response != null && response !== ""){
-                                        preencherTabela(response);
-                                    }
-                                },
-                                error: function (xhr, status, thrown) {
-                                    console.error(thrown);
-                                    alert("Ocorreu um erro ao comunicar-se com o servidor...");
-                                }
-                            });
-                        } else {
-                            if (filtro === "" && dataInicio === "" && dataFim === "" && situacao > 0) {
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '/representacoes/controlar/contas/receber/obter-por-situacao.php',
-                                    data: { situacao: situacao, ordem: ordem },
-                                    success: function (response) {
-                                        if (response != null && response !== ""){
-                                            preencherTabela(response);
-                                        }
-                                    },
-                                    error: function (xhr, status, thrown) {
-                                        console.error(thrown);
-                                        alert("Ocorreu um erro ao comunicar-se com o servidor...");
-                                    }
-                                });
-                            } else {
-                                if (filtro === "" && dataInicio !== "" && dataFim !== "" && situacao === 0) {
-                                    if (dataInicio === dataFim) {
-                                        let request = new XMLHttpRequest();
-                                        request.open("POST", "/representacoes/controlar/contas/receber/obter-por-data.php", false);
-                                        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                                        request.send(encodeURI("data="+dataInicio+"&ordem="+ordem));
+                                    let params = new FormData();
+                                    params.append('comissao', comissao.toString());
+                                    params.append('situacao', situacao.toString());
+                                    params.append('ordem', ordem);
 
-                                        if (request.DONE === 4 && request.status === 200) {
-                                            let res = JSON.parse(request.responseText);
-                                            if (res !== null && typeof res !== "string") {
-                                                preencherTabela(res);
+                                    let res = await post(
+                                        '/representacoes/controlar/contas/receber/obter-por-comissao-situacao.php',
+                                        params
+                                    );
+
+                                    if (res.status) {
+                                        preencherTabela(res.response);
+                                    } else {
+                                        mostraDialogo(
+                                            res.error.message + "<br />" +
+                                            "Status: "+res.error.code+" "+res.error.status,
+                                            "danger",
+                                            3000
+                                        );
+                                    }
+                                }
+                            } else {
+                                if (filtro === "" && dataInicio !== "" && dataFim !== "" && comissao > 0 && situacao === 0) {
+
+                                    if (data1 > data2) {
+                                        mostraDialogo(
+                                            "A Data de Início deve ser menor que a data Fim do filtro.",
+                                            "warning",
+                                            3000
+                                        );
+                                    } else {
+                                        if (representacao > 0) {
+                                            let params = new FormData();
+                                            params.append('dataInicio', dataInicio);
+                                            params.append('dataFim', dataFim);
+                                            params.append('comissao', comissao.toString());
+                                            params.append('representacao', representacao.toString());
+                                            params.append('ordem', ordem);
+
+                                            let res = await post(
+                                                '/representacoes/controlar/contas/receber/obter-por-periodo-comissao-representacao.php',
+                                                params
+                                            );
+
+                                            if (res.status) {
+                                                preencherTabela(res.response);
                                             } else {
                                                 mostraDialogo(
-                                                    res,
+                                                    res.error.message + "<br />" +
+                                                    "Status: "+res.error.code+" "+res.error.status,
                                                     "danger",
                                                     3000
                                                 );
                                             }
                                         } else {
-                                            mostraDialogo(
-                                                "Erro na requisição da URL /representacoes/controlar/contas/receber/obter-por-data.php. <br />" +
-                                                "Status: "+request.status+" "+request.statusText,
-                                                "danger",
-                                                3000
+                                            let params = new FormData();
+                                            params.append('dataInicio', dataInicio);
+                                            params.append('dataFim', dataFim);
+                                            params.append('comissao', comissao.toString());
+                                            params.append('ordem', ordem);
+
+                                            let res = await post(
+                                                '/representacoes/controlar/contas/receber/obter-por-periodo-comissao.php',
+                                                params
                                             );
+
+                                            if (res.status) {
+                                                preencherTabela(res.response);
+                                            } else {
+                                                mostraDialogo(
+                                                    res.error.message + "<br />" +
+                                                    "Status: "+res.error.code+" "+res.error.status,
+                                                    "danger",
+                                                    3000
+                                                );
+                                            }
                                         }
-                                    } else {
+                                    }
+
+                                } else {
+                                    if (filtro !== "" && dataInicio !== "" && dataFim !== "" && comissao === 0 && situacao > 0) {
+
                                         if (data1 > data2) {
                                             mostraDialogo(
                                                 "A Data de Início deve ser menor que a data Fim do filtro.",
@@ -397,46 +504,259 @@ function filtrar() {
                                                 3000
                                             );
                                         } else {
-                                            let request = new XMLHttpRequest();
-                                            request.open("POST", "/representacoes/controlar/contas/receber/obter-por-periodo.php", false);
-                                            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                                            request.send(encodeURI("dataInicio="+dataInicio+"&dataFim="+dataFim+"&ordem="+ordem));
+                                            let params = new FormData();
+                                            params.append('filtro', filtro);
+                                            params.append('dataInicio', dataInicio);
+                                            params.append('dataFim', dataFim);
+                                            params.append('situacao', situacao.toString());
+                                            params.append('ordem', ordem);
 
-                                            if (request.DONE === 4 && request.status === 200) {
-                                                let res = JSON.parse(request.responseText);
-                                                if (res !== null && typeof res !== "string") {
-                                                    preencherTabela(res);
-                                                } else {
-                                                    mostraDialogo(
-                                                        res,
-                                                        "danger",
-                                                        3000
-                                                    );
-                                                }
+                                            let res = await post(
+                                                '/representacoes/controlar/contas/receber/obter-por-filtro-periodo-situacao.php',
+                                                params
+                                            );
+
+                                            if (res.status) {
+                                                preencherTabela(res.response);
                                             } else {
                                                 mostraDialogo(
-                                                    "Erro na requisição da URL /representacoes/controlar/contas/receber/obter-por-periodo.php. <br />" +
-                                                    "Status: "+request.status+" "+request.statusText,
+                                                    res.error.message + "<br />" +
+                                                    "Status: "+res.error.code+" "+res.error.status,
                                                     "danger",
                                                     3000
                                                 );
                                             }
                                         }
-                                    }
-                                } else {
-                                    if (dataInicio === "") {
-                                        mostraDialogo(
-                                            "A Data de Início do filtro período deve ser preenchida.",
-                                            "warning",
-                                            3000
-                                        );
+
                                     } else {
-                                        if (dataFim === "") {
-                                            mostraDialogo(
-                                                "A Data Fim do filtro período deve ser preenchida.",
-                                                "warning",
-                                                3000
-                                            );
+                                        if (filtro !== "" && dataInicio !== "" && dataFim !== "" && comissao === 0 && situacao === 0) {
+
+                                            if (data1 > data2) {
+                                                mostraDialogo(
+                                                    "A Data de Início deve ser menor que a data Fim do filtro.",
+                                                    "warning",
+                                                    3000
+                                                );
+                                            } else {
+                                                let params = new FormData();
+                                                params.append('filtro', filtro);
+                                                params.append('dataInicio', dataInicio);
+                                                params.append('dataFim', dataFim);
+                                                params.append('ordem', ordem);
+
+                                                let res = await post(
+                                                    '/representacoes/controlar/contas/receber/obter-por-filtro-periodo.php',
+                                                    params
+                                                );
+
+                                                if (res.status) {
+                                                    preencherTabela(res.response);
+                                                } else {
+                                                    mostraDialogo(
+                                                        res.error.message + "<br />" +
+                                                        "Status: "+res.error.code+" "+res.error.status,
+                                                        "danger",
+                                                        3000
+                                                    );
+                                                }
+                                            }
+
+                                        } else {
+                                            if (filtro === "" && dataInicio !== "" && dataFim !== "" && comissao === 0 && situacao > 0) {
+
+                                                if (data1 > data2) {
+                                                    mostraDialogo(
+                                                        "A Data de Início deve ser menor que a data Fim do filtro.",
+                                                        "warning",
+                                                        3000
+                                                    );
+                                                } else {
+                                                    let params = new FormData();
+                                                    params.append('dataInicio', dataInicio);
+                                                    params.append('dataFim', dataFim);
+                                                    params.append('comissao', comissao.toString());
+                                                    params.append('situacao', situacao.toString());
+                                                    params.append('ordem', ordem);
+
+                                                    let res = await post(
+                                                        '/representacoes/controlar/contas/receber/obter-por-periodo-comissao-situacao.php',
+                                                        params
+                                                    );
+
+                                                    if (res.status) {
+                                                        preencherTabela(res.response);
+                                                    } else {
+                                                        mostraDialogo(
+                                                            res.error.message + "<br />" +
+                                                            "Status: "+res.error.code+" "+res.error.status,
+                                                            "danger",
+                                                            3000
+                                                        );
+                                                    }
+                                                }
+
+                                            } else {
+                                                if (filtro !== "" && dataInicio === "" && dataFim === "" && comissao === 0 && situacao > 0) {
+                                                    let params = new FormData();
+                                                    params.append('filtro', filtro);
+                                                    params.append('situacao', situacao.toString());
+                                                    params.append('ordem', ordem);
+
+                                                    let res = await post(
+                                                        '/representacoes/controlar/contas/receber/obter-por-filtro-situacao.php',
+                                                        params
+                                                    );
+
+                                                    if (res.status) {
+                                                        preencherTabela(res.response);
+                                                    } else {
+                                                        mostraDialogo(
+                                                            res.error.message + "<br />" +
+                                                            "Status: "+res.error.code+" "+res.error.status,
+                                                            "danger",
+                                                            3000
+                                                        );
+                                                    }
+                                                } else {
+                                                    if (filtro !== "" && dataInicio === "" && dataFim === "" && comissao === 0 && situacao === 0) {
+                                                        let params = new FormData();
+                                                        params.append('filtro', filtro);
+                                                        params.append('ordem', ordem);
+
+                                                        let res = await post(
+                                                            '/representacoes/controlar/contas/receber/obter-por-filtro.php',
+                                                            params
+                                                        );
+
+                                                        if (res.status) {
+                                                            preencherTabela(res.response);
+                                                        } else {
+                                                            mostraDialogo(
+                                                                res.error.message + "<br />" +
+                                                                "Status: "+res.error.code+" "+res.error.status,
+                                                                "danger",
+                                                                3000
+                                                            );
+                                                        }
+                                                    } else {
+                                                        if (filtro === "" && dataInicio === "" && dataFim === "" && comissao === 0 && situacao > 0) {
+                                                            let params = new FormData();
+                                                            params.append('situacao', situacao.toString());
+                                                            params.append('ordem', ordem);
+
+                                                            let res = await post(
+                                                                '/representacoes/controlar/contas/receber/obter-por-situacao.php',
+                                                                params
+                                                            );
+
+                                                            if (res.status) {
+                                                                preencherTabela(res.response);
+                                                            } else {
+                                                                mostraDialogo(
+                                                                    res.error.message + "<br />" +
+                                                                    "Status: "+res.error.code+" "+res.error.status,
+                                                                    "danger",
+                                                                    3000
+                                                                );
+                                                            }
+                                                        } else {
+                                                            if (filtro === "" && dataInicio !== "" && dataFim !== "" && comissao === 0 && situacao === 0) {
+
+                                                                    if (data1 > data2) {
+                                                                        mostraDialogo(
+                                                                            "A Data de Início deve ser menor que a data Fim do filtro.",
+                                                                            "warning",
+                                                                            3000
+                                                                        );
+                                                                    } else {
+                                                                        let params = new FormData();
+                                                                        params.append('dataInicio', dataInicio);
+                                                                        params.append('dataFim', dataFim);
+                                                                        params.append('ordem', ordem);
+
+                                                                        let res = await post(
+                                                                            '/representacoes/controlar/contas/receber/obter-por-periodo.php',
+                                                                            params
+                                                                        );
+
+                                                                        if (res.status) {
+                                                                            preencherTabela(res.response);
+                                                                        } else {
+                                                                            mostraDialogo(
+                                                                                res.error.message + "<br />" +
+                                                                                "Status: "+res.error.code+" "+res.error.status,
+                                                                                "danger",
+                                                                                3000
+                                                                            );
+                                                                        }
+                                                                    }
+
+                                                            } else {
+                                                                if (filtro === "" && dataInicio === "" && dataFim === "" && comissao > 0 && situacao === 0) {
+                                                                    if (representacao > 0) {
+                                                                        let params = new FormData();
+                                                                        params.append('comissao', comissao.toString());
+                                                                        params.append('representacao', representacao.toString());
+                                                                        params.append('ordem', ordem);
+
+                                                                        let res = await post(
+                                                                            '/representacoes/controlar/contas/receber/obter-por-comissao-representacao.php',
+                                                                            params
+                                                                        );
+
+                                                                        if (res.status) {
+                                                                            preencherTabela(res.response);
+                                                                        } else {
+                                                                            mostraDialogo(
+                                                                                res.error.message + "<br />" +
+                                                                                "Status: "+res.error.code+" "+res.error.status,
+                                                                                "danger",
+                                                                                3000
+                                                                            );
+                                                                        }
+                                                                    } else {
+                                                                        let params = new FormData();
+                                                                        params.append('comissao', comissao.toString());
+                                                                        params.append('ordem', ordem);
+
+                                                                        let res = await post(
+                                                                            '/representacoes/controlar/contas/receber/obter-por-comissao.php',
+                                                                            params
+                                                                        );
+
+                                                                        if (res.status) {
+                                                                            preencherTabela(res.response);
+                                                                        } else {
+                                                                            mostraDialogo(
+                                                                                res.error.message + "<br />" +
+                                                                                "Status: "+res.error.code+" "+res.error.status,
+                                                                                "danger",
+                                                                                3000
+                                                                            );
+                                                                        }
+                                                                    }
+                                                                } else {
+                                                                    if (dataInicio === "") {
+                                                                        mostraDialogo(
+                                                                            "A Data de Início do filtro período deve ser preenchida.",
+                                                                            "warning",
+                                                                            3000
+                                                                        );
+                                                                    } else {
+                                                                        if (dataFim === "") {
+                                                                            mostraDialogo(
+                                                                                "A Data Fim do filtro período deve ser preenchida.",
+                                                                                "warning",
+                                                                                3000
+                                                                            );
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }

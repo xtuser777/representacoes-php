@@ -64,47 +64,12 @@ class LancarDespesasControl
         return json_encode($serial);
     }
 
-    public function obterPorData(string $data)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByDate($data, "con_pag_conta, con_pag_parcela");
-
-        Banco::getInstance()->getConnection()->close();
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
     public function obterPorPeriodo(string $data1, string $data2)
     {
         if (!Banco::getInstance()->open())
             return json_encode([]);
 
         $contas = (new ContaPagar())->findByPeriod($data1, $data2, "con_pag_conta, con_pag_parcela");
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorFiltroData(string $filtro, string $data)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByDescriptionDate($filtro, $data, "con_pag_conta, con_pag_parcela");
 
         Banco::getInstance()->getConnection()->close();
 
@@ -196,18 +161,6 @@ class LancarDespesasControl
                         return ((strcasecmp($a->getCategoria()->getDescricao(), $b->getCategoria()->getDescricao()) > 0) ? -1 : 1);
                     });
                     break;
-                case "10":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getData(), $b->getData()) === 0) return 0;
-                        return ((strcasecmp($a->getData(), $b->getData()) < 0) ? -1 : 1);
-                    });
-                    break;
-                case "11":
-                    usort($contas, function (ContaPagar $a, ContaPagar $b) {
-                        if (strcasecmp($a->getData(), $b->getData()) === 0) return 0;
-                        return ((strcasecmp($a->getData(), $b->getData()) > 0) ? -1 : 1);
-                    });
-                    break;
                 case "12":
                     usort($contas, function (ContaPagar $a, ContaPagar $b) {
                         if (strcasecmp($a->getVencimento(), $b->getVencimento()) === 0) return 0;
@@ -268,6 +221,9 @@ class LancarDespesasControl
         if ($conta->getSituacao() > 1 || strlen($conta->getDataPagamento()) > 0)
             return json_encode("Não é possível alterar uma conta já paga.");
 
+        if ($conta->getMotorista() || $conta->getVendedor())
+            return json_encode("Não é possível alterar uma conta criada por um pedido.");
+
         setcookie("DESP", $id, time() + 3600, "/", "", 0 , 1);
 
         return json_encode("");
@@ -284,6 +240,9 @@ class LancarDespesasControl
 
         if ($conta->getSituacao() > 1 || strlen($conta->getDataPagamento()) > 0)
             return json_encode("Não é possível remover uma conta já paga.");
+
+        if ($conta->getMotorista() || $conta->getVendedor())
+            return json_encode("Não é possível remover uma conta criada por um pedido, remova o pedido antes.");
 
         $parcelas = [];
         if ($conta->getTipo() > 1) {

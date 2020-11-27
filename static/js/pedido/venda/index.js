@@ -27,23 +27,6 @@ function preencherTabela(dados) {
     $(tbodyPedidos).html(txt);
 }
 
-function get(url_i) {
-    let res;
-    $.ajax({
-        type: 'GET',
-        url: url_i,
-        async: false,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function (result) {res = result;},
-        error: function (xhr, status, thrown) {
-            console.error(thrown);
-            alert(thrown);
-        }
-    });
-    return res;
-}
-
 function obter(ordem = "1") {
     $.ajax({
         type: "POST",
@@ -263,7 +246,7 @@ function alterar(id) {
         success: function (result) {
             if (result.length > 0) {
                 mostraDialogo(
-                    "<strong>Ocorreu um problema ao alterar este pedido.</strong><br />" +
+                    "<strong>Ocorreu um problema ao detalhar este pedido.</strong><br />" +
                     result,
                     "danger",
                     3000

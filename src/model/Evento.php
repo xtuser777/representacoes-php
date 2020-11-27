@@ -223,27 +223,230 @@ class Evento
             WHERE evt_id = ?;
         ";
 
-        /** @var $stmt mysqli_stmt */
-        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
-        if (!$stmt) {
-            echo Banco::getInstance()->getConnection()->error;
+        if (!Banco::getInstance()->prepareStatement($sql))
             return null;
-        }
 
-        $stmt->bind_param("i", $id);
-        if (!$stmt->execute()) {
-            echo $stmt->error;
+        if (!Banco::getInstance()->addParameters("i", [ $id ]))
             return null;
-        }
 
-        /** @var $result mysqli_result */
-        $result = $stmt->get_result();
-        if (!$result) {
-            echo $stmt->error;
+        if (!Banco::getInstance()->executeStatement())
             return null;
-        }
 
-        return $this->resultToObject($result);
+        return $this->resultToObject(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $filter
+     * @param string $date
+     * @param int $type
+     * @return array
+     */
+    public function findByFilterDateType(string $filter, string $date, int $type): array
+    {
+        if (strlen(trim($filter)) === 0 || strlen($date) === 0 || $type <= 0)
+            return [];
+
+        $pedido = $type === 1 ? "ped_ven_id" : "ped_fre_id";
+
+        $sql = "
+            SELECT * 
+            FROM evento 
+            WHERE evt_descricao LIKE ? AND evt_data = ? AND $pedido IS NOT NULL
+            ORDER BY evt_id;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("ss", [ $filtro, $date ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $filter
+     * @param int $type
+     * @return array
+     */
+    public function findByFilterType(string $filter, int $type): array
+    {
+        if (strlen(trim($filter)) === 0 || $type <= 0)
+            return [];
+
+        $pedido = $type === 1 ? "ped_ven_id" : "ped_fre_id";
+
+        $sql = "
+            SELECT * 
+            FROM evento 
+            WHERE evt_descricao LIKE ? AND $pedido IS NOT NULL
+            ORDER BY evt_id;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("s", [ $filtro ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $date
+     * @param int $type
+     * @return array
+     */
+    public function findByDateType(string $date, int $type): array
+    {
+        if (strlen($date) === 0 || $type <= 0)
+            return [];
+
+        $pedido = $type === 1 ? "ped_ven_id" : "ped_fre_id";
+
+        $sql = "
+            SELECT * 
+            FROM evento 
+            WHERE evt_data = ? AND $pedido IS NOT NULL
+            ORDER BY evt_id;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("s", [ $date ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param int $type
+     * @return array
+     */
+    public function findByType(int $type): array
+    {
+        if ($type <= 0)
+            return [];
+
+        $pedido = $type === 1 ? "ped_ven_id" : "ped_fre_id";
+
+        $sql = "
+            SELECT * 
+            FROM evento 
+            WHERE $pedido IS NOT NULL
+            ORDER BY evt_id;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $filter
+     * @param string $date
+     * @return array
+     */
+    public function findByFilterDate(string $filter, string $date): array
+    {
+        if (strlen(trim($filter)) === 0 || strlen($date) === 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM evento 
+            WHERE evt_descricao LIKE ? AND evt_data = ? 
+            ORDER BY evt_id;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("ss", [ $filtro, $date ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $filter
+     * @return array
+     */
+    public function findByFilter(string $filter): array
+    {
+        if (strlen(trim($filter)) === 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM evento 
+            WHERE evt_descricao LIKE ? 
+            ORDER BY evt_id;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("ss", [ $filtro ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $date
+     * @return array
+     */
+    public function findByDate(string $date): array
+    {
+        if (strlen($date) === 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM evento 
+            WHERE evt_data = ? 
+            ORDER BY evt_id;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("ss", [ $date ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
     }
 
     /**
@@ -257,26 +460,7 @@ class Evento
             ORDER BY evt_id;
         ";
 
-        /** @var $stmt mysqli_stmt */
-        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
-        if (!$stmt) {
-            echo Banco::getInstance()->getConnection()->error;
-            return [];
-        }
-
-        if (!$stmt->execute()) {
-            echo $stmt->error;
-            return [];
-        }
-
-        /** @var $result mysqli_result */
-        $result = $stmt->get_result();
-        if (!$result) {
-            echo $stmt->error;
-            return [];
-        }
-
-        return $this->resultToList($result);
+        return $this->resultToList(Banco::getInstance()->getResultQuery($sql));
     }
 
     /**

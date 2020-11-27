@@ -123,7 +123,7 @@ function validarData(event) {
         erroData = true;
         $("#msdata").html('<span class="label label-danger">A Data da geração da despesa deve ser informada.</span>');
     } else {
-        let data1 = new Date(data);
+        let data1 = new Date(data + '12:00:00');
         if (data1 > Date.now()) {
             erroData = true;
             $("#msdata").html('<span class="label label-danger">A Data da despesa precisa ser igual ou menor que a data atual.</span>');
@@ -175,7 +175,7 @@ function validarVencimento(event) {
         erroVencimento = true;
         $("#msvencimento").html('<span class="label label-danger">O Vencimento da despesa precisa ser informado.</span>');
     } else {
-        let venc = new Date(vencimento);
+        let venc = new Date(vencimento + '12:00:00');
         if (venc < Date.now()) {
             erroVencimento = true;
             $("#msvencimento").html('<span class="label label-danger">A Data de vencimento precisa ser igual ou maior que a data atual.</span>');

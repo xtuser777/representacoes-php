@@ -47,6 +47,133 @@ function formatarValor(valor) {
     return valorFormat;
 }
 
+
+function get(url_i) {
+    let result = {};
+
+    $.ajax({
+        type: 'GET',
+        url: url_i,
+        async: false,
+        responseType: 'json',
+        success: (response) => {
+            result = response;
+        },
+        error: (xhr, status, thrown) => {
+            console.error(thrown);
+
+            mostraDialogo(
+                "Erro na requisição da URL " + url_i + ". <br />" +
+                "Status: "+status+" "+xhr.statusText,
+                "danger",
+                3000
+            );
+        }
+    });
+
+    return result;
+}
+
+async function post(url, params) {
+    let result = {};
+
+    await $.ajax({
+        type: 'POST',
+        url: url,
+        data: params,
+        contentType: false,
+        processData: false,
+        responseType: 'json',
+        success: async (response) => {
+            if (response !== null && typeof response !== "string") {
+                result = {
+                    "status": 1,
+                    "response": response
+                };
+            } else {
+                if (typeof response === "string" && response.length === 0) {
+                    result = {
+                        "status": 1,
+                        "response": response
+                    };
+                } else {
+                    result = {
+                        "status": 0,
+                        "error": {
+                            "message": response,
+                            "code": 200,
+                            "status": ''
+                        }
+                    }
+                }
+            }
+        },
+        error: async (xhr, status, thrown) => {
+            console.error(thrown);
+
+            result = {
+                "status": 0,
+                "error": {
+                    "message": "Erro na requisição da URL.",
+                    "code": xhr.status,
+                    "status": xhr.statusText
+                }
+            }
+        }
+    });
+
+    return result;
+}
+
+async function postJSON(url, params) {
+    let result = {};
+
+    await $.ajax({
+        type: 'POST',
+        url: url,
+        data: params,
+        responseType: 'json',
+        success: async (response) => {
+            if (response !== null && typeof response !== "string") {
+                result = {
+                    "status": 1,
+                    "response": response
+                };
+            } else {
+                if (typeof response === "string" && response.length === 0) {
+                    result = {
+                        "status": 1,
+                        "response": response
+                    };
+                } else {
+                    result = {
+                        "status": 0,
+                        "error": {
+                            "message": response,
+                            "code": 200,
+                            "status": ''
+                        }
+                    }
+                }
+            }
+        },
+        error: async (xhr, status, thrown) => {
+            console.error(thrown);
+
+            result = {
+                "status": 0,
+                "error": {
+                    "message": "Erro na requisição da URL.",
+                    "code": xhr.status,
+                    "status": xhr.statusText
+                }
+            }
+        }
+    });
+
+    return result;
+}
+
 function mostraDialogo(mensagem, tipo, tempo){
 
     // se houver outro alert desse sendo exibido, cancela essa requisição

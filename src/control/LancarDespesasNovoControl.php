@@ -20,7 +20,7 @@ class LancarDespesasNovoControl
         if (Banco::getInstance()->open() === false)
             return json_encode([]);
 
-        $categorias = CategoriaContaPagar::findAll();
+        $categorias = (new \scr\model\CategoriaContaPagar)->findAll();
         Banco::getInstance()->getConnection()->close();
 
         $serial = [];
@@ -155,7 +155,7 @@ class LancarDespesasNovoControl
         }
 
         if ($tipo === 1 && $des > 0) {
-	    $despesa->setId($des);
+	        $despesa->setId($des);
             $des1 = $despesa->quitar($forma, $valorPago, $vencimento, $sit, $pen);
             if ($des1 === -10 || $des1 === -1) {
                 Banco::getInstance()->getConnection()->rollback();

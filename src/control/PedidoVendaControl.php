@@ -150,14 +150,6 @@ class PedidoVendaControl
         if ($id <= 0)
             return json_encode("Parâmetro inválido.");
 
-        Banco::getInstance()->open();
-
-        $frete = (new PedidoFrete())->findByPrice($id);
-        if ($frete !== null)
-            return json_encode("Este orçamento está vinculado ao pedido de frete \"" . $frete->getDescricao() . "\"");
-
-        Banco::getInstance()->getConnection()->close();
-
         setcookie("PEDVEN", $id, time() + 3600, "/", "", 0 , 1);
 
         return json_encode("");

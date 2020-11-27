@@ -5,7 +5,10 @@ namespace scr\control;
 
 
 use scr\model\ContaReceber;
+use scr\model\Evento;
 use scr\model\FormaPagamento;
+use scr\model\Representacao;
+use scr\model\Usuario;
 use scr\util\Banco;
 
 class ContasReceberControl
@@ -20,12 +23,30 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
         
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
 
         return json_encode($serial);
+    }
+
+    public function obterRepresentacoes()
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $representacoes = Representacao::getAll();
+
+        Banco::getInstance()->getConnection()->close();
+
+        $jarray = [];
+        /** @var Representacao $representacao */
+        foreach ($representacoes as $representacao) {
+            $jarray[] = $representacao->jsonSerialize();
+        }
+
+        return json_encode($jarray);
     }
 
     public function obterPorFiltro(string $filtro, int $ordem)
@@ -46,6 +67,42 @@ class ContasReceberControl
         return json_encode($serial);
     }
 
+    public function obterPorFiltroComissao(string $filtro, int $comissao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionComission($filtro, $comissao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroComissaoRepresentacao(string $filtro, int $comissao, int $representacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionComissionRepresentation($filtro, $comissao, $representacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
     public function obterPorFiltroSituacao(string $filtro, int $situation, int $ordem)
     {
         if (!Banco::getInstance()->open())
@@ -56,7 +113,79 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
 
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroComissaoSituacao(string $filtro, int $comissao, int $situation, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionComissionSituation($filtro, $comissao, $situation, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroComissaoRepresentacaoSituacao(string $filtro, int $comissao, int $representacao, int $situation, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionComissionRepresentationSituation($filtro, $comissao, $representacao, $situation, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorComissao(int $comissao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByComission($comissao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorComissaoRepresentacao(int $comissao, int $representacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByComissionRepresentation($comissao, $representacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
@@ -74,7 +203,43 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
 
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorComissaoSituacao(int $comissao, int $situation, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByComissionSituation($comissao, $situation, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorComissaoRepresentacaoSituacao(int $comissao, int $representacao, int $situation, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByComissionRepresentationSituation($comissao, $representacao, $situation, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
@@ -92,7 +257,43 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
         
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorDataComissao(string $data, int $comissao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDateComission($data, $comissao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorDataComissaoRepresentacao(string $data, int $comissao, int $representacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDateComissionRepresentation($data, $comissao, $representacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
@@ -110,7 +311,43 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
 
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorDataComissaoSituacao(string $data, int $comissao, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDateComissionSituation($data, $comissao, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorDataComissaoRepresentacaoSituacao(string $data, int $comissao, int $representacao, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDateComissionRepresentationSituation($data, $comissao, $representacao, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
@@ -128,7 +365,43 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
         
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorPeriodoComissao(string $data1, string $data2, int $comissao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByPeriodComission($data1, $data2, $comissao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorPeriodoComissaoRepresentacao(string $data1, string $data2, int $comissao, int $representacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByPeriodComissionRepresentation($data1, $data2, $comissao, $representacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
@@ -146,7 +419,43 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
 
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorPeriodoComissaoSituacao(string $data1, string $data2, int $comissao, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByPeriodComissionSituation($data1, $data2, $comissao, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorPeriodoComissaoRepresentacaoSituacao(string $data1, string $data2, int $comissao, int $representation, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByPeriodComissionRepresentationSituation($data1, $data2, $comissao, $representation, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
@@ -164,7 +473,43 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
 
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroDataComissao(string $filtro, string $data, int $comissao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionDateComission($filtro, $data, $comissao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroDataComissaoRepresentacao(string $filtro, string $data, int $comissao, int $representacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionDateComissionRepresentation($filtro, $data, $comissao, $representacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
@@ -182,7 +527,43 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
 
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroDataComissaoSituacao(string $filtro, string $data, int $comissao, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionDateComissionSituation($filtro, $data, $comissao, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroDataComissaoRepresentacaoSituacao(string $filtro, string $data, int $comissao, int $representacao, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionDateComissionRepresentationSituation($filtro, $data, $comissao, $representacao, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
@@ -200,7 +581,43 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
         
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroPeriodoComissao(string $filtro, string $data1, string $data2, int $comissao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionPeriodComission($filtro, $data1, $data2, $comissao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroPeriodoComissaoRepresentacao(string $filtro, string $data1, string $data2, int $comissao, int $representacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionPeriodComissionRepresentation($filtro, $data1, $data2, $comissao, $representacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
@@ -218,7 +635,43 @@ class ContasReceberControl
         Banco::getInstance()->getConnection()->close();
 
         $serial = [];
-        /** @var $conta  */
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroPeriodoComissaoSituacao(string $filtro, string $data1, string $data2, int $comissao, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionPeriodComissionSituation($filtro, $data1, $data2, $comissao, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
+        foreach ($contas as $conta) {
+            $serial[] = $conta->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterPorFiltroPeriodoComissaoRepresentacaoSituacao(string $filtro, string $data1, string $data2, int $comissao, int $representacao, int $situacao, int $ordem)
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $contas = (new ContaReceber())->findByDescriptionPeriodComissionRepresentationSituation($filtro, $data1, $data2, $comissao, $representacao, $situacao, $this->traduzirOrdem($ordem));
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var $conta ContaReceber */
         foreach ($contas as $conta) {
             $serial[] = $conta->jsonSerialize();
         }
@@ -310,6 +763,8 @@ class ContasReceberControl
         if ($conta->getPendencia() !== null && $conta->getPendencia()->getSituacao() > 1)
             return json_encode("Esta conta possui pendências recebidas... Estorne-as primeiro.");
 
+        $autor = Usuario::getById($_COOKIE["USER_ID"]);
+
         Banco::getInstance()->getConnection()->begin_transaction();
 
         $cp = $conta->estornar();
@@ -338,9 +793,45 @@ class ContasReceberControl
             }
         }
 
+        $evt = $this->criarEvento($conta, $autor);
+        if ($evt == -10 || $evt == -1) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getconnection()->close();
+            return json_encode("Ocorreu um problema ao criar o evento.");
+        }
+        if ($evt == -5) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getconnection()->close();
+            return json_encode("Parâmetros inválidos.");
+        }
+
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getconnection()->close();
 
         return json_encode("");
+    }
+
+    /**
+     * @param ContaReceber $conta
+     * @param Usuario $autor
+     * @return int
+     */
+    private function criarEvento(ContaReceber $conta, Usuario $autor): int
+    {
+        if ($conta === null || $autor === null)
+            return -5;
+
+        $evento = new Evento();
+        $evento->setDescricao("A conta a receber \"". $conta->getDescricao() ."\" foi estornada.");
+        $evento->setData(date("Y-m-d"));
+        $evento->setHora(date("H:i:s"));
+        $evento->setAutor($autor);
+        if ($conta->getPedidoVenda())
+            $evento->setPedidoVenda($conta->getPedidoVenda());
+
+        if ($conta->getPedidoFrete())
+            $evento->setPedidoFrete($conta->getPedidoFrete());
+
+        return $evento->save();
     }
 }

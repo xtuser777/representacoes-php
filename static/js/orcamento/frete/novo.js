@@ -288,6 +288,23 @@ function selectTipoCaminhaoBlur() {
     }
 }
 
+async function selectTipoCaminhaoChange() {
+    let tipo = Number.parseInt(selectTipoCam.value);
+
+    if (tipo !== null && !isNaN(tipo) && tipo > 0) {
+        let i = tipos.findIndex((element) => { return (element.id === tipo); })
+        if (tipos[i].capacidade < Number.parseFloat(textPesoItens.value.replace(',', '.'))) {
+            mostraDialogo(
+                'A capacidade deste tipo de caminhão é inferior ao peso total dos itens.',
+                'warning',
+                3000
+            );
+            selectTipoCam.value = 0;
+            await selectTipoCaminhaoChange();
+        }
+    }
+}
+
 async function textDistanciaBlur() {
     let dist = Number.parseFloat(textDistancia.value);
     if (dist <= 0 || isNaN(dist)) {

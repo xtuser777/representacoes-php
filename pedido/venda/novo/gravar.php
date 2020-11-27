@@ -17,12 +17,11 @@ if (!isset($_COOKIE["USER_ID"])) {
     $peso = str_replace(",", ".", $_POST["peso"]);
     $valor = str_replace(",", ".", $_POST["valor"]);
     $forma = $_POST["forma"];
-    $valorPago = $_POST["valorPago"];
     $porcComissaoVendedor = $_POST["porcVdd"];
     $comissoes = json_decode($_POST["comissoes"]);
     $itens = json_decode($_POST["itens"]);
 
     echo (new PedidoVendaNovoControl())->gravar(
-        $cli, $orc, $desc, $vdd, $cid, $peso, $valor, $forma, $valorPago, $porcComissaoVendedor, $comissoes, $itens
+        $cli, $orc, $desc, $vdd, $cid, $peso, $valor, $forma, $porcComissaoVendedor, $comissoes, $itens
     );
 }

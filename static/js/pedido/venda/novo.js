@@ -11,7 +11,6 @@ const textPorcentagemComisaoVendedor = document.getElementById("textPorcentagemC
 const tableComissoes = document.getElementById("tableComissoes");
 const tbodyComissoes = document.getElementById("tbodyComissoes");
 const textValorItens = document.getElementById("text_valor_itens");
-const textValorPago = document.getElementById("text_valor_pago");
 
 var itens = [];
 
@@ -23,24 +22,6 @@ let erroEstado = true;
 let erroCidade = true;
 let erroForma = true;
 let erroValor = true;
-
-function get(url_i) {
-    let res;
-    $.ajax({
-        type: 'GET',
-        url: url_i,
-        async: false,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function (result) {res = result;},
-        error: function (xhr, status, thrown) {
-            console.error(thrown);
-            alert(thrown);
-        }
-    });
-
-    return res;
-}
 
 function selecionarVendedor() {
     let vdd = Number.parseInt(selectVendedor.value);
@@ -308,18 +289,6 @@ function selectFormaBlur() {
     }
 }
 
-function textValorPagoBlur() {
-    let valor = Number.parseInt(textValorPago.value.toString().replace(",", "."));
-
-    if (valor === null || isNaN(valor) || valor <= 0) {
-        erroValor = true;
-        $("#msvalorpago").html('<span class="label label-danger">O valor pago pelo pedido precisa ser preenchido.</span>');
-    } else {
-        erroValor = false;
-        $("#msvalorpago").html('');
-    }
-}
-
 function buttonClrItensClick() {
     itens = [];
     $(tbodyItens).html('');
@@ -333,10 +302,9 @@ function validar() {
     selectEstadoBlur();
     selectCidadeBlur();
     selectFormaBlur();
-    textValorPagoBlur();
 
     return (
-        !erroCliente && !erroDesc && !erroEstado && !erroCidade && !erroForma && !erroValor
+        !erroCliente && !erroDesc && !erroEstado && !erroCidade && !erroForma
     );
 }
 
@@ -359,7 +327,6 @@ function limparOrcamento() {
     textPesoItens.value = "0,0";
     textValorItens.value = "0,00";
     selectForma.value = 0;
-    textValorPago.value = 0;
 }
 
 function buttonLimparClick() {
@@ -377,14 +344,12 @@ function buttonLimparClick() {
     textPesoItens.value = "0,0";
     textValorItens.value = "0,00";
     selectForma.value = 0;
-    textValorPago.value = 0;
 
     erroCliente = true;
     erroDesc = true;
     erroEstado = true;
     erroCidade = true;
     erroForma = true;
-    erroValor = true;
 }
 
 function buttonSalvarClick() {
@@ -398,7 +363,6 @@ function buttonSalvarClick() {
     let peso = 0.0;
     let valor = 0.0;
     let forma = 0;
-    let valorPago = 0.0;
 
     if (validar()) {
         if (itens.length > 0) {
@@ -411,7 +375,6 @@ function buttonSalvarClick() {
             peso = textPesoItens.value;
             valor = textValorItens.value;
             forma = selectForma.value;
-            valorPago = textValorPago.value.toString().replace(",", ".");
 
             let frm = new FormData();
             frm.append("orc", orc);
@@ -423,7 +386,6 @@ function buttonSalvarClick() {
             frm.append("peso", peso);
             frm.append("valor", valor);
             frm.append("forma", forma);
-            frm.append("valorPago", valorPago);
             frm.append("itens", JSON.stringify(itens));
             frm.append("comissoes", JSON.stringify(comissoes));
 
@@ -539,5 +501,4 @@ $(document).ready((event) => {
     selecionarVendedor();
 
     buttonLimparClick();
-    $(textValorPago).mask("000000000,00", { reverse: true });
 });

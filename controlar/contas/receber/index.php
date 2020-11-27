@@ -220,7 +220,33 @@ if (!isset($_COOKIE['USER_ID'])) {
                     </div>
 
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-3">
+                            <label for="slSituacao">Situação:</label>
+                            <select id="slSituacao" class="form-control input-sm">
+                                <option value="0">SELECIONE</option>
+                                <option value="1">PENDENTE</option>
+                                <option value="2">PAGO PARCIALMENTE</option>
+                                <option value="3">PAGO</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="selectComissao">Comissão:</label>
+                            <select id="selectComissao" class="form-control input-sm" onchange="selecionarComissao();">
+                                <option value="0">SELECIONE</option>
+                                <option value="1">SIM</option>
+                                <option value="2">NÃO</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="selectRepresentacao">Representação:</label>
+                            <select id="selectRepresentacao" class="form-control input-sm">
+                                <option value="0">SELECIONE</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3">
                             <label for="slOrdenar">Ordenar por:</label>
                             <select id="slOrdenar" class="form-control input-sm">
                                 <option value="1">CONTA (CRESCENTE)</option>
@@ -233,16 +259,6 @@ if (!isset($_COOKIE['USER_ID'])) {
                                 <option value="8">VENCIMENTO (DECRESCENTE)</option>
                                 <option value="9">SITUAÇÃO (CRESCENTE)</option>
                                 <option value="10">SITUAÇÃO (DECRESCENTE)</option>
-                            </select>
-                        </div>
-
-                        <div class="col-sm-6">
-                            <label for="slSituacao">Situação:</label>
-                            <select id="slSituacao" class="form-control input-sm">
-                                <option value="0">SELECIONE</option>
-                                <option value="1">PENDENTE</option>
-                                <option value="2">PAGO PARCIALMENTE</option>
-                                <option value="3">PAGO</option>
                             </select>
                         </div>
                     </div>

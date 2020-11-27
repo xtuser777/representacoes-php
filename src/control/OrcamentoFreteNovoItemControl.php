@@ -41,9 +41,13 @@ class OrcamentoFreteNovoItemControl
 
     public function obterPorVenda(int $venda)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
         $itens = ItemOrcamentoVenda::findAllItems($venda);
+
         Banco::getInstance()->getConnection()->close();
+
         $serial = [];
         /** @var ItemOrcamentoVenda $item */
         foreach ($itens as $item) {

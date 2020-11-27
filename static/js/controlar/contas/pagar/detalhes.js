@@ -49,7 +49,7 @@ function validarPagamento(event) {
         erroPagamento = true;
         $("#mspagamento").html('<span class="label label-danger">A data de pagamento da despesa precisa ser informado.</span>');
     } else {
-        let pag = new Date(pagamento);
+        let pag = new Date(pagamento + '12:00:00');
         if (dtpg === null) {
             if (pag > Date.now()) {
                 erroPagamento = true;
@@ -59,7 +59,7 @@ function validarPagamento(event) {
                 $("#mspagamento").html('');
             }
         } else {
-            let pag1 = new Date(dtpg);
+            let pag1 = new Date(dtpg + '12:00:00');
             if (pag < pag1 || pag > Date.now()) {
                 erroPagamento = true;
                 $("#mspagamento").html('<span class="label label-danger">A Data precisa ser igual ou menor que a data atual e maior que a data anterior.</span>');
@@ -236,26 +236,6 @@ function quitarDespesa() {
             3000
         );
     }
-}
-
-function get(url_i) {
-    let res = {};
-    let request = new XMLHttpRequest();
-    request.open("GET", url_i, false);
-    request.send();
-
-    if (request.DONE === 4 && request.status === 200) {
-        res = JSON.parse(request.responseText);
-    } else {
-        mostraDialogo(
-            "Erro na requisição da URL " + url_i + ". <br />" +
-            "Status: "+request.status+" "+request.statusText,
-            "danger",
-            3000
-        );
-    }
-
-    return res;
 }
 
 $(document).ready(() => {

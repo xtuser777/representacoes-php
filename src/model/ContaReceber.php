@@ -538,6 +538,93 @@ class ContaReceber
         return $this->resultToList($result);
     }
 
+    public function findByDescriptionComission(string $description, int $comission, string $ordem): array
+    {
+        if (
+            strlen($description) <= 0 ||
+            $comission <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_comissao = ? AND con_rec_descricao like ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param("is", $comissao,$desc);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionComissionRepresentation(string $description, int $comission, int $representacao, string $ordem): array
+    {
+        if (
+            strlen($description) <= 0 ||
+            $comission <= 0 ||
+            $representacao <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_comissao = ? AND rep_id = ? AND con_rec_descricao like ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param("iis", $comissao, $representacao, $desc);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByDescriptionSituation(string $description, int $situation, string $ordem): array
     {
         if ($description === null || strlen($description) <= 0 || $situation <= 0)
@@ -560,6 +647,95 @@ class ContaReceber
 
         $desc = "%".$description."%";
         $stmt->bind_param("si", $desc, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionComissionSituation(string $description, int $comission, int $situation, string $ordem): array
+    {
+        if (
+            strlen($description) <= 0 ||
+            $comission <= 0 ||
+            $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? AND con_rec_comissao = ? AND con_rec_situacao = ?  
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param("sii", $desc, $comissao, $situation);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionComissionRepresentationSituation(string $description, int $comission, int $representacao, int $situation, string $ordem): array
+    {
+        if (
+            strlen($description) <= 0 ||
+            $comission <= 0 ||
+            $representacao <= 0 ||
+            $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? AND con_rec_comissao = ? AND rep_id = ? AND con_rec_situacao = ?  
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param("siii", $desc, $comissao, $representacao, $situation);
+
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -610,6 +786,86 @@ class ContaReceber
         return $this->resultToList($result);
     }
 
+    public function findByComissionSituation(int $comission, int $situation, string $ordem): array
+    {
+        if ($comission <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber 
+            WHERE con_rec_comissao = ? AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("ii", $comissao, $situation);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByComissionRepresentationSituation(int $comission, int $representation, int $situation, string $ordem): array
+    {
+        if (
+            $comission <= 0 ||
+            $representation <= 0 ||
+            $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber 
+            WHERE con_rec_comissao = ? AND rep_id = ? AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("iii", $comissao, $representation, $situation);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByDate(string $date, string $ordem): array
     {
         if ($date === null || strlen($date) <= 0) return [];
@@ -629,6 +885,88 @@ class ContaReceber
         }
 
         $stmt->bind_param("s", $date);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDateComission(string $date, int $comission, string $ordem): array
+    {
+        if (
+            $comission <= 0 ||
+            strlen($date) <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento = ? AND con_rec_comissao = ?
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("si", $date, $comissao);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDateComissionRepresentation(string $date, int $comission, int $representation, string $ordem): array
+    {
+        if ($comission <= 0 ||
+            $representation <= 0 ||
+            strlen($date) <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento = ? AND con_rec_comissao = ? AND rep_id = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("sii", $date, $comissao, $representation);
+
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -680,6 +1018,91 @@ class ContaReceber
         return $this->resultToList($result);
     }
 
+    public function findByDateComissionSituation(string $date, int $comission, int $situation, string $ordem): array
+    {
+        if (
+            strlen($date) <= 0 ||
+            $comission <= 0 ||
+            $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento = ? AND con_rec_comissao = ? AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("sii", $date, $comissao, $situation);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDateComissionRepresentationSituation(string $date, int $comission, int $representation, int $situation, string $ordem): array
+    {
+        if (
+            strlen($date) <= 0 ||
+            $comission <= 0 ||
+            $representation <= 0 ||
+            $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento = ? AND con_rec_comissao = ? AND rep_id = ? AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("siii", $date, $comissao, $representation, $situation);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByPeriod(string $date1, string $date2, string $ordem): array
     {
         if ($date1 === null || strlen($date1) <= 0 || $date2 === null || strlen($date2) <= 0)
@@ -701,6 +1124,91 @@ class ContaReceber
         }
 
         $stmt->bind_param("ss", $date1, $date2);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByPeriodComission(string $date1, string $date2, int $comission, string $ordem): array
+    {
+        if (
+            strlen($date1) <= 0 ||
+            $comission <= 0 ||
+            strlen($date2) <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento >= ? AND con_rec_vencimento <= ? AND con_rec_comissao = ?
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("ssi", $date1, $date2, $comissao);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByPeriodComissionRepresentation(string $date1, string $date2, int $comission, int $representation, string $ordem): array
+    {
+        if (
+            strlen($date1) <= 0 ||
+            $comission <= 0 ||
+            $representation <= 0 ||
+            strlen($date2) <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento >= ? AND con_rec_vencimento <= ? AND con_rec_comissao = ? AND rep_id = ?
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("ssii", $date1, $date2, $comissao, $representation);
+
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -753,6 +1261,100 @@ class ContaReceber
         return $this->resultToList($result);
     }
 
+    public function findByPeriodComissionSituation(string $date1, string $date2, int $comission, int $situation, string $ordem): array
+    {
+        if (
+            strlen($date1) <= 0 ||
+            strlen($date2) <= 0 ||
+            $comission <= 0 ||
+            $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento >= ? AND con_rec_vencimento <= ? AND con_rec_comissao = ? AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("ssii", $date1, $date2, $comissao, $situation);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByPeriodComissionRepresentationSituation(string $date1, string $date2, int $comission, int $representation, int $situation, string $ordem): array
+    {
+        if (
+            strlen($date1) <= 0 ||
+            strlen($date2) <= 0 ||
+            $comission <= 0 ||
+            $representation <= 0 ||
+            $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_vencimento >= ? AND con_rec_vencimento <= ? AND con_rec_comissao = ? AND rep_id = ? AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param(
+            "ssiii",
+            $date1,
+            $date2,
+            $comissao,
+            $representation,
+            $situation
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByDescriptionDate(string $description, string $date, string $ordem): array
     {
         if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0)
@@ -790,9 +1392,108 @@ class ContaReceber
         return $this->resultToList($result);
     }
 
+    public function findByDescriptionDateComission(string $description, string $date, int $comission, string $ordem): array
+    {
+        if (
+            strlen($description) <= 0 ||
+            $comission <= 0 ||
+            strlen($date) <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? AND con_rec_vencimento = ? AND con_rec_comissao = ?
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param("ssi", $desc, $date, $comissao);
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionDateComissionRepresentation(string $description, string $date, int $comission, int $representation, string $ordem): array
+    {
+        if (
+            strlen($description) <= 0 ||
+            $comission <= 0 ||
+            $representation <= 0 ||
+            strlen($date) <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? AND con_rec_vencimento = ? AND con_rec_comissao = ? AND rep_id = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param(
+            "ssii",
+            $desc,
+            $date,
+            $comissao,
+            $representation
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByDescriptionDateSituation(string $description, string $date, int $situation, string $ordem): array
     {
-        if ($description === null || strlen($description) <= 0 || $date === null || strlen($date) <= 0 || $situation <= 0)
+        if (
+            strlen($description) <= 0 ||
+            strlen($date) <= 0 ||
+            $situation <= 0
+        )
             return [];
 
         $sql = "
@@ -813,6 +1514,110 @@ class ContaReceber
 
         $desc = "%".$description."%";
         $stmt->bind_param("ssi", $desc, $date, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionDateComissionSituation(string $description, string $date, int $comission, int $situation, string $ordem): array
+    {
+        if (
+            strlen($description) <= 0 ||
+            strlen($date) <= 0 ||
+            $comission <= 0 ||
+            $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? AND con_rec_vencimento = ? AND con_rec_comissao = ? AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param(
+            "ssii",
+            $desc,
+            $date,
+            $comissao,
+            $situation
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionDateComissionRepresentationSituation(string $description, string $date, int $comission, int $representation, int $situation, string $ordem): array
+    {
+        if (
+            strlen($description) <= 0 ||
+            strlen($date) <= 0 ||
+            $comission <= 0 ||
+            $representation <= 0 ||
+            $situation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? AND con_rec_vencimento = ? AND con_rec_comissao = ? AND rep_id = ? AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param(
+            "ssiii",
+            $desc,
+            $date,
+            $comissao,
+            $representation,
+            $situation
+        );
+
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -870,6 +1675,109 @@ class ContaReceber
         return $this->resultToList($result);
     }
 
+    public function findByDescriptionPeriodComission(string $description, string $date1, string $date2, int $comission, string $ordem): array
+    {
+        if (
+            $description === null || strlen($description) <= 0 ||
+            $date1 === null || strlen($date1) <= 0 ||
+            $date2 === null || strlen($date2) <= 0 ||
+            $comission <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? AND con_rec_vencimento >= ? AND con_rec_vencimento <= ? AND con_rec_comissao = ?
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param(
+            "sssi",
+            $desc,
+            $date1,
+            $date2,
+            $comissao
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionPeriodComissionRepresentation(string $description, string $date1, string $date2, int $comission, int $representation, string $ordem): array
+    {
+        if (
+            $description === null || strlen($description) <= 0 ||
+            $date1 === null || strlen($date1) <= 0 ||
+            $date2 === null || strlen($date2) <= 0 ||
+            $comission <= 0 || $representation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? AND con_rec_vencimento >= ? AND con_rec_vencimento <= ? AND con_rec_comissao = ? AND rep_id = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param(
+            "sssii",
+            $desc,
+            $date1,
+            $date2,
+            $comissao,
+            $representation
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByDescriptionPeriodSituation(string $description, string $date1, string $date2, int $situation, string $ordem): array
     {
         if (
@@ -895,7 +1803,7 @@ class ContaReceber
             echo Banco::getInstance()->getConnection()->error;
             return [];
         }
-        
+
         $desc = "%".$description."%";
         $stmt->bind_param("sssi", $desc, $date1, $date2, $situation);
         if (!$stmt->execute()) {
@@ -911,6 +1819,212 @@ class ContaReceber
         }
 
         return $this->resultToList($result);
+    }
+
+    public function findByDescriptionPeriodComissionSituation(string $description, string $date1, string $date2, int $comission, int $situation, string $ordem): array
+    {
+        if (
+            $description === null || strlen($description) <= 0 ||
+            $date1 === null || strlen($date1) <= 0 ||
+            $date2 === null || strlen($date2) <= 0 ||
+            $situation <= 0 || $comission <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? AND con_rec_vencimento >= ? AND con_rec_vencimento <= ? AND con_rec_comissao = ? AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param(
+            "sssii",
+            $desc,
+            $date1,
+            $date2,
+            $comissao,
+            $situation
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionPeriodComissionRepresentationSituation(string $description, string $date1, string $date2, int $comission, int $representation, int $situation, string $ordem): array
+    {
+        if (
+            $description === null || strlen($description) <= 0 ||
+            $date1 === null || strlen($date1) <= 0 ||
+            $date2 === null || strlen($date2) <= 0 ||
+            $situation <= 0 || $comission <= 0 || $representation <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber
+            WHERE con_rec_descricao like ? AND con_rec_vencimento >= ? AND con_rec_vencimento <= ? AND con_rec_comissao = ? AND rep_id = ? AND con_rec_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $desc = "%".$description."%";
+
+        $stmt->bind_param(
+            "sssiii",
+            $desc,
+            $date1,
+            $date2,
+            $comissao,
+            $representation,
+            $situation
+        );
+
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByComission(int $comission, string $ordem): array
+    {
+        if ($comission <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber 
+            WHERE con_rec_comissao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("i", $comissao);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByComissionRepresentation(int $comission, int $representation, string $ordem): array
+    {
+        if ($comission <= 0 || $representation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_receber 
+            WHERE con_rec_comissao = ? AND rep_id = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $comissao = $comission === 1 ? true : false;
+
+        $stmt->bind_param("ii", $comissao, $representation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    /**
+     * @param int $delivery
+     * @return ContaReceber|null
+     */
+    public function findByDelivery(int $delivery): ?ContaReceber
+    {
+        if ($delivery <= 0)
+            return null;
+
+        $sql = "
+            SELECT * 
+            FROM conta_receber 
+            WHERE ped_fre_id = ?;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return null;
+
+        if (!Banco::getInstance()->addParameters("i", [ $delivery ]))
+            return null;
+
+        if (!Banco::getInstance()->executeStatement())
+            return null;
+
+        return $this->resultToObject(Banco::getInstance()->getResult());
     }
 
     /**

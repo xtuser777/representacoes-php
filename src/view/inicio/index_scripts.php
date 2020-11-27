@@ -1,1 +1,1 @@
-<script type="text/javascript"></script>
+<script type="text/javascript" src="/representacoes/static/js/inicio/index.js"></script>

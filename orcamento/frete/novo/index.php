@@ -115,9 +115,6 @@ if (!isset($_COOKIE['USER_ID'])) {
                                         <li><a href="/representacoes/controlar/contas/pagar">Contas a Pagar</a></li>
                                         <li><a href="/representacoes/controlar/contas/receber">Contas a Receber</a></li>
                                         <li><a href="/representacoes/controlar/lancar/despesas">Lançar Despesas</a></li>
-                                        <?php if ($_COOKIE['USER_LEVEL'] == '1'): ?>
-                                            <li><a href="/representacoes/controlar/comissao">Comissões</a></li>
-                                        <?php endif; ?>
                                     </ul>
                                     <!-- Fim popup botao controlar -->
                                 </li>
@@ -289,7 +286,7 @@ if (!isset($_COOKIE['USER_ID'])) {
 
                         <div class="col-sm-3">
                             <label for="selTipoCaminhao">Tipo Caminhão <span style="color: red;">*</span>:</label>
-                            <select id="selTipoCaminhao" class="form-control input-sm" style="width: 100%;" onblur="selectTipoCaminhaoBlur();">
+                            <select id="selTipoCaminhao" class="form-control input-sm" style="width: 100%;" onblur="selectTipoCaminhaoBlur();" onchange="selectTipoCaminhaoChange();">
                                 <option value="0">SELECIONAR</option>
                             </select>
                             <div id="mstipo"></div>

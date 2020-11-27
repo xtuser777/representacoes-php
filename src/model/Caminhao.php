@@ -2,7 +2,6 @@
 
 use mysqli_result;
 use mysqli_stmt;
-use scr\dao\CaminhaoDAO;
 use scr\util\Banco;
 
 class Caminhao
@@ -77,7 +76,8 @@ class Caminhao
 
     public static function findById(int $id): ?Caminhao
     {
-        if ($id <= 0) return null;
+        if ($id <= 0)
+            return null;
 
         $sql = "
             select tc.tip_cam_id,tc.tip_cam_descricao,tc.tip_cam_eixos,tc.tip_cam_capacidade,
@@ -116,7 +116,8 @@ class Caminhao
 
     public static function findByKey(string $key): array
     {
-        if (strlen(trim($key)) <= 0) return array();
+        if (strlen(trim($key)) <= 0)
+            return array();
 
         $sql = "
             select tc.tip_cam_id,tc.tip_cam_descricao,tc.tip_cam_eixos,tc.tip_cam_capacidade,
@@ -145,6 +146,54 @@ class Caminhao
             echo $stmt->error;
             return array();
         }
+        $caminhoes = [];
+        while ($row = $result->fetch_assoc()) {
+            $caminhoes[] = new Caminhao(
+                $row["cam_id"], $row["cam_placa"], $row["cam_marca"], $row["cam_modelo"], $row["cam_cor"], $row["cam_ano_fabricacao"], $row["cam_ano_modelo"],
+                new TipoCaminhao (
+                    $row["tip_cam_id"], $row["tip_cam_descricao"], $row["tip_cam_eixos"], $row["tip_cam_capacidade"]
+                ),
+                (new Proprietario())->findById($row["prp_id"])
+            );
+        }
+
+        return $caminhoes;
+    }
+
+    public static function findByProprietary(int $prop): array
+    {
+        if ($prop <= 0)
+            return array();
+
+        $sql = "
+            select tc.tip_cam_id,tc.tip_cam_descricao,tc.tip_cam_eixos,tc.tip_cam_capacidade,
+                   cm.cam_id,cm.cam_placa,cm.cam_marca,cm.cam_modelo,cm.cam_cor,cm.cam_ano_fabricacao,cm.cam_ano_modelo,cm.prp_id
+            from caminhao cm 
+            inner join tipo_caminhao tc on tc.tip_cam_id = cm.tip_cam_id
+            where cm.prp_id = ? 
+            order by cm.cam_id;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return array();
+        }
+
+        $stmt->bind_param("i", $prop);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return array();
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result) {
+            echo $stmt->error;
+            return array();
+        }
+
         $caminhoes = [];
         while ($row = $result->fetch_assoc()) {
             $caminhoes[] = new Caminhao(

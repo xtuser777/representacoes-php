@@ -5,26 +5,34 @@
     </div>
 </div>
 <!-- Fim card titulo pagina -->
+
 <!-- Conteudo da pagina -->
 <div class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 150px;">Filtragem dos Eventos</div>
+    <div class="fieldset-card-legend">Filtragem dos Eventos</div>
     <div class="fieldset-card-container">
         <div class="row">
-            <div class="col-sm-3">
-                <label for="dtEventos">Data dos Eventos:</label>
-                <input type="date" name="dtEventos" id="dtEventos" class="form-control" style="width: 100%;" value="" />
+            <div class="col-sm-5">
+                <label for="textFiltro">Filtro:</label>
+                <input type="text" name="textFiltro" id="textFiltro" class="form-control" style="width: 100%;" value="" />
             </div>
-            <div class="col-sm-7">
-                <label for="cbTipoPedido">Tipo do Pedido:</label>
-                <select name="cbTipoPedido" id="cbTipoPedido" class="form-control" style="width: 100%;">
-                    <option value="0">VENDA E FRETE</option>
+
+            <div class="col-sm-2">
+                <label for="dateEvento">Data dos Eventos:</label>
+                <input type="date" name="dateEvento" id="dateEvento" class="form-control" style="width: 100%;" value="" />
+            </div>
+
+            <div class="col-sm-3">
+                <label for="selectTipoPedido">Tipo do Pedido:</label>
+                <select name="selectTipoPedido" id="selectTipoPedido" class="form-control" style="width: 100%;">
+                    <option value="0">SELECIONE</option>
                     <option value="1">VENDA</option>
                     <option value="2">FRETE</option>
                 </select>
             </div>
+
             <div class="col-sm-2">
                 <label for="btFiltrar">&nbsp;</label>
-                <button name="btFiltrar" id="btFiltrar" class="btn btn-primary" style="width: 100%;">FILTRAR</button>
+                <button name="btFiltrar" id="btFiltrar" class="btn btn-primary" style="width: 100%;" onclick="filtrar();">FILTRAR</button>
             </div>
         </div>
     </div>
@@ -33,28 +41,20 @@
 <div class="fieldset-card">
     <div class="fieldset-card-legend" style="width: 140px;">Eventos do Sistema</div>
     <div class="fieldset-card-container">
-        <div class="table-container">
-            <table id="tbEventos" class="table table-bordered table-hover table-responsive">
-                <thead>
-                <tr>
-                    <th>DESCRIÇÃO</th>
-                    <th>DATA</th>
-                    <th>HORA</th>
-                    <th>PEDIDO</th>
-                    <th>ATOR</th>
-                </tr>
-                </thead>
-                <tbody id="tbEventosBody">
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <table id="tableEventos" class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>DESCRIÇÃO</th>
+                <th>DATA</th>
+                <th>HORA</th>
+                <th>PEDIDO</th>
+                <th>ATOR</th>
+            </tr>
+            </thead>
+
+            <tbody id="tbodyEventos">
+            </tbody>
+        </table>
     </div>
 </div>
 

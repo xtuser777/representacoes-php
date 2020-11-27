@@ -128,7 +128,7 @@ class PedidoVendaNovoControl
         return json_encode($serial);
     }
 
-    public function gravar(int $cli, int $orc, string $desc, int $vdd, int $cid, float $peso, float $valor, int $forma, float $valorRecebido, int $porcComissaoVendedor, array $comissoes, array $itens)
+    public function gravar(int $cli, int $orc, string $desc, int $vdd, int $cid, float $peso, float $valor, int $forma, int $porcComissaoVendedor, array $comissoes, array $itens)
     {
         if (!Banco::getInstance()->open())
             return json_encode("Erro ao conectar-se ao banco de dados.");
@@ -188,7 +188,7 @@ class PedidoVendaNovoControl
             }
         }
         
-        $rc = $this->lancarContas($pedido, $vendedor, $fp, $cliente, $usuario, $valor, $valorRecebido, $porcComissaoVendedor, $comissoes);
+        $rc = $this->lancarContas($pedido, $vendedor, $fp, $cliente, $usuario, $valor, $valor, $porcComissaoVendedor, $comissoes);
         if ($rc === -10 || $rc === -1) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getConnection()->close();
@@ -236,13 +236,6 @@ class PedidoVendaNovoControl
     {
         $response = 0;
 
-        $situacao = 3;
-        $valorLanc = $valorRecebido;
-        if ($valorRecebido < $valor) {
-            $valorLanc = $valor - $valorRecebido;
-            $situacao = 2;
-        }
-
         if ($vendedor) {
             $comissaoVendedor = $valor/100*$porcComissaoVendedor;
             $respostaComissaoVendador = $this->lancarComissaoVendedor($vendedor, $pedido, $autor, $comissaoVendedor);
@@ -277,28 +270,8 @@ class PedidoVendaNovoControl
             $conta->setId($response);
         }
 
-        $responsePendente = 0;
-        if ($situacao === 2) {
-            $contaPendente = new ContaReceber();
-            $contaPendente->setConta($conta->getConta());
-            $contaPendente->setData(date("Y-m-d"));
-            $contaPendente->setDescricao("Recebimento pedido: " . $pedido->getId() . " -> Pendência");
-            $contaPendente->setPagador(($cliente->getTipo() === 1) ? $cliente->getPessoaFisica()->getNome() : $cliente->getPessoaJuridica()->getNomeFantasia());
-            $contaPendente->setValor($valorLanc);
-            $contaPendente->setComissao(false);
-            $contaPendente->setSituacao(1);
-            $contaPendente->setVencimento($conta->getVencimento());
-            $contaPendente->setPedidoVenda($pedido);
-            $contaPendente->setAutor($autor);
-
-            $responsePendente = $contaPendente->save();
-            if ($responsePendente <= 0) {
-                return $responsePendente;
-            }
-        }
-
         $response = $conta->receber(
-            $forma->getId(), $valorRecebido, date("Y-m-d"), $situacao, $responsePendente
+            $forma->getId(), $valorRecebido, date("Y-m-d"), 3, 0
         );
 
         return $response;
@@ -324,7 +297,7 @@ class PedidoVendaNovoControl
         $contaComissaoVendedor->setComissao(true);
         $contaComissaoVendedor->setSituacao(1);
         $contaComissaoVendedor->setVencimento((new \DateTime())->add(new \DateInterval("P2M"))->format("Y-m-d"));
-        $contaComissaoVendedor->setCategoria(CategoriaContaPagar::findById(1));
+        $contaComissaoVendedor->setCategoria(CategoriaContaPagar::findById(250));
         $contaComissaoVendedor->setVendedor($vendedor);
         $contaComissaoVendedor->setPedidoVenda($pedido);
         $contaComissaoVendedor->setAutor($autor);

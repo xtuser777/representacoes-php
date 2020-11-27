@@ -32,7 +32,6 @@ function preencherTabela(dados) {
                 <td>' + this.descricao + '</td>\
                 <td>' + this.parcela + '</td>\
                 <td>' + this.categoria.descricao + '</td>\
-                <td>' + FormatarData(this.data) + '</td>\
                 <td>' + FormatarData(this.vencimento) + '</td>\
                 <td>'+ this.autor.funcionario.pessoa.nome +'</td>\
                 <td>'+ valorFormat +'</td>\
@@ -41,26 +40,6 @@ function preencherTabela(dados) {
             </tr>';
     });
     $(tbodyDespesas).html(txt);
-}
-
-function get(url_i) {
-    let res = {};
-    let request = new XMLHttpRequest();
-    request.open("GET", url_i, false);
-    request.send();
-
-    if (request.DONE === 4 && request.status === 200) {
-        res = JSON.parse(request.responseText);
-    } else {
-        mostraDialogo(
-            "Erro na requisição da URL " + url_i + ". <br />" +
-            "Status: "+request.status+" "+request.statusText,
-            "danger",
-            3000
-        );
-    }
-
-    return res;
 }
 
 function obter() {
@@ -128,11 +107,17 @@ function filtrar() {
                     3000
                 );
             } else {
-                if (dataInicio === dataFim) {
+                if (data1 > data2) {
+                    mostraDialogo(
+                        "A Data de Início deve ser menor que a data Fim do filtro.",
+                        "warning",
+                        3000
+                    );
+                } else {
                     let request = new XMLHttpRequest();
-                    request.open("POST", "/representacoes/controlar/lancar/despesas/obter-por-filtro-data.php", false);
+                    request.open("POST", "/representacoes/controlar/lancar/despesas/obter-por-filtro-periodo.php", false);
                     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                    request.send(encodeURI("filtro="+filtro+"&data="+dataInicio));
+                    request.send(encodeURI("filtro="+filtro+"&dataInicio="+dataInicio+"&dataFim="+dataFim));
 
                     if (request.DONE === 4 && request.status === 200) {
                         let res = JSON.parse(request.responseText);
@@ -147,44 +132,11 @@ function filtrar() {
                         }
                     } else {
                         mostraDialogo(
-                            "Erro na requisição da URL /representacoes/controlar/lancar/despesas/obter-por-filtro-data.php. <br />" +
+                            "Erro na requisição da URL /representacoes/controlar/lancar/despesas/obter-por-filtro-periodo.php. <br />" +
                             "Status: "+request.status+" "+request.statusText,
                             "danger",
                             3000
                         );
-                    }
-                } else {
-                    if (data1 > data2) {
-                        mostraDialogo(
-                            "A Data de Início deve ser menor que a data Fim do filtro.",
-                            "warning",
-                            3000
-                        );
-                    } else {
-                        let request = new XMLHttpRequest();
-                        request.open("POST", "/representacoes/controlar/lancar/despesas/obter-por-filtro-periodo.php", false);
-                        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                        request.send(encodeURI("filtro="+filtro+"&dataInicio="+dataInicio+"&dataFim="+dataFim));
-
-                        if (request.DONE === 4 && request.status === 200) {
-                            let res = JSON.parse(request.responseText);
-                            if (res !== null && typeof res !== "string") {
-                                preencherTabela(res);
-                            } else {
-                                mostraDialogo(
-                                    res,
-                                    "danger",
-                                    3000
-                                );
-                            }
-                        } else {
-                            mostraDialogo(
-                                "Erro na requisição da URL /representacoes/controlar/lancar/despesas/obter-por-filtro-periodo.php. <br />" +
-                                "Status: "+request.status+" "+request.statusText,
-                                "danger",
-                                3000
-                            );
-                        }
                     }
                 }
             }
@@ -197,11 +149,17 @@ function filtrar() {
                         3000
                     );
                 } else {
-                    if (dataInicio === dataFim) {
+                    if (data1 > data2) {
+                        mostraDialogo(
+                            "A Data de Início deve ser menor que a data Fim do filtro.",
+                            "warning",
+                            3000
+                        );
+                    } else {
                         let request = new XMLHttpRequest();
-                        request.open("POST", "/representacoes/controlar/lancar/despesas/obter-por-data.php", false);
+                        request.open("POST", "/representacoes/controlar/lancar/despesas/obter-por-periodo.php", false);
                         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                        request.send(encodeURI("data="+dataInicio));
+                        request.send(encodeURI("dataInicio="+dataInicio+"&dataFim="+dataFim));
 
                         if (request.DONE === 4 && request.status === 200) {
                             let res = JSON.parse(request.responseText);
@@ -216,44 +174,11 @@ function filtrar() {
                             }
                         } else {
                             mostraDialogo(
-                                "Erro na requisição da URL /representacoes/controlar/lancar/despesas/obter-por-data.php. <br />" +
+                                "Erro na requisição da URL /representacoes/controlar/lancar/despesas/obter-por-periodo.php. <br />" +
                                 "Status: "+request.status+" "+request.statusText,
                                 "danger",
                                 3000
                             );
-                        }
-                    } else {
-                        if (data1 > data2) {
-                            mostraDialogo(
-                                "A Data de Início deve ser menor que a data Fim do filtro.",
-                                "warning",
-                                3000
-                            );
-                        } else {
-                            let request = new XMLHttpRequest();
-                            request.open("POST", "/representacoes/controlar/lancar/despesas/obter-por-periodo.php", false);
-                            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                            request.send(encodeURI("dataInicio="+dataInicio+"&dataFim="+dataFim));
-
-                            if (request.DONE === 4 && request.status === 200) {
-                                let res = JSON.parse(request.responseText);
-                                if (res !== null && typeof res !== "string") {
-                                    preencherTabela(res);
-                                } else {
-                                    mostraDialogo(
-                                        res,
-                                        "danger",
-                                        3000
-                                    );
-                                }
-                            } else {
-                                mostraDialogo(
-                                    "Erro na requisição da URL /representacoes/controlar/lancar/despesas/obter-por-periodo.php. <br />" +
-                                    "Status: "+request.status+" "+request.statusText,
-                                    "danger",
-                                    3000
-                                );
-                            }
                         }
                     }
                 }

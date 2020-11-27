@@ -1,3 +1,1 @@
-<?php
-
-header('Location: /representacoes/inicio');
+<?php header('Location: /representacoes/inicio');
