@@ -7,7 +7,7 @@ const tbodyOrcamentos = document.getElementById("tbody_orcamentos");
 function preencherTabela(dados) {
     let txt = "";
     $.each(dados, function () {
-        let cliente = (this.orcamentoVenda !== null) ? this.orcamentoVenda.nomeCliente : this.representacao.pessoa.nomeFantasia;
+        let cliente = this.cliente.tipo === 1 ? this.cliente.pessoaFisica.nome : this.cliente.pessoaJuridica.nomeFantasia;
         let valorFormat = this.valor.toString();
         valorFormat = valorFormat.replace('.', '#');
         if (valorFormat.search('#') === -1) valorFormat += ',00';
@@ -25,23 +25,6 @@ function preencherTabela(dados) {
             </tr>';
     });
     $(tbodyOrcamentos).html(txt);
-}
-
-function get(url_i) {
-    let res;
-    $.ajax({
-        type: 'GET',
-        url: url_i,
-        async: false,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function (result) {res = result;},
-        error: function (xhr, status, thrown) {
-            console.error(thrown);
-            alert(thrown);
-        }
-    });
-    return res;
 }
 
 function obter() {

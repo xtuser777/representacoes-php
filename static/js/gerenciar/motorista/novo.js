@@ -60,29 +60,9 @@ function limparCidades() {
     }
 }
 
-function get(url_i) {
-    let res;
-    $.ajax({
-        type: 'GET',
-        url: url_i,
-        async: false,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function (result) {res = result;},
-        error: function (err) {
-            mostraDialogo(
-                "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
-                "<br/>Um problema no servidor impediu sua comunicação...",
-                "danger",
-                2000
-            );
-        }
-    });
-    return res;
-}
-
 $(document).ready(function () {
     $("#cpf").mask('000.000.000-00', {reverse: false});
+    $("#cnh").mask('00000000000', {reverse: false});
     $("#banco").mask('000-0', { reverse: false });
     $("#agencia").mask('0000-0', { reverse: false });
     $("#conta").mask('0000000000-0', { reverse: true });
@@ -107,6 +87,7 @@ function limpar() {
     $("#nasc").val("");
     $("#rg").val("");
     $("#cpf").val("");
+    $("#cnh").val("");
     $("#banco").val("");
     $("#agencia").val("");
     $("#conta").val("");
@@ -208,6 +189,7 @@ function gravar() {
     let nasc = $("#nasc").val();
     let rg = $("#rg").val();
     let cpf = $("#cpf").val();
+    let cnh = $("#cnh").val();
     let banco = $("#banco").val();
     let agencia = $("#agencia").val();
     let conta = $("#conta").val();
@@ -265,6 +247,13 @@ function gravar() {
         $("#mscpf").html('<span class="label label-danger">O CPF informado é inválido...</span>');
     } else {
         verificarCpf(cpf);
+    }
+
+    if (cnh.length === 0) {
+        erros++;
+        $("#mscnh").html('<span class="label label-danger">A CNH do motorista precisa ser preenchida!</span>');
+    } else {
+        $("#mscnh").html('');
     }
 
     if (banco.length === 0) {
@@ -380,6 +369,7 @@ function gravar() {
         form.append("nasc", nasc);
         form.append("rg", rg);
         form.append("cpf", cpf);
+        form.append("cnh", cnh);
         form.append("banco", banco);
         form.append("agencia", agencia);
         form.append("conta", conta);

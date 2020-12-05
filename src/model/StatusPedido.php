@@ -22,6 +22,9 @@ class StatusPedido
     /** @var string */
     private $observacoes;
 
+    /** @var bool */
+    private $atual;
+
     /** @var Usuario|null */
     private $autor;
 
@@ -31,14 +34,16 @@ class StatusPedido
      * @param string $data
      * @param string $hora
      * @param string $observacoes
+     * @param bool $atual
      * @param Usuario|null $autor
      */
-    public function __construct(?Status $status = null, string $data = "", string $hora = "", string $observacoes = "", ?Usuario $autor = null)
+    public function __construct(?Status $status = null, string $data = "", string $hora = "", string $observacoes = "", bool $atual = false, ?Usuario $autor = null)
     {
         $this->status = $status;
         $this->data = $data;
         $this->hora = $hora;
         $this->observacoes = $observacoes;
+        $this->atual = $atual;
         $this->autor = $autor;
     }
 
@@ -107,6 +112,22 @@ class StatusPedido
     }
 
     /**
+     * @return bool
+     */
+    public function isAtual(): bool
+    {
+        return $this->atual;
+    }
+
+    /**
+     * @param bool $atual
+     */
+    public function setAtual(bool $atual): void
+    {
+        $this->atual = $atual;
+    }
+
+    /**
      * @return Usuario|null
      */
     public function getAutor(): ?Usuario
@@ -133,6 +154,7 @@ class StatusPedido
         $sp->setData($row["ped_fre_sts_data"]);
         $sp->setHora($row["ped_fre_sts_hora"]);
         $sp->setObservacoes($row["ped_fre_sts_observacoes"]);
+        $sp->setAtual($row["ped_fre_sts_atual"]);
         $sp->setAutor(Usuario::getById($row["usu_id"]));
 
         return $sp;
@@ -260,8 +282,8 @@ class StatusPedido
 
         $sql = "
             INSERT 
-            INTO pedido_frete_status (ped_fre_id, sts_id, ped_fre_sts_data, ped_fre_sts_hora, ped_fre_sts_observacoes, usu_id) 
-            VALUES (?,?,?,CURRENT_TIME(),?,?);
+            INTO pedido_frete_status (ped_fre_id, sts_id, ped_fre_sts_data, ped_fre_sts_hora, ped_fre_sts_observacoes, ped_fre_sts_atual, usu_id) 
+            VALUES (?,?,?,CURRENT_TIME(),?,?,?);
         ";
 
         /** @var mysqli_stmt $stmt */
@@ -275,11 +297,12 @@ class StatusPedido
         $autor = $this->autor->getId();
 
         $stmt->bind_param(
-            "iissi",
+            "iissii",
             $pedido,
             $status,
             $this->data,
             $this->observacoes,
+            $this->atual,
             $autor
         );
 
@@ -289,6 +312,31 @@ class StatusPedido
         }
 
         return $stmt->insert_id;
+    }
+
+    /**
+     * @param int $pedido
+     * @param int $status
+     * @return int
+     */
+    public function desatualizar(int $pedido, int $status): int
+    {
+        $sql = "
+            update pedido_frete_status 
+            set ped_fre_sts_atual = false
+            where ped_fre_id = ? and sts_id = ?
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return -10;
+
+        if (!Banco::getInstance()->addParameters("ii", [ $pedido, $status ]))
+            return -10;
+
+        if (!Banco::getInstance()->executeStatement())
+            return -10;
+
+        return Banco::getInstance()->getAffectedRows();
     }
 
     /**
@@ -331,6 +379,7 @@ class StatusPedido
             "data" => $this->data,
             "hora" => $this->hora,
             "observacoes" => $this->observacoes,
+            "atual" => $this->atual,
             "autor" => $autor
         ];
     }

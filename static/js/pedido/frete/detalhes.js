@@ -2,6 +2,7 @@ const selectOrcFrete = document.getElementById("selectOrcamentoFrete");
 const selectPedVenda = document.getElementById('selectPedidoVenda');
 const selectRepresentacao = document.getElementById("selectRepresentacao");
 const textDesc = document.getElementById("textDescricao");
+const selectCliente = document.getElementById('selectCliente');
 const selectCidade = document.getElementById("selectCidadeDestino");
 const selectEstado = document.getElementById("selectEstadoDestino");
 const tbodyItens = document.getElementById("tbodyItens");
@@ -10,6 +11,7 @@ const selectTipoCam = document.getElementById("selectTipoCaminhao");
 const selectProprietario = document.getElementById('selectProprietario');
 const selectCaminhao = document.getElementById('selectCaminhao');
 const textDistancia = document.getElementById("textDistancia");
+const selectMotorista = document.getElementById('selectMotorista');
 const textValorMotorista = document.getElementById('textValorMotorista');
 const textValorAdiantamento = document.getElementById('textValorAdiantamento');
 const selectFormaAdiantamento = document.getElementById('selectFormaAdiantamento');
@@ -175,6 +177,8 @@ async function buttonLimparClick() {
     selectPedVenda.value = 0;
     selectRepresentacao.disabled = false;
     selectRepresentacao.value = 0;
+    selectCliente.value = 0;
+    selectCliente.disabled = false;
     selectEstado.value = 0;
     selectEstadoChange();
     selectCidade.value = 0;
@@ -190,6 +194,7 @@ async function buttonLimparClick() {
     selectTipoCam.value = 0;
     await selectTipoCaminhaoChange()
     textDistancia.value = "";
+    selectMotorista.value = 0;
     textValorMotorista.value = "0,00";
     textValorAdiantamento.value = "";
     selectForma.value = 0;
@@ -280,6 +285,34 @@ $(document).ready(async (event) => {
         selectRepresentacao.innerHTML = options;
     }
 
+    let clientes = get('/representacoes/pedido/frete/detalhes/obter-clientes.php');
+    if (clientes !== null && clientes.length > 0) {
+        let options = `<option value="0">SELECIONE</option>`;
+
+        for (let i = 0; i < clientes.length; i++) {
+            options +=
+                `<option value="${clientes[i].id}">
+                    ${clientes[i].tipo === 1 ? clientes[i].pessoaFisica.nome : clientes[i].pessoaJuridica.nomeFantasia}
+                </option>`;
+        }
+
+        selectCliente.innerHTML = options;
+    }
+
+    let motoristas = get('/representacoes/pedido/frete/detalhes/obter-motoristas.php');
+    if (motoristas !== null && motoristas.length > 0) {
+        let options = `<option value="0">SELECIONE</option>`;
+
+        for (let i = 0; i < motoristas.length; i++) {
+            options +=
+                `<option value="${motoristas[i].id}">
+                    ${motoristas[i].pessoa.nome}
+                </option>`;
+        }
+
+        selectMotorista.innerHTML = options;
+    }
+
     let estados = get('/representacoes/estado/obter.php');
     limparEstados();
     if (estados !== null && estados !== []) {
@@ -335,6 +368,9 @@ $(document).ready(async (event) => {
     }
 
     textDesc.value = pedido.descricao;
+
+    selectCliente.value = pedido.cliente.id;
+
     for (let i = 0; i < pedido.itens.length; i++) {
         await adicionarItem(pedido.itens[i]);
     }
@@ -357,6 +393,8 @@ $(document).ready(async (event) => {
     selectEstadoChange();
 
     selectCidade.value = pedido.destino.id;
+
+    selectMotorista.value = pedido.motorista.id;
 
     textValorMotorista.value = formatarValor(pedido.valorMotorista);
 

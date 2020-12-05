@@ -46,6 +46,9 @@ class PedidoFrete
     /** @var Representacao|null */
     private $representacao;
 
+    /** @var Cliente|null */
+    private $cliente;
+
     /** @var Cidade|null */
     private $destino;
 
@@ -54,6 +57,9 @@ class PedidoFrete
 
     /** @var Proprietario|null */
     private $proprietario;
+
+    /** @var Motorista|null */
+    private $motorista;
 
     /** @var Caminhao|null */
     private $caminhao;
@@ -90,9 +96,11 @@ class PedidoFrete
      * @param OrcamentoFrete|null $orcamento
      * @param PedidoVenda|null $venda
      * @param Representacao|null $representacao
+     * @param Cliente|null $cliente
      * @param Cidade|null $destino
      * @param TipoCaminhao|null $tipoCaminhao
      * @param Proprietario|null $proprietario
+     * @param Motorista|null $motorista
      * @param Caminhao|null $caminhao
      * @param StatusPedido|null $status
      * @param FormaPagamento|null $formaPagamentoFrete
@@ -113,9 +121,11 @@ class PedidoFrete
         ?OrcamentoFrete $orcamento = null,
         ?PedidoVenda $venda = null,
         ?Representacao $representacao = null,
+        ?Cliente $cliente = null,
         ?Cidade $destino = null,
         ?TipoCaminhao $tipoCaminhao = null,
         ?Proprietario $proprietario = null,
+        ?Motorista $motorista = null,
         ?Caminhao $caminhao = null,
         ?StatusPedido $status = null,
         ?FormaPagamento $formaPagamentoFrete = null,
@@ -137,9 +147,11 @@ class PedidoFrete
         $this->orcamento = $orcamento;
         $this->venda = $venda;
         $this->representacao = $representacao;
+        $this->cliente = $cliente;
         $this->destino = $destino;
         $this->tipoCaminhao = $tipoCaminhao;
         $this->proprietario = $proprietario;
+        $this->motorista = $motorista;
         $this->caminhao = $caminhao;
         $this->status = $status;
         $this->formaPagamentoFrete = $formaPagamentoFrete;
@@ -470,6 +482,38 @@ class PedidoFrete
     }
 
     /**
+     * @return Cliente|null
+     */
+    public function getCliente(): ?Cliente
+    {
+        return $this->cliente;
+    }
+
+    /**
+     * @param Cliente|null $cliente
+     */
+    public function setCliente(?Cliente $cliente): void
+    {
+        $this->cliente = $cliente;
+    }
+
+    /**
+     * @return Motorista|null
+     */
+    public function getMotorista(): ?Motorista
+    {
+        return $this->motorista;
+    }
+
+    /**
+     * @param Motorista|null $motorista
+     */
+    public function setMotorista(?Motorista $motorista): void
+    {
+        $this->motorista = $motorista;
+    }
+
+    /**
      * @return array
      */
     public function getItens(): array
@@ -614,9 +658,11 @@ class PedidoFrete
         $pedido->setOrcamento(($row["orc_fre_id"] !== null) ? (new OrcamentoFrete())->findById($row["orc_fre_id"]) : null);
         $pedido->setVenda(($row["ped_ven_id"] !== null) ? (new PedidoVenda())->findById($row["ped_ven_id"]) : null);
         $pedido->setRepresentacao(($row["rep_id"] !== null) ? Representacao::getById($row["rep_id"]) : null);
+        $pedido->setCliente(Cliente::getById($row["cli_id"]));
         $pedido->setDestino((new Cidade())->getById($row["cid_id"]));
         $pedido->setTipoCaminhao(TipoCaminhao::findById($row["tip_cam_id"]));
         $pedido->setProprietario((new Proprietario())->findById($row["prp_id"]));
+        $pedido->setMotorista(Motorista::findById($row["mot_id"]));
         $pedido->setCaminhao(Caminhao::findById($row["cam_id"]));
         $pedido->setFormaPagamentoFrete(FormaPagamento::findById($row["for_pag_fre"]));
         $pedido->setFormaPagamentoMotorista(($row["for_pag_mot"] !== null) ? FormaPagamento::findById($row["for_pag_mot"]) : null);
@@ -1022,9 +1068,11 @@ class PedidoFrete
             $this->valor <= 0 ||
             $this->valorMotorista <= 0 ||
             strlen($this->entrega) <= 0 ||
+            $this->cliente === null ||
             $this->destino === null ||
             $this->tipoCaminhao === null ||
             $this->proprietario === null ||
+            $this->motorista === null ||
             $this->caminhao === null ||
             $this->formaPagamentoFrete === null ||
             $this->autor === null
@@ -1045,15 +1093,17 @@ class PedidoFrete
                                orc_fre_id, 
                                ped_ven_id, 
                                rep_id, 
+                               cli_id, 
                                cid_id, 
                                tip_cam_id, 
                                cam_id,
                                prp_id,
+                               mot_id, 
                                for_pag_fre, 
                                for_pag_mot, 
                                usu_id
                                ) 
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
         ";
 
         if (!Banco::getInstance()->prepareStatement($sql))
@@ -1062,16 +1112,18 @@ class PedidoFrete
         $orcamento = $this->orcamento ? $this->orcamento->getId() : null;
         $venda = $this->venda ? $this->venda->getId() : null;
         $representacao = $this->representacao ? $this->representacao->getId() : null;
+        $cliente = $this->cliente->getId();
         $destino = $this->destino->getId();
         $tipo = $this->tipoCaminhao->getId();
         $caminhao = $this->caminhao->getId();
         $proprietario = $this->proprietario->getId();
+        $motorista = $this->motorista->getId();
         $formaFrete = $this->formaPagamentoFrete->getId();
         $formaMotorista = $this->formaPagamentoMotorista ? $this->formaPagamentoMotorista->getId() : null;
         $autor = $this->autor->getId();
 
         if (!Banco::getInstance()->addParameters(
-            "ssiddddsiiiiiiiiii",
+            "ssiddddsiiiiiiiiiiii",
             [
                 $this->data,
                 $this->descricao,
@@ -1084,10 +1136,12 @@ class PedidoFrete
                 $orcamento,
                 $venda,
                 $representacao,
+                $cliente,
                 $destino,
                 $tipo,
                 $caminhao,
                 $proprietario,
+                $motorista,
                 $formaFrete,
                 $formaMotorista,
                 $autor
@@ -1137,9 +1191,11 @@ class PedidoFrete
         $orcamento = ($this->orcamento !== null) ? $this->orcamento->jsonSerialize() : null;
         $venda = ($this->venda !== null) ? $this->venda->jsonSerialize() : null;
         $representacao = ($this->representacao !== null) ? $this->representacao->jsonSerialize() : null;
+        $cliente = $this->cliente->jsonSerialize();
         $destino = $this->destino->jsonSerialize();
         $tipoCaminhao = $this->tipoCaminhao->jsonSerialize();
         $proprietario = $this->proprietario->jsonSerialize();
+        $motorista = $this->motorista->jsonSerialize();
         $caminhao = $this->caminhao->jsonSerialize();
         $status = $this->status->jsonSerialize();
         $formaPagamentoFrete = $this->formaPagamentoFrete->jsonSerialize();
@@ -1170,9 +1226,11 @@ class PedidoFrete
             "orcamento" => $orcamento,
             "venda" => $venda,
             "representacao" => $representacao,
+            "cliente" => $cliente,
             "destino" => $destino,
             "tipoCaminhao" => $tipoCaminhao,
             "proprietario" => $proprietario,
+            "motorista" => $motorista,
             "caminhao" => $caminhao,
             "status" => $status,
             "formaPagamentoFrete" => $formaPagamentoFrete,

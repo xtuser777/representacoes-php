@@ -5,6 +5,7 @@ namespace scr\control;
 
 
 use scr\model\Cidade;
+use scr\model\Cliente;
 use scr\model\ItemOrcamentoFrete;
 use scr\model\OrcamentoFrete;
 use scr\model\OrcamentoVenda;
@@ -53,6 +54,24 @@ class OrcamentoFreteDetalhesControl
         return json_encode($serial);
     }
 
+    public function obterClientes()
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $clientes = Cliente::getAll();
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var Cliente $cli */
+        foreach ($clientes as $cli) {
+            $serial[] = $cli->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
     public function calcularPisoMinimo(float $distancia, int $eixos)
     {
         $piso = (new OrcamentoFrete())->calcularPisoMinimo($distancia, $eixos);
@@ -60,18 +79,24 @@ class OrcamentoFreteDetalhesControl
         return json_encode($piso);
     }
 
-    public function alterar(int $orc, string $desc, int $ven, int $rep, int $cid, int $tip, int $dist, float $peso, float $valor, string $entrega, string $venc, array $itens)
+    public function alterar(int $orc, string $desc, int $ven, int $rep, int $cli, int $cid, int $tip, int $dist, float $peso, float $valor, string $entrega, string $venc, array $itens)
     {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
+        if (!Banco::getInstance()->open())
+            return json_encode("Erro ao conectar-se ao banco de dados.");
+
         $venda = OrcamentoVenda::findById($ven);
         $representacao = Representacao::getById($rep);
+        $cliente = Cliente::getById($cli);
         $destino = (new Cidade())->getById($cid);
         $tipo = TipoCaminhao::findById($tip);
         $autor = Usuario::getById($_COOKIE["USER_ID"]);
 
         Banco::getInstance()->getConnection()->begin_transaction();
-        $orcamento = new OrcamentoFrete($orc, $desc, date("y-m-d"), $dist, $peso, $valor, $entrega, $venc, $venda, $representacao, $tipo, $destino, $autor);
-        $res = $orcamento->update();
+
+        $orcamento = new OrcamentoFrete(
+            $orc, $desc, date("y-m-d"), $dist, $peso, $valor, $entrega, $venc, $venda, $representacao, $cliente, $tipo, $destino, $autor
+        );
+
         $res = $orcamento->update();
         if ($res === -10 || $res === -1) {
             Banco::getInstance()->getConnection()->rollback();
@@ -115,6 +140,7 @@ class OrcamentoFreteDetalhesControl
                 return json_encode("Parâmetros inválidos de um item do orçamento.");
             }
         }
+
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getConnection()->close();
 

@@ -16,18 +16,25 @@ class MotoristaNovoControl
 {
     public function verificarCpf(string $cpf)
     {
-        if (!Banco::getInstance()->open()) return json_encode(true);
+        if (!Banco::getInstance()->open())
+            return json_encode(true);
+
         $res = PessoaFisica::verifyCpf($cpf);
+
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($res);
     }
 
-    public function gravar(string $nome, string $rg, string $cpf, string $nasc, string $banco, string $agencia, string $conta, int $tipo, string $tel, string $cel, string $email, string $rua, string $num, string $bairro, string $comp, string $cep, int $cid)
+    public function gravar(string $nome, string $rg, string $cpf, string $cnh, string $nasc, string $banco, string $agencia, string $conta, int $tipo, string $tel, string $cel, string $email, string $rua, string $num, string $bairro, string $comp, string $cep, int $cid)
     {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
+        if (!Banco::getInstance()->open())
+            return json_encode("Erro ao conectar-se ao banco de dados.");
+
         $cidade = (new Cidade())->getById($cid);
+
         Banco::getInstance()->getConnection()->begin_transaction();
+
         $endereco = new Endereco(
             0, $rua, $num, $bairro, $comp, $cep, $cidade
         );
@@ -40,6 +47,7 @@ class MotoristaNovoControl
             Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos no endereço.');
         }
+
         $contato = new Contato (
             0, $tel, $cel, $email,
             new Endereco (
@@ -57,6 +65,7 @@ class MotoristaNovoControl
             Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos no contato.');
         }
+
         $pessoa = new PessoaFisica (
             0, $nome, $rg, $cpf, $nasc,
             new Contato (
@@ -77,6 +86,7 @@ class MotoristaNovoControl
             Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos na pessoa.');
         }
+
         $dados = new DadosBancarios(0, $banco, $agencia, $conta, $tipo);
         $res_dad = $dados->save();
         if ($res_dad == -10 || $res_dad == -1 || $res_dad == 0) {
@@ -89,8 +99,9 @@ class MotoristaNovoControl
             Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos.');
         }
+
         $motorista = new Motorista(
-            0,date('Y-m-d'),
+            0,date('Y-m-d'),$cnh,
             new PessoaFisica (
                 $res_pes, $nome, $rg, $cpf, $nasc,
                 new Contato (
@@ -113,6 +124,7 @@ class MotoristaNovoControl
             Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos.');
         }
+
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getConnection()->close();
 

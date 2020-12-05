@@ -1,5 +1,6 @@
-const selectOrcVenda = document.getElementById("selOrcamentoVenda");
-const selectRepresentacao = document.getElementById("selRepresentacao");
+const selectOrcVenda = document.getElementById("selectOrcamentoVenda");
+const selectRepresentacao = document.getElementById("selectRepresentacao");
+const selectCliente = document.getElementById("selectCliente");
 const textDesc = document.getElementById("txDescricao");
 const selectCidade = document.getElementById("selCidadeDestino");
 const selectEstado = document.getElementById("selEstadoDestino");
@@ -19,6 +20,7 @@ var piso = 0.0;
 var itens = [];
 
 var erroDesc = true;
+var erroCliente = true;
 var erroEstado = true;
 var erroCidade = true;
 var erroTipo = true;
@@ -26,24 +28,6 @@ var erroDistancia = true;
 var erroValor = true;
 var erroEntrega = true;
 var erroValidade = true;
-
-function get(url_i) {
-    let res;
-    $.ajax({
-        type: 'GET',
-        url: url_i,
-        async: false,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function (result) {res = result;},
-        error: function (xhr, status, thrown) {
-            console.error(thrown);
-            alert(thrown);
-        }
-    });
-
-    return res;
-}
 
 function textDescBlur() {
     let desc = textDesc.value.toString();
@@ -53,6 +37,18 @@ function textDescBlur() {
     } else {
         erroDesc = false;
         $("#msdesc").html("");
+    }
+}
+
+function selectClienteBlur() {
+    let cli = Number.parseInt(selectCliente.value);
+
+    if (cli === null || isNaN(cli) || cli === 0) {
+        erroCliente = true;
+        $("#mscli").html("<span class='label label-danger'>O cliente precisa ser selecionado.</span>");
+    } else {
+        erroCliente = false;
+        $("#mscli").html("");
     }
 }
 
@@ -66,8 +62,11 @@ async function selectOrcVendaChange() {
     let ven = Number.parseInt(selectOrcVenda.value);
     if (ven > 0) {
         let orc = orcamentos[ven-1];
+        textDesc.value = orc.descricao;
         selectRepresentacao.value = 0;
         selectRepresentacao.disabled = true;
+        selectCliente.value = orc.cliente.id;
+        selectCliente.disabled = true;
         itens = [];
         tipos = [];
         limparSelectTipo();
@@ -75,12 +74,8 @@ async function selectOrcVendaChange() {
         $("#button_clr_itens").prop("disabled", true);
         $("#button_add_item").prop("disabled", true);
         piso = 0.0;
-        let valorFormat = piso.toString();
-        valorFormat = valorFormat.replace('.', '#');
-        if (valorFormat.search('#') === -1) valorFormat += ',00';
-        else valorFormat = valorFormat.replace('#', ',');
 
-        textValorFrete.value = valorFormat;
+        textValorFrete.value = formatarValor(piso);
         await $.ajax({
             type: "POST",
             url: "/representacoes/orcamento/frete/novo/item/obter-por-venda.php",
@@ -146,7 +141,7 @@ async function selectOrcVendaChange() {
                         itens.push(item);
                         preencheTabelaItens(itens);
                     }
-                    textPesoItens.value = peso;
+                    textPesoItens.value = formatarValor(peso);
                 }
             },
             error: function (xhr, status, thrown) {
@@ -159,7 +154,10 @@ async function selectOrcVendaChange() {
             }
         });
     } else {
+        textDesc.value = '';
         selectRepresentacao.disabled = false;
+        selectCliente.value = 0;
+        selectCliente.disabled = false;
         itens = [];
         preencheTabelaItens(itens);
         tipos = [];
@@ -168,12 +166,8 @@ async function selectOrcVendaChange() {
         $("#button_clr_itens").prop("disabled", false);
         $("#button_add_item").prop("disabled", false);
         piso = 0.0;
-        let valorFormat = piso.toString();
-        valorFormat = valorFormat.replace('.', '#');
-        if (valorFormat.search('#') === -1) valorFormat += ',00';
-        else valorFormat = valorFormat.replace('#', ',');
 
-        textValorFrete.value = valorFormat;
+        textValorFrete.value = formatarValor(piso);
     }
 }
 
@@ -500,6 +494,7 @@ function buttonClrItensClick() {
 
 async function validar() {
     textDescBlur();
+    selectClienteBlur();
     selectEstadoBlur();
     selectCidadeBlur();
     selectTipoCaminhaoBlur();
@@ -509,7 +504,7 @@ async function validar() {
     dateValidadeBlur();
 
     return (
-        !erroDesc && !erroEstado && !erroCidade && !erroTipo && !erroDistancia && !erroValor && !erroEntrega && !erroValidade
+        !erroDesc && !erroCliente && !erroEstado && !erroCidade && !erroTipo && !erroDistancia && !erroValor && !erroEntrega && !erroValidade
     );
 }
 
@@ -523,6 +518,7 @@ function buttonLimparClick() {
     selectOrcVenda.value = 0;
     selectRepresentacao.disabled = false;
     selectRepresentacao.value = 0;
+    selectCliente.value = 0;
     selectEstado.value = 0;
     selectCidade.value = 0;
     itens = [];
@@ -540,6 +536,7 @@ function buttonLimparClick() {
     dateValidade.value = "";
 
     erroDesc = true;
+    erroCliente = true;
     erroEstado = true;
     erroCidade = true;
     erroTipo = true;
@@ -553,6 +550,7 @@ async function buttonSalvarClick() {
     let desc = "";
     let ven = 0;
     let rep = 0;
+    let cli = 0;
     let est = 0;
     let cid = 0;
     let tip = 0;
@@ -567,6 +565,7 @@ async function buttonSalvarClick() {
             desc = textDesc.value;
             ven = selectOrcVenda.value;
             rep = selectRepresentacao.value;
+            cli = selectCliente.value;
             cid = selectCidade.value;
             tip = selectTipoCam.value;
             dist = textDistancia.value;
@@ -579,6 +578,7 @@ async function buttonSalvarClick() {
             frm.append("desc", desc);
             frm.append("ven", ven);
             frm.append("rep", rep);
+            frm.append("cli", cli);
             frm.append("cid", cid);
             frm.append("tip", tip);
             frm.append("dist", dist);
@@ -665,6 +665,20 @@ $(document).ready((event) => {
         }
     }
 
+    let clientes = get('/representacoes/orcamento/frete/novo/obter-clientes.php');
+    if (clientes !== null && clientes.length > 0) {
+        let options = `<option value="0">SELECIONE</option>`;
+
+        for (let i = 0; i < clientes.length; i++) {
+            options +=
+                `<option value="${clientes[i].id}">
+                    ${clientes[i].tipo === 1 ? clientes[i].pessoaFisica.nome : clientes[i].pessoaJuridica.nomeFantasia}
+                </option>`;
+        }
+
+        selectCliente.innerHTML = options;
+    }
+
     let estados = get('/representacoes/estado/obter.php');
     limparEstados();
     if (estados !== null && estados !== []) {
@@ -687,4 +701,6 @@ $(document).ready((event) => {
     }*/
 
     buttonLimparClick();
+
+    $("#txValorFrete").mask('0000000000,00', {reverse: true});
 });

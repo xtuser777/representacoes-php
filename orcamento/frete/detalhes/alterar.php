@@ -12,6 +12,7 @@ if (!isset($_COOKIE["USER_ID"])) {
     $desc = $_POST["desc"];
     $ven = $_POST["ven"];
     $rep = $_POST["rep"];
+    $cli = $_POST["cli"];
     $cid = $_POST["cid"];
     $tip = $_POST["tip"];
     $dist = $_POST["dist"];
@@ -23,6 +24,6 @@ if (!isset($_COOKIE["USER_ID"])) {
 
     header('Content-type: application/json');
     echo (new scr\control\OrcamentoFreteDetalhesControl())->alterar(
-        $orc, $desc, $ven, $rep, $cid, $tip, $dist, $peso, $valor, $entrega, $venc, $itens
+        $orc, $desc, $ven, $rep, $cli, $cid, $tip, $dist, $peso, $valor, $entrega, $venc, $itens
     );
 }

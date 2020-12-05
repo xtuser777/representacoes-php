@@ -61,7 +61,7 @@
 <div class="row">
     <div class="col-sm-4"></div>
     <div class="col-sm-4">
-        <button id="btGerarPdf" class="btn btn-primary" style="width: 100%;">Gerar PDF</button>
+        <button id="btGerarPdf" class="btn btn-primary" style="width: 100%;" onclick="emitirPdf();">Gerar PDF</button>
     </div>
     <div class="col-sm-4"></div>
 </div>

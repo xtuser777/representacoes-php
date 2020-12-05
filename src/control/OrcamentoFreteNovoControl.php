@@ -5,6 +5,7 @@ namespace scr\control;
 
 
 use scr\model\Cidade;
+use scr\model\Cliente;
 use scr\model\ItemOrcamentoFrete;
 use scr\model\OrcamentoFrete;
 use scr\model\OrcamentoVenda;
@@ -44,6 +45,24 @@ class OrcamentoFreteNovoControl
         return json_encode($serial);
     }
 
+    public function obterClientes()
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $clientes = Cliente::getAll();
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var Cliente $cli */
+        foreach ($clientes as $cli) {
+            $serial[] = $cli->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
     public function calcularPisoMinimo(float $distancia, int $eixos)
     {
         $piso = (new OrcamentoFrete())->calcularPisoMinimo($distancia, $eixos);
@@ -51,17 +70,22 @@ class OrcamentoFreteNovoControl
         return json_encode($piso);
     }
 
-    public function gravar($desc, $ven, $rep, $cid, $tip, $dist, $peso, $valor, $entrega, $venc, $itens)
+    public function gravar($desc, $ven, $rep, $cli, $cid, $tip, $dist, $peso, $valor, $entrega, $venc, $itens)
     {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
+        if (!Banco::getInstance()->open())
+            return json_encode("Erro ao conectar-se ao banco de dados.");
+
         $venda = OrcamentoVenda::findById($ven);
         $representacao = Representacao::getById($rep);
+        $cliente = Cliente::getById($cli);
         $cidade = (new Cidade())->getById($cid);
         $tipo = TipoCaminhao::findById($tip);
         $usuario = Usuario::getById($_COOKIE["USER_ID"]);
+
         Banco::getInstance()->getConnection()->begin_transaction();
+
         $orcamento = new OrcamentoFrete(
-            0, $desc, date('Y-m-d'), $dist, $peso, $valor, $entrega, $venc, $venda, $representacao, $tipo, $cidade, $usuario
+            0, $desc, date('Y-m-d'), $dist, $peso, $valor, $entrega, $venc, $venda, $representacao, $cliente, $tipo, $cidade, $usuario
         );
         $res = $orcamento->save();
         if ($res === -10 || $res === -1 || $res === 0) {
@@ -74,6 +98,7 @@ class OrcamentoFreteNovoControl
             Banco::getInstance()->getConnection()->close();
             return json_encode("Parâmetros inválidos.");
         }
+
         $orcamento->setId($res);
         for ($i = 0; $i < count($itens); $i++) {
             $produto = Produto::findById($itens[$i]->produto->id);
@@ -90,6 +115,7 @@ class OrcamentoFreteNovoControl
                 return json_encode("Parâmetros inválidos de um item do orçamento.");
             }
         }
+
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getConnection()->close();
 

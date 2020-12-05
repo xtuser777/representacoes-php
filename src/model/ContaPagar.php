@@ -55,8 +55,8 @@ class ContaPagar
     /** @var FormaPagamento|null */
     private $formaPagamento;
 
-    /** @var Proprietario|null */
-    private $proprietario;
+    /** @var Motorista|null */
+    private $motorista;
 
     /** @var Funcionario|null */
     private $vendedor;
@@ -90,14 +90,14 @@ class ContaPagar
      * @param float $valorPago
      * @param ContaPagar|null $pendencia
      * @param FormaPagamento|null $formaPagamento
-     * @param Proprietario|null $proprietario
+     * @param Motorista|null $motorista
      * @param Funcionario|null $vendedor
      * @param CategoriaContaPagar|null $categoria
      * @param PedidoFrete|null $pedidoFrete
      * @param PedidoVenda|null $pedidoVenda
      * @param Usuario|null $autor
      */
-    public function __construct(int $id = 0, int $conta = 0, string $data = "", int $tipo = 0, string $descricao = "", string $empresa = "", int $parcela = 0, float $valor = 0.0, bool $comissao = false, int $situacao = 0, string $vencimento = "", string $dataPagamento = "", float $valorPago = 0.0, ?ContaPagar $pendencia = null, ?FormaPagamento $formaPagamento = null, ?Proprietario $proprietario = null, ?Funcionario $vendedor = null, ?CategoriaContaPagar $categoria = null, ?PedidoFrete $pedidoFrete = null, ?PedidoVenda $pedidoVenda = null, ?Usuario $autor = null)
+    public function __construct(int $id = 0, int $conta = 0, string $data = "", int $tipo = 0, string $descricao = "", string $empresa = "", int $parcela = 0, float $valor = 0.0, bool $comissao = false, int $situacao = 0, string $vencimento = "", string $dataPagamento = "", float $valorPago = 0.0, ?ContaPagar $pendencia = null, ?FormaPagamento $formaPagamento = null, ?Motorista $motorista = null, ?Funcionario $vendedor = null, ?CategoriaContaPagar $categoria = null, ?PedidoFrete $pedidoFrete = null, ?PedidoVenda $pedidoVenda = null, ?Usuario $autor = null)
     {
         $this->id = $id;
         $this->conta = $conta;
@@ -114,7 +114,7 @@ class ContaPagar
         $this->valorPago = $valorPago;
         $this->pendencia = $pendencia;
         $this->formaPagamento = $formaPagamento;
-        $this->proprietario = $proprietario;
+        $this->motorista = $motorista;
         $this->vendedor = $vendedor;
         $this->categoria = $categoria;
         $this->pedidoFrete = $pedidoFrete;
@@ -363,19 +363,19 @@ class ContaPagar
     }
 
     /**
-     * @return Proprietario|null
+     * @return Motorista|null
      */
-    public function getProprietario(): ?Proprietario
+    public function getMotorista(): ?Motorista
     {
-        return $this->proprietario;
+        return $this->motorista;
     }
 
     /**
-     * @param Proprietario|null $proprietario
+     * @param Motorista|null $motorista
      */
-    public function setProprietario(?Proprietario $proprietario): void
+    public function setMotorista(?Motorista $motorista): void
     {
-        $this->proprietario = $proprietario;
+        $this->motorista = $motorista;
     }
 
     /**
@@ -539,7 +539,7 @@ class ContaPagar
             (!$row["con_pag_valor_pago"]) ? 0.0 : $row["con_pag_valor_pago"],
             ($row["con_pag_pendencia"]) ? (new ContaPagar())->findById($row["con_pag_pendencia"]) : null,
             ($row["for_pag_id"] !== null) ? FormaPagamento::findById($row["for_pag_id"]) : null,
-            ($row["prp_id"] !== null) ? (new Proprietario())->findById($row["prp_id"]) : null,
+            ($row["mot_id"] !== null) ? Motorista::findById($row["mot_id"]) : null,
             ($row["fun_id"] !== null) ? Funcionario::getById($row["fun_id"]) : null,
             CategoriaContaPagar::findById($row["cat_con_pag_id"]),
             ($row["ped_fre_id"] !== null) ? (new PedidoFrete())->findById($row["ped_fre_id"]) : null,
@@ -1618,7 +1618,7 @@ class ContaPagar
                 con_pag_comissao, 
                 con_pag_vencimento, 
                 con_pag_situacao, 
-                prp_id, 
+                mot_id, 
                 fun_id, 
                 cat_con_pag_id, 
                 ped_fre_id, 
@@ -1635,7 +1635,7 @@ class ContaPagar
             return -10;
         }
 
-        $prp = ($this->proprietario) ? $this->proprietario->getId() : null;
+        $mot = ($this->motorista) ? $this->motorista->getId() : null;
         $vdd = ($this->vendedor) ? $this->vendedor->getId() : null;
         $cat = $this->categoria->getId();
         $fre = ($this->pedidoFrete) ? $this->pedidoFrete->getId() : null;
@@ -1654,7 +1654,7 @@ class ContaPagar
             $this->comissao,
             $this->vencimento,
             $this->situacao,
-            $prp,
+            $mot,
             $vdd,
             $cat,
             $fre,
@@ -1783,7 +1783,7 @@ class ContaPagar
     {
         $pendencia = ($this->pendencia) ? $this->pendencia->jsonSerialize() : null;
         $formaPagamento = ($this->formaPagamento !== null) ? $this->formaPagamento->jsonSerialize() : null;
-        $proprietario = ($this->proprietario !== null) ? $this->proprietario->jsonSerialize() : null;
+        $motorista = ($this->motorista !== null) ? $this->motorista->jsonSerialize() : null;
         $vendedor = ($this->vendedor !== null) ? $this->vendedor->jsonSerialize() : null;
         $categoria = $this->categoria->jsonSerialize();
         $pedidoFrete = ($this->pedidoFrete !== null) ? $this->pedidoFrete->jsonSerialize() : null;
@@ -1806,7 +1806,7 @@ class ContaPagar
             "valorPago" => $this->valorPago,
             "pendencia" => $pendencia,
             "formaPagamento" => $formaPagamento,
-            "proprietario" => $proprietario,
+            "motorista" => $motorista,
             "vendedor" => $vendedor,
             "categoria" => $categoria,
             "pedidoFrete" => $pedidoFrete,

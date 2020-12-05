@@ -11,6 +11,7 @@ if (!isset($_COOKIE["USER_ID"])) {
     echo "Método inválido.";
 } else {
     $desc = $_POST["desc"];
+    $cli = $_POST["cli"];
     $orc = $_POST["orc"];
     $ven = $_POST["ven"];
     $rep = $_POST["rep"];
@@ -19,6 +20,7 @@ if (!isset($_COOKIE["USER_ID"])) {
     $prop = $_POST["prop"];
     $cam = $_POST["cam"];
     $dist = $_POST["dist"];
+    $mot = $_POST["mot"];
     $valorMotorista = $_POST["vm"];
     $valorAdiantamento = strlen($_POST["vam"]) > 0 ? $_POST["vam"] : 0.0;
     $fa = $_POST["fa"];
@@ -31,6 +33,6 @@ if (!isset($_COOKIE["USER_ID"])) {
 
     header('Content-type: application/json');
     echo (new PedidoFreteNovoControl())->gravar(
-        $orc, $ven, $rep, $desc, $cid, $tip, $prop, $cam, $dist, $valorMotorista, $valorAdiantamento, $fa, $peso, $valor, $fr, $entrega, $itens, $etapas
+        $orc, $ven, $rep, $desc, $cli, $cid, $tip, $prop, $cam, $dist, $mot, $valorMotorista, $valorAdiantamento, $fa, $peso, $valor, $fr, $entrega, $itens, $etapas
     );
 }

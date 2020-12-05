@@ -1,4 +1,7 @@
-<?php namespace scr\model;
+<?php
+
+
+namespace scr\model;
 
 
 use scr\dao\MotoristaDAO;
@@ -7,13 +10,15 @@ class Motorista
 {
     private $id;
     private $cadastro;
+    private $cnh;
     private $pessoa;
     private $dadosBancarios;
 
-    public function __construct(int $id, string $cadastro, PessoaFisica $pessoa, DadosBancarios $dadosBancarios)
+    public function __construct(int $id, string $cadastro, string $cnh, PessoaFisica $pessoa, DadosBancarios $dadosBancarios)
     {
         $this->id = $id;
         $this->cadastro = $cadastro;
+        $this->cnh = $cnh;
         $this->pessoa = $pessoa;
         $this->dadosBancarios = $dadosBancarios;
     }
@@ -26,6 +31,14 @@ class Motorista
     public function getCadastro(): string
     {
         return $this->cadastro;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCnh(): string
+    {
+        return $this->cnh;
     }
 
     public function getPessoa(): PessoaFisica
@@ -67,14 +80,15 @@ class Motorista
     {
         if ($this->id != 0 || strlen($this->cadastro) <= 0 || $this->pessoa == null || $this->dadosBancarios == null) return -5;
 
-        return MotoristaDAO::insert($this->cadastro, $this->pessoa->getId(), $this->dadosBancarios->getId());
+        return MotoristaDAO::insert($this->cadastro, $this->cnh, $this->pessoa->getId(), $this->dadosBancarios->getId());
     }
 
     public function update(): int
     {
-        if ($this->id <= 0 || strlen($this->cadastro) <= 0 || $this->pessoa == null || $this->dadosBancarios == null) return -5;
+        if ($this->id <= 0 )
+            return -5;
 
-        return MotoristaDAO::update($this->id, $this->cadastro, $this->pessoa->getId(), $this->dadosBancarios->getId());
+        return MotoristaDAO::update($this->id, $this->cnh);
     }
 
     public function delete(): int

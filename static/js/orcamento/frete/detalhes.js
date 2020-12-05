@@ -1,5 +1,6 @@
-const selectOrcVenda = document.getElementById("selOrcamentoVenda");
-const selectRepresentacao = document.getElementById("selRepresentacao");
+const selectOrcVenda = document.getElementById("selectOrcamentoVenda");
+const selectRepresentacao = document.getElementById("selectRepresentacao");
+const selectCliente = document.getElementById('selectCliente');
 const textDesc = document.getElementById("txDescricao");
 const selectCidade = document.getElementById("selCidadeDestino");
 const selectEstado = document.getElementById("selEstadoDestino");
@@ -21,6 +22,7 @@ var piso = 0.0;
 var itens = [];
 
 var erroDesc = true;
+var erroCliente = true;
 var erroEstado = true;
 var erroCidade = true;
 var erroTipo = true;
@@ -40,6 +42,18 @@ function textDescBlur() {
     }
 }
 
+function selectClienteBlur() {
+    let cli = Number.parseInt(selectCliente.value);
+
+    if (cli === null || isNaN(cli) || cli === 0) {
+        erroCliente = true;
+        $("#mscli").html("<span class='label label-danger'>O cliente precisa ser selecionado.</span>");
+    } else {
+        erroCliente = false;
+        $("#mscli").html("");
+    }
+}
+
 function limparSelectTipo() {
     for (let i = selectTipoCam.childElementCount - 1; i > 0; i--) {
         selectTipoCam.children.item(i).remove();
@@ -50,21 +64,20 @@ function selectOrcVendaChange() {
     let ven = Number.parseInt(selectOrcVenda.value);
     if (ven > 0) {
         let orc = orcamentos[ven-1];
+        textDesc.value = orc.descricao;
         selectRepresentacao.value = 0;
         selectRepresentacao.disabled = true;
+        selectCliente.value = orc.cliente.id;
+        selectCliente.disabled = true;
         itens = [];
         tipos = [];
         limparSelectTipo();
-        textPesoItens.value = 0.0;
+        textPesoItens.value = formatarPeso(0.0);
         $("#button_clr_itens").prop("disabled", true);
         $("#button_add_item").prop("disabled", true);
         piso = 0.0;
-        let valorFormat = piso.toString();
-        valorFormat = valorFormat.replace('.', '#');
-        if (valorFormat.search('#') === -1) valorFormat += ',00';
-        else valorFormat = valorFormat.replace('#', ',');
 
-        textValorFrete.value = valorFormat;
+        textValorFrete.value = formatarValor(piso);
 
         let request = new XMLHttpRequest();
         request.open('POST', '/representacoes/orcamento/frete/detalhes/item/obter-por-venda.php', false);
@@ -77,13 +90,13 @@ function selectOrcVendaChange() {
                 let peso = 0.0;
                 for (let i = 0; i < response.length; i++) {
                     peso += response[i].peso;
-                    let request = new XMLHttpRequest();
-                    request.open('POST', '/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php', false);
-                    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                    request.send(encodeURI('item='+response[i].produto.id));
+                    let request1 = new XMLHttpRequest();
+                    request1.open('POST', '/representacoes/orcamento/frete/detalhes/item/obter-tipos-por-item.php', false);
+                    request1.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    request1.send(encodeURI('item='+response[i].produto.id));
 
-                    if (request.DONE === 4 && request.status === 200) {
-                        let res = JSON.parse(request.responseText);
+                    if (request1.DONE === 4 && request1.status === 200) {
+                        let res = JSON.parse(request1.responseText);
                         if (res !== null && typeof res !== "string" && res.length !== 0) {
                             if (tipos.length === 0) {
                                 tipos = res;
@@ -139,10 +152,10 @@ function selectOrcVendaChange() {
                     itens.push(item);
                     preencheTabelaItens(itens);
                 }
-                textPesoItens.value = peso;
+                textPesoItens.value = formatarPeso(peso);
             } else {
                 mostraDialogo(
-                    res,
+                    response,
                     "danger",
                     3000
                 );
@@ -156,21 +169,20 @@ function selectOrcVendaChange() {
             );
         }
     } else {
+        textDesc.value = '';
         selectRepresentacao.disabled = false;
+        selectCliente.disabled = false;
+        selectCliente.value = 0;
         itens = [];
         preencheTabelaItens(itens);
         tipos = [];
         limparSelectTipo();
-        textPesoItens.value = 0.0;
+        textPesoItens.value = formatarPeso(0.0);
         $("#button_clr_itens").prop("disabled", false);
         $("#button_add_item").prop("disabled", false);
         piso = 0.0;
-        let valorFormat = piso.toString();
-        valorFormat = valorFormat.replace('.', '#');
-        if (valorFormat.search('#') === -1) valorFormat += ',00';
-        else valorFormat = valorFormat.replace('#', ',');
 
-        textValorFrete.value = valorFormat;
+        textValorFrete.value = formatarValor(piso);
     }
 }
 
@@ -486,6 +498,7 @@ function buttonClrItensClick() {
 
 async function validar() {
     textDescBlur();
+    selectClienteBlur();
     selectEstadoBlur();
     selectCidadeBlur();
     selectTipoCaminhaoBlur();
@@ -495,7 +508,7 @@ async function validar() {
     dateValidadeBlur();
 
     return (
-        !erroDesc && !erroEstado && !erroCidade && !erroTipo && !erroDistancia && !erroValor && !erroEntrega && !erroValidade
+        !erroDesc && !erroCliente && !erroEstado && !erroCidade && !erroTipo && !erroDistancia && !erroValor && !erroEntrega && !erroValidade
     );
 }
 
@@ -509,6 +522,7 @@ function buttonLimparClick() {
     selectOrcVenda.value = 0;
     selectRepresentacao.disabled = false;
     selectRepresentacao.value = 0;
+    selectCliente.value = 0;
     selectEstado.value = 0;
     selectCidade.value = 0;
     itens = [];
@@ -526,6 +540,7 @@ function buttonLimparClick() {
     dateValidade.value = "";
 
     erroDesc = true;
+    erroCliente = true;
     erroEstado = true;
     erroCidade = true;
     erroTipo = true;
@@ -539,6 +554,7 @@ async function buttonSalvarClick() {
     let desc = "";
     let ven = 0;
     let rep = 0;
+    let cli = 0;
     let est = 0;
     let cid = 0;
     let tip = 0;
@@ -553,6 +569,7 @@ async function buttonSalvarClick() {
             desc = textDesc.value;
             ven = selectOrcVenda.value;
             rep = selectRepresentacao.value;
+            cli = selectCliente.value;
             cid = selectCidade.value;
             tip = selectTipoCam.value;
             dist = textDistancia.value;
@@ -566,6 +583,7 @@ async function buttonSalvarClick() {
             frm.append("desc", desc);
             frm.append("ven", ven);
             frm.append("rep", rep);
+            frm.append('cli', cli);
             frm.append("cid", cid);
             frm.append("tip", tip);
             frm.append("dist", dist);
@@ -651,6 +669,20 @@ $(document).ready(async (event) => {
         }
     }
 
+    let clientes = get('/representacoes/orcamento/frete/detalhes/obter-clientes.php');
+    if (clientes !== null && clientes.length > 0) {
+        let options = `<option value="0">SELECIONE</option>`;
+
+        for (let i = 0; i < clientes.length; i++) {
+            options +=
+                `<option value="${clientes[i].id}">
+                    ${clientes[i].tipo === 1 ? clientes[i].pessoaFisica.nome : clientes[i].pessoaJuridica.nomeFantasia}
+                </option>`;
+        }
+
+        selectCliente.innerHTML = options;
+    }
+
     let estados = get('/representacoes/estado/obter.php');
     limparEstados();
     if (estados !== null && estados.length !== 0) {
@@ -664,12 +696,14 @@ $(document).ready(async (event) => {
 
     buttonLimparClick();
 
+    $("#txValorFrete").mask('0000000000,00', {reverse: true});
+
     let detalhes = get("/representacoes/orcamento/frete/detalhes/obter.php");
     if (detalhes !== null) {
         orcamento = detalhes.id;
         $(textDesc).val(detalhes.descricao);
-        if (detalhes.orcamentoVenda !== null) {
-            $(selectOrcVenda).val(detalhes.orcamentoVenda.id);
+        if (detalhes.venda !== null) {
+            $(selectOrcVenda).val(detalhes.venda.id);
             selectOrcVendaChange();
 
             $(selectEstado).val(detalhes.destino.estado.id);
@@ -684,6 +718,8 @@ $(document).ready(async (event) => {
         } else {
             $(selectRepresentacao).val(detalhes.representacao.id);
             selectRepresentacaoChange();
+
+            $(selectCliente).val(detalhes.cliente.id);
 
             let request = new XMLHttpRequest();
             request.open('POST', '/representacoes/orcamento/frete/detalhes/item/obter.php', false);
@@ -758,7 +794,7 @@ $(document).ready(async (event) => {
                         itens.push(item);
                         preencheTabelaItens(itens);
                     }
-                    textPesoItens.value = peso;
+                    textPesoItens.value = formatarPeso(peso);
 
                     $(selectEstado).val(detalhes.destino.estado.id);
                     selectEstadoChange();
@@ -766,12 +802,12 @@ $(document).ready(async (event) => {
                     selectTipoCam.value = detalhes.tipoCaminhao.id;
                     $(textDistancia).val(detalhes.distancia);
                     await textDistanciaBlur();
-                    $(textValorFrete).val(detalhes.valor);
+                    $(textValorFrete).val(formatarValor(detalhes.valor));
                     $(dateEntrega).val(detalhes.entrega);
                     $(dateValidade).val(detalhes.validade);
                 } else {
                     mostraDialogo(
-                        res,
+                        response,
                         "danger",
                         3000
                     );

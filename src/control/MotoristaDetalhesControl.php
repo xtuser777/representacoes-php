@@ -16,9 +16,14 @@ class MotoristaDetalhesControl
 {
     public function obter()
     {
-        if (!isset($_COOKIE["MOTORISTA"])) return json_encode(null);
-        if (!Banco::getInstance()->open()) return json_encode(null);
+        if (!isset($_COOKIE["MOTORISTA"]))
+            return json_encode(null);
+
+        if (!Banco::getInstance()->open())
+            return json_encode(null);
+
         $motorista = Motorista::findById($_COOKIE["MOTORISTA"]);
+
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($motorista !== null ? $motorista->jsonSerialize() : null);
@@ -26,18 +31,25 @@ class MotoristaDetalhesControl
 
     public function verificarCpf(string $cpf)
     {
-        if (!Banco::getInstance()->open()) return json_encode(true);
+        if (!Banco::getInstance()->open())
+            return json_encode(true);
+
         $res = PessoaFisica::verifyCpf($cpf);
+
         Banco::getInstance()->getConnection()->close();
 
         return json_encode($res);
     }
 
-    public function alterar(int $end, int $ctt, int $pes, int $dad, int $mot, string $nome, string $rg, string $cpf, string $nasc, string $banco, string $agencia, string $conta, int $tipo, string $tel, string $cel, string $email, string $rua, string $num, string $bairro, string $comp, string $cep, int $cid)
+    public function alterar(int $end, int $ctt, int $pes, int $dad, int $mot, string $nome, string $rg, string $cpf, string $nasc, string $cnh, string $banco, string $agencia, string $conta, int $tipo, string $tel, string $cel, string $email, string $rua, string $num, string $bairro, string $comp, string $cep, int $cid)
     {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
+        if (!Banco::getInstance()->open())
+            return json_encode("Erro ao conectar-se ao banco de dados.");
+
         $cidade = (new Cidade())->getById($cid);
+
         Banco::getInstance()->getConnection()->begin_transaction();
+
         $endereco = new Endereco($end,$rua,$num,$bairro,$comp,$cep,$cidade);
         $re = $endereco->update();
         if ($re == -10 || $re == -1) {
@@ -48,6 +60,7 @@ class MotoristaDetalhesControl
             Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos no endereço.');
         }
+
         $contato = new Contato($ctt,$tel,$cel,$email,$endereco);
         $rc = $contato->update();
         if ($rc == -10 || $rc == -1) {
@@ -60,6 +73,7 @@ class MotoristaDetalhesControl
             Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos no contato.');
         }
+
         $pessoa = new PessoaFisica($pes,$nome,$rg,$cpf, $nasc,$contato);
         $rp = $pessoa->update();
         if ($rp == -10 || $rp == -1) {
@@ -72,6 +86,7 @@ class MotoristaDetalhesControl
             Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos na pessoa.');
         }
+
         $dados = new DadosBancarios($dad,$banco,$agencia,$conta,$tipo);
         $rd = $dados->update();
         if ($rd == -10 || $rd == -1) {
@@ -84,6 +99,20 @@ class MotoristaDetalhesControl
             Banco::getInstance()->getConnection()->close();
             return json_encode('Um ou mais campos inválidos na pessoa.');
         }
+
+        $motorista = new Motorista($mot, "", $cnh, $pessoa, $dados);
+        $rm = $motorista->update();
+        if ($rm == -10 || $rm == -1) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode('Ocorreu um problema ao alterar o motorista.');
+        }
+        if ($rm == -5) {
+            Banco::getInstance()->getConnection()->rollback();
+            Banco::getInstance()->getConnection()->close();
+            return json_encode('Um ou mais campos inválidos no motorista.');
+        }
+
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getConnection()->close();
 

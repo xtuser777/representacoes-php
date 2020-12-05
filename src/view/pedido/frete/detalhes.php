@@ -1,8 +1,4 @@
-<?php
-if (!isset($_COOKIE['USER_ID'])) {
-    header('Location: /representacoes/login');
-}
-?>
+<?php if (!isset($_COOKIE['USER_ID'])) header('Location: /representacoes/login'); ?>
 
 <!-- Card titulo pagina -->
 <div class="card-title">
@@ -39,9 +35,16 @@ if (!isset($_COOKIE['USER_ID'])) {
         </div>
 
         <div class="row">
-            <div class="col-sm-12">
-                <label for="textDescricao">Descrição <span style="color: red;">*</span>:</label>
-                <input id="textDescricao" class="form-control input-sm" style="width: 100%;" value="" readonly />
+            <div class="col-sm-7">
+                <label for="textDescricao">Descrição:</label>
+                <input id="textDescricao" class="form-control input-sm" style="width: 100%;" value="" />
+            </div>
+
+            <div class="col-sm-5">
+                <label for="selectCliente">Cliente:</label>
+                <select id="selectCliente" class="form-control input-sm" style="width: 100%;">
+                    <option value="0">SELECIONAR</option>
+                </select>
             </div>
         </div>
     </div>
@@ -103,28 +106,28 @@ if (!isset($_COOKIE['USER_ID'])) {
     <div class="fieldset-card-container">
         <div class="row">
             <div class="col-sm-3">
-                <label for="selectTipoCaminhao">Tipo Caminhão <span style="color: red;">*</span>:</label>
+                <label for="selectTipoCaminhao">Tipo Caminhão:</label>
                 <select id="selectTipoCaminhao" class="form-control input-sm" style="width: 100%;" disabled>
                     <option value="0">SELECIONAR</option>
                 </select>
             </div>
 
             <div class="col-sm-3">
-                <label for="selectProprietario">Proprietário Caminhão <span style="color: red;">*</span>:</label>
+                <label for="selectProprietario">Proprietário Caminhão:</label>
                 <select id="selectProprietario" class="form-control input-sm" style="width: 100%;" disabled>
                     <option value="0">SELECIONAR</option>
                 </select>
             </div>
 
             <div class="col-sm-3">
-                <label for="selectCaminhao">Caminhão <span style="color: red;">*</span>:</label>
+                <label for="selectCaminhao">Caminhão:</label>
                 <select id="selectCaminhao" class="form-control input-sm" style="width: 100%;" disabled>
                     <option value="0">SELECIONAR</option>
                 </select>
             </div>
 
             <div class="col-sm-3">
-                <label for="textDistancia">Distância <span style="color: red;">*</span>:</label>
+                <label for="textDistancia">Distância:</label>
                 <div class="input-group">
                     <input type="number" id="textDistancia" class="form-control input-sm" style="width: 100%;" readonly />
                     <div class="input-group-addon">KM</div>
@@ -141,18 +144,22 @@ if (!isset($_COOKIE['USER_ID'])) {
 
             <div class="fieldset-card-container">
                 <div class="row">
-                    <div class="col-sm-5">
-                        <label for="selectEstadoDestino">Estado <span style="color: red;">*</span>:</label>
-                        <select id="selectEstadoDestino" class="form-control input-sm" style="width: 100%;" disabled>
-                            <option value="0">SELECIONAR</option>
-                        </select>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label for="selectEstadoDestino">Estado:</label>
+                            <select id="selectEstadoDestino" class="form-control input-sm" style="width: 100%;" onchange="selectEstadoChange();">
+                                <option value="0">SELECIONAR</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div class="col-sm-7">
-                        <label for="selectCidadeDestino">Cidade <span style="color: red;">*</span>:</label>
-                        <select id="selectCidadeDestino" class="form-control input-sm" style="width: 100%;" disabled>
-                            <option value="0">SELECIONAR</option>
-                        </select>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label for="selectCidadeDestino">Cidade:</label>
+                            <select id="selectCidadeDestino" class="form-control input-sm" style="width: 100%;">
+                                <option value="0">SELECIONAR</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -165,25 +172,34 @@ if (!isset($_COOKIE['USER_ID'])) {
 
             <div class="fieldset-card-container">
                 <div class="row">
-                    <div class="col-sm-4">
-                        <label for="textValorMotorista">Valor <span style="color: red;">*</span>:</label>
-                        <div class="input-group">
-                            <div class="input-group-addon">R$</div>
-                            <input type="text" id="textValorMotorista" class="form-control input-sm" style="width: 100%;" readonly />
-                        </div>
+                    <div class="col-sm-7">
+                        <label for="selectMotorista">Motorista:</label>
+                        <select id="selectMotorista" class="form-control input-sm" style="width: 100%;">
+                            <option value="0">SELECIONAR</option>
+                        </select>
                     </div>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-5">
+                        <label for="textValorMotorista">Valor:</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">R$</div>
+                            <input type="text" id="textValorMotorista" class="form-control input-sm" style="width: 100%;" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-5">
                         <label for="textValorAdiantamento">Valor adiantamento:</label>
                         <div class="input-group">
                             <div class="input-group-addon">R$</div>
-                            <input type="text" id="textValorAdiantamento" class="form-control input-sm" style="width: 100%;" readonly />
+                            <input type="text" id="textValorAdiantamento" class="form-control input-sm" style="width: 100%;" oninput="formaAdiantamentoEstado();" onchange="formaAdiantamentoEstado();" />
                         </div>
                     </div>
 
-                    <div class="col-sm-4">
-                        <label for="selectFormaAdiantamento">Forma de pagamento <span style="color: red;">*</span>:</label>
-                        <select id="selectFormaAdiantamento" class="form-control input-sm" disabled>
+                    <div class="col-sm-7">
+                        <label for="selectFormaAdiantamento">Forma de pagamento:</label>
+                        <select id="selectFormaAdiantamento" class="form-control input-sm">
                             <option value="0">SELECIONAR</option>
                         </select>
                     </div>
@@ -215,14 +231,14 @@ if (!isset($_COOKIE['USER_ID'])) {
             </div>
 
             <div class="col-sm-3">
-                <label for="selectForma">Forma de pagamento <span style="color: red;">*</span>:</label>
+                <label for="selectForma">Forma de pagamento:</label>
                 <select id="selectForma" class="form-control input-sm" disabled>
                     <option value="0">SELECIONAR</option>
                 </select>
             </div>
 
             <div class="col-sm-3">
-                <label for="dateEntrega">Data Aprox. de Entrega <span style="color: red;">*</span>:</label>
+                <label for="dateEntrega">Data Aprox. de Entrega:</label>
                 <input type="date" id="dateEntrega" class="form-control input-sm" style="width: 100%;" readonly />
             </div>
         </div>

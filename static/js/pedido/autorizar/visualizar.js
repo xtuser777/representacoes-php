@@ -86,6 +86,9 @@ async function autorizar() {
                 3000
             );
 
+            const guia = window.open(`/representacoes/pedido/autorizar/visualizar/emitir.php?pedido=${pedido.id}&etapa=${etapa.id}`, '_blank');
+            guia.focus();
+
             etapas.shift();
 
             if (etapas.length === 0) {

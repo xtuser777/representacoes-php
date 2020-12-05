@@ -76,13 +76,14 @@ class PedidoStatusAlterarControl
         $sp->setStatus($status);
         $sp->setData($data);
         $sp->setObservacoes($obs);
+        $sp->setAtual(true);
         $sp->setAutor(Usuario::getById($_COOKIE["USER_ID"]));
 
         $res = $sp->save($pedido->getId());
         if ($res === -10 || $res === -1) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getConnection()->close();
-            return json_encode("Ocorreu um problema ao atualizar o registro do vículo do status.");
+            return json_encode("Ocorreu um problema ao atualizar o registro do vínculo do status.");
         }
 
         if ($res == -5) {
@@ -90,6 +91,8 @@ class PedidoStatusAlterarControl
             Banco::getInstance()->getConnection()->close();
             return json_encode("Parâmetro ou registro inválido.");
         }
+
+        $pedido->getStatus()->desatualizar($ped, $pedido->getStatus()->getStatus()->getId());
 
         $desc = $status->getDescricao();
 

@@ -6,10 +6,12 @@ namespace scr\control;
 
 use scr\model\EtapaCarregamento;
 use scr\model\Evento;
+use scr\model\Parametrizacao;
 use scr\model\PedidoFrete;
 use scr\model\Status;
 use scr\model\StatusPedido;
 use scr\model\Usuario;
+use scr\util\Autorizacao;
 use scr\util\Banco;
 
 class PedidoAutorizarVisualizarControl
@@ -60,6 +62,7 @@ class PedidoAutorizarVisualizarControl
             $sp->setStatus((new Status())->findById(2));
             $sp->setData(date("Y-m-d"));
             $sp->setObservacoes("");
+            $sp->setAtual(true);
             $sp->setAutor(Usuario::getById($_COOKIE["USER_ID"]));
 
             $res1 = $sp->save($frete->getId());
@@ -74,6 +77,8 @@ class PedidoAutorizarVisualizarControl
                 Banco::getInstance()->getConnection()->close();
                 return json_encode("Parâmetro ou registro inválido.");
             }
+
+            $frete->getStatus()->desatualizar($pedido, 1);
         }
 
         $ordem = $etapa->getOrdem();
@@ -103,5 +108,79 @@ class PedidoAutorizarVisualizarControl
         Banco::getInstance()->getConnection()->close();
 
         return json_encode("");
+    }
+
+    public function gerarDocumentoAutorizacao(int $pedido, int $etapaId)
+    {
+        if (!Banco::getInstance()->open())
+            return "Erro ao conectar no banco de dados.";
+
+        $parametrizacao = Parametrizacao::get();
+        $frete = (new PedidoFrete())->findById($pedido);
+
+        $etapa = (new EtapaCarregamento())->findById($etapaId, $pedido);
+
+        Banco::getInstance()->getConnection()->close();
+
+        $etp = $etapa->getOrdem();
+
+        $par = (object) $parametrizacao->jsonSerialize();
+        $par->pessoa = (object) $par->pessoa;
+        $par->pessoa->contato = (object) $par->pessoa->contato;
+        $par->pessoa->contato->endereco = (object) $par->pessoa->contato->endereco;
+        $par->pessoa->contato->endereco->cidade = (object) $par->pessoa->contato->endereco->cidade;
+        $par->pessoa->contato->endereco->cidade->estado = (object) $par->pessoa->contato->endereco->cidade->estado;
+
+        $autorizacao = new Autorizacao("P", "mm", "A4", $par);
+        $autorizacao->AddPage();
+        $autorizacao->DadosDocumento();
+        $autorizacao->DadosRepresentacao(
+            $frete->getId(),
+            $etapa->getRepresentacao()->getPessoa()->getRazaoSocial(),
+            ""
+        );
+        $autorizacao->TituloDocumento();
+        $autorizacao->DadosMotorista(
+            $frete->getMotorista()->getId(),
+            $frete->getMotorista()->getPessoa()->getNome(),
+            $frete->getMotorista()->getPessoa()->getCpf(),
+            $frete->getMotorista()->getPessoa()->getRg(),
+            $frete->getMotorista()->getCnh(),
+            $frete->getCaminhao()->getPlaca(),
+            ""
+        );
+        $autorizacao->DadosProprietario(
+            $frete->getProprietario()->getTipo() === 1
+                ? $frete->getProprietario()->getPessoaFisica()->getNome()
+                : $frete->getProprietario()->getPessoaJuridica()->getNomeFantasia(),
+            $frete->getProprietario()->getTipo() === 1
+                ? $frete->getProprietario()->getPessoaFisica()->getCpf()
+                : $frete->getProprietario()->getPessoaJuridica()->getCnpj()
+        );
+        $autorizacao->DadosCliente(
+            $frete->getCliente()->getId(),
+            $frete->getCliente()->getTipo() === 1
+                ? $frete->getCliente()->getPessoaFisica()->getNome()
+                : $frete->getCliente()->getPessoaJuridica()->getNomeFantasia(),
+            $frete->getCliente()->getTipo() === 1
+                ? $frete->getCliente()->getPessoaFisica()->getCpf()
+                : $frete->getCliente()->getPessoaJuridica()->getCnpj(),
+            $frete->getCliente()->getTipo() === 1
+                ? $frete->getCliente()->getPessoaFisica()->getRg()
+                : "",
+            $frete->getCliente()->getTipo() === 1
+                ? $frete->getCliente()->getPessoaFisica()->getContato()->getEndereco()->getCidade()->getNome()
+                : $frete->getCliente()->getPessoaJuridica()->getContato()->getEndereco()->getCidade()->getNome(),
+            $frete->getCliente()->getTipo() === 1
+                ? $frete->getCliente()->getPessoaFisica()->getContato()->getEndereco()->getCidade()->getEstado()->getNome()
+                : $frete->getCliente()->getPessoaJuridica()->getContato()->getEndereco()->getCidade()->getEstado()->getNome(),
+            $etapa->getRepresentacao()->getPessoa()->getNomeFantasia()
+        );
+        $autorizacao->TabelaItens($frete->getItens());
+        $autorizacao->Observacoes();
+        $autorizacao->Mensagem();
+        $autorizacao->Assinatura();
+
+        return $autorizacao->Output("I", "AutorizacaoCarregamentoEtapa$etp");
     }
 }

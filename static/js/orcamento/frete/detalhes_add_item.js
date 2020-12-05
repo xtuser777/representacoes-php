@@ -15,15 +15,11 @@ var selecionado = {
 function preencheTabelaItens(dados) {
     let txt = "";
     $.each(dados, function () {
-        let pesoFormat = this.produto.peso.toString();
-        pesoFormat = pesoFormat.replace('.', '#');
-        if (pesoFormat.search('#') === -1) pesoFormat += ',0';
-        else pesoFormat = pesoFormat.replace('#', ',');
         txt +=
             '<tr>\
                 <td>' + this.produto.descricao + '</td>\
                 <td>' + this.produto.representacao + '</td>\
-                <td>' + pesoFormat + '</td>\
+                <td>' + formatarPeso(this.produto.peso) + '</td>\
                 <td>' + this.quantidade + '</td>\
                 <td>' + this.peso + '</td>\
                 <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluirItem(' + this.produto.id +')"></a></td>\
@@ -35,38 +31,16 @@ function preencheTabelaItens(dados) {
 function preencheTabelaProd(dados) {
     let txt = "";
     $.each(dados, function () {
-        let pesoFormat = this.peso.toString();
-        pesoFormat = pesoFormat.replace('.', '#');
-        if (pesoFormat.search('#') === -1) pesoFormat += ',0';
-        else pesoFormat = pesoFormat.replace('#', ',');
         txt +=
             '<tr>\
                 <td>' + this.descricao + '</td>\
                 <td>' + this.medida + '</td>\
                 <td>' + this.representacao.pessoa.nomeFantasia + '</td>\
-                <td>' + pesoFormat + '</td>\
+                <td>' + formatarPeso(this.peso) + '</td>\
                 <td><a role="button" class="glyphicon glyphicon-ok-circle" data-toggle="tooltip" data-placement="top" title="SELECIONAR" href="javascript:selecionar(' + this.id + ',\''+ this.descricao +'\','+ this.peso +','+ this.representacao.pessoa.contato.endereco.cidade.estado.id +',\''+ this.representacao.pessoa.nomeFantasia +'\');"></a></td>\
             </tr>';
     });
     $(tbodyProduto).html(txt);
-}
-
-function get(url_i) {
-    let res;
-    $.ajax({
-        type: 'GET',
-        url: url_i,
-        async: false,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function (result) {res = result;},
-        error: function (xhr, status, thrown) {
-            console.error(thrown);
-            alert(thrown);
-        }
-    });
-
-    return res;
 }
 
 function buttonFiltrarProdClick() {
@@ -121,6 +95,7 @@ function cancelarAdicao() {
 
     textQtde.value = 0;
     textProdSel.value = "";
+    textPesoTotal.value = '0,0';
 
     erroQtde = true;
     $("#msqtdeprod").html('');
@@ -151,9 +126,8 @@ function excluirItem(id) {
         let pesoFormat = textPesoItens.value;
         let peso = Number.parseFloat(pesoFormat.replace(',', '.'));
         peso -= itens[x].peso;
-        pesoFormat = peso.toString().replace('.', ',');
 
-        textPesoItens.value = pesoFormat;
+        textPesoItens.value = formatarPeso(peso);
         itens = temp;
 
         if (temp.length === 0) {
@@ -185,15 +159,8 @@ function calcularPesoTotal() {
                 $("#msqtdeprod").html('');
 
                 let total = selecionado.peso * qtde;
-                //total = truncate(total);
-                let totalText = total.toString();
-                totalText = totalText.replace(".", "#");
-                /*if (totalText.split("#")[1].length === 1) {
-                    totalText = totalText.concat("0");
-                }*/
-                totalText = totalText.replace("#", ",");
 
-                textPesoTotal.value = totalText;
+                textPesoTotal.value = formatarPeso(total);
             }
         }
     }
@@ -291,10 +258,7 @@ async function adicionarItem() {
                         pesoItens += itens[i].peso;
                     }
 
-                    let pesoFormat = pesoItens.toString();
-                    pesoFormat = pesoFormat.replace('.', ',');
-
-                    textPesoItens.value = pesoFormat;
+                    textPesoItens.value = formatarPeso(pesoItens);
 
                     selecionado.id = 0;
                     selecionado.descricao = "";
@@ -304,6 +268,7 @@ async function adicionarItem() {
 
                     textQtde.value = 0;
                     textProdSel.value = "";
+                    textPesoTotal.value = '0,0';
 
                     erroQtde = true;
                     $("#msqtdeprod").html('');

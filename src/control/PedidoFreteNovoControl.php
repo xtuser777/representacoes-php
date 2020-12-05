@@ -7,6 +7,7 @@ namespace scr\control;
 use scr\model\Caminhao;
 use scr\model\CategoriaContaPagar;
 use scr\model\Cidade;
+use scr\model\Cliente;
 use scr\model\ContaPagar;
 use scr\model\ContaReceber;
 use scr\model\EtapaCarregamento;
@@ -35,8 +36,6 @@ class PedidoFreteNovoControl
 
         $orcamentos = (new OrcamentoFrete())->findAll();
 
-        Banco::getInstance()->getConnection()->close();
-
         $serial = [];
         /** @var OrcamentoFrete $orcamento */
         foreach ($orcamentos as $orcamento) {
@@ -45,6 +44,8 @@ class PedidoFreteNovoControl
             if (!$vinculo)
                 $serial[] = $orcamento->jsonSerialize();
         }
+
+        Banco::getInstance()->getConnection()->close();
 
         return json_encode($serial);
     }
@@ -56,8 +57,6 @@ class PedidoFreteNovoControl
 
         $vendas = (new PedidoVenda())->findAll();
 
-        Banco::getInstance()->getConnection()->close();
-
         $serial = [];
         /** @var PedidoVenda $venda */
         foreach ($vendas as $venda) {
@@ -66,6 +65,8 @@ class PedidoFreteNovoControl
             if (!$vinculo)
                 $serial[] = $venda->jsonSerialize();
         }
+
+        Banco::getInstance()->getConnection()->close();
 
         return json_encode($serial);
     }
@@ -83,6 +84,42 @@ class PedidoFreteNovoControl
         /** @var Representacao $representacao */
         foreach ($representacoes as $representacao) {
             $serial[] = $representacao->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterClientes()
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $clientes = Cliente::getAll();
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var Cliente $cli */
+        foreach ($clientes as $cli) {
+            $serial[] = $cli->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterMotoristas()
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $motoristas = Motorista::findAll();
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var Motorista $mot */
+        foreach ($motoristas as $mot) {
+            $serial[] = $mot->jsonSerialize();
         }
 
         return json_encode($serial);
@@ -191,7 +228,7 @@ class PedidoFreteNovoControl
         return json_encode($piso);
     }
 
-    public function gravar(int $orc, int $ven, int $rep, string $desc, int $cid, int $tip, int $prop, int $cam, int $dist, float $vm, float $va, int $fa, float $peso, float $valor, int $fr, string $entrega, array $itens, array $etapas)
+    public function gravar(int $orc, int $ven, int $rep, string $desc, int $cli, int $cid, int $tip, int $prop, int $cam, int $dist, int $mot, float $vm, float $va, int $fa, float $peso, float $valor, int $fr, string $entrega, array $itens, array $etapas)
     {
         if (!Banco::getInstance()->open())
             return json_encode("Erro ao conectar-se ao banco de dados.");
@@ -199,10 +236,12 @@ class PedidoFreteNovoControl
         $orcamento = $orc > 0 ? (new OrcamentoFrete())->findById($orc) : null;
         $venda = $ven > 0 ? (new PedidoVenda())->findById($ven) : null;
         $representacao = $rep > 0 ? Representacao::getById($rep) : null;
+        $cliente = Cliente::getById($cli);
         $cidade = (new Cidade())->getById($cid);
         $tipo = TipoCaminhao::findById($tip);
         $proprietario = (new Proprietario())->findById($prop);
         $caminhao = Caminhao::findById($cam);
+        $motorista = Motorista::findById($mot);
         $formaAdiantamnto = $fa > 0 ? FormaPagamento::findById($fa) : null;
         $formaRecebimento = FormaPagamento::findById($fr);
         $usuario = Usuario::getById($_COOKIE["USER_ID"]);
@@ -213,6 +252,7 @@ class PedidoFreteNovoControl
         $pedido->setData(date("y-m-d"));
         $pedido->setOrcamento($orcamento);
         $pedido->setVenda($venda);
+        $pedido->setCliente($cliente);
         $pedido->setRepresentacao($representacao);
         $pedido->setDescricao($desc);
         $pedido->setTipoCaminhao($tipo);
@@ -220,6 +260,7 @@ class PedidoFreteNovoControl
         $pedido->setCaminhao($caminhao);
         $pedido->setDistancia($dist);
         $pedido->setDestino($cidade);
+        $pedido->setMotorista($motorista);
         $pedido->setValorMotorista($vm);
         $pedido->setEntradaMotorista($va);
         $pedido->setFormaPagamentoMotorista($formaAdiantamnto);
@@ -283,7 +324,7 @@ class PedidoFreteNovoControl
             return json_encode("Parâmetros inválidos do status do pedido.");
         }
 
-        $contaProp = $this->lancarContaProprietario($pedido, $proprietario, $usuario, $formaAdiantamnto, $vm, $va);
+        $contaProp = $this->lancarContaProprietario($pedido, $motorista, $usuario, $formaAdiantamnto, $vm, $va);
         if ($contaProp === -10 || $contaProp === -1) {
             Banco::getInstance()->getConnection()->rollback();
             Banco::getInstance()->getConnection()->close();
@@ -367,6 +408,7 @@ class PedidoFreteNovoControl
         $statusPedido->setStatus($status);
         $statusPedido->setData(date("Y-m-d"));
         $statusPedido->setObservacoes("");
+        $statusPedido->setAtual(true);
         $statusPedido->setAutor($autor);
 
         return $statusPedido->save($pedido);
@@ -374,16 +416,16 @@ class PedidoFreteNovoControl
 
     /**
      * @param PedidoFrete $pedido
-     * @param Proprietario $proprietario
+     * @param Motorista $motorista
      * @param Usuario $autor
      * @param FormaPagamento|null $forma
      * @param float $valor
      * @param float $adiantamento
      * @return int
      */
-    private function lancarContaProprietario(PedidoFrete $pedido, Proprietario $proprietario, Usuario $autor, ?FormaPagamento $forma, float $valor, float $adiantamento): int
+    private function lancarContaProprietario(PedidoFrete $pedido, Motorista $motorista, Usuario $autor, ?FormaPagamento $forma, float $valor, float $adiantamento): int
     {
-        if ($pedido === null || $proprietario === null || $autor === null || $valor <= 0)
+        if ($pedido === null || $motorista === null || $autor === null || $valor <= 0)
             return -5;
 
         $situacao = 1;
@@ -394,21 +436,21 @@ class PedidoFreteNovoControl
             $situacao = 2;
         }
 
-        $prop = $proprietario->getTipo() === 1 ? $proprietario->getPessoaFisica()->getNome() : $proprietario->getPessoaJuridica()->getNomeFantasia();
+        $mot = $motorista->getPessoa()->getNome();
 
         $conta = new ContaPagar();
         $conta->setConta($conta->findNewCount());
         $conta->setData(date("Y-m-d"));
-        $conta->setDescricao("Pagamento ao proprietário $prop.");
+        $conta->setDescricao("Pagamento ao motorista $mot.");
         $conta->setTipo(1);
-        $conta->setEmpresa($prop);
+        $conta->setEmpresa($mot);
         $conta->setParcela(1);
         $conta->setValor($valor);
         $conta->setComissao(false);
         $conta->setSituacao(1);
         $conta->setVencimento((new \DateTime())->add(new \DateInterval("P2D"))->format("Y-m-d"));
         $conta->setCategoria(CategoriaContaPagar::findById(249));
-        $conta->setProprietario($proprietario);
+        $conta->setMotorista($motorista);
         $conta->setPedidoFrete($pedido);
         $conta->setAutor($autor);
 
@@ -422,16 +464,16 @@ class PedidoFreteNovoControl
             $pendencia = new ContaPagar();
             $pendencia->setConta($conta->getConta());
             $pendencia->setData(date("Y-m-d"));
-            $pendencia->setDescricao("Pagamento ao proprietário $prop (Pendência).");
+            $pendencia->setDescricao("Pagamento ao motorista $mot (Pendência).");
             $pendencia->setTipo(1);
-            $pendencia->setEmpresa($prop);
+            $pendencia->setEmpresa($mot);
             $pendencia->setParcela(1);
             $pendencia->setValor($pendente);
             $pendencia->setComissao(false);
             $pendencia->setSituacao(1);
             $pendencia->setVencimento((new \DateTime())->add(new \DateInterval("P2D"))->format("Y-m-d"));
             $pendencia->setCategoria(CategoriaContaPagar::findById(249));
-            $pendencia->setProprietario($proprietario);
+            $pendencia->setMotorista($motorista);
             $pendencia->setPedidoFrete($pedido);
             $pendencia->setAutor($autor);
 

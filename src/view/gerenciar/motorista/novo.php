@@ -18,19 +18,25 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-3">
                 <label for="rg">RG <span style="color: red;">*</span>:</label>
                 <input type="text" id="rg" class="form-control input-sm" style="width: 100%;" maxlength="30" />
                 <div id="msrg"></div>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-3">
                 <label for="cpf">CPF <span style="color: red;">*</span>:</label>
                 <input type="text" id="cpf" class="form-control input-sm" style="width: 100%;" />
                 <div id="mscpf"></div>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-3">
+                <label for="cnh">CNH <span style="color: red;">*</span>:</label>
+                <input type="text" id="cnh" class="form-control input-sm" style="width: 100%;" />
+                <div id="mscnh"></div>
+            </div>
+
+            <div class="col-sm-3">
                 <label for="nasc">Nascimento <span style="color: red;">*</span>:</label>
                 <input type="date" id="nasc" class="form-control input-sm" style="width: 100%;" />
                 <div id="msnasc"></div>

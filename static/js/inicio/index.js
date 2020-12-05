@@ -4,7 +4,7 @@ const selectTipoPedido = document.getElementById('selectTipoPedido');
 const tableEventos = document.getElementById('tableEventos');
 const tbodyEventos = document.getElementById('tbodyEventos');
 
-function preencheTabelaEventos(eventos) {
+function preencheTabelaEventos() {
     let linhas = ``;
 
     for (let i = 0; i < eventos.length; i++) {
@@ -31,7 +31,7 @@ function preencheTabelaEventos(eventos) {
 }
 
 function obter() {
-    let eventos = get('/representacoes/inicio/obter.php');
+    eventos = get('/representacoes/inicio/obter.php');
 
     preencheTabelaEventos(eventos);
 }
@@ -191,6 +191,15 @@ async function filtrar() {
             }
         }
     }
+}
+
+function emitirPdf() {
+    let filtro = textFiltro.value;
+    let data = dateEvento.value;
+    let tipo = Number.parseInt(selectTipoPedido.value);
+
+    const guia = window.open(`/representacoes/inicio/emitir.php?filtro=${filtro}&data=${data}&tipo=${tipo}`, '_blank');
+    guia.focus();
 }
 
 function carregarPagina() {

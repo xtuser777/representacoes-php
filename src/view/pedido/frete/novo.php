@@ -39,10 +39,18 @@ if (!isset($_COOKIE['USER_ID'])) {
         </div>
 
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-7">
                 <label for="textDescricao">Descrição <span style="color: red;">*</span>:</label>
                 <input id="textDescricao" class="form-control input-sm" style="width: 100%;" value="" onblur="textDescBlur();" />
                 <div id="msdesc"></div>
+            </div>
+
+            <div class="col-sm-5">
+                <label for="selectCliente">Cliente <span style="color: red;">*</span>:</label>
+                <select id="selectCliente" class="form-control input-sm" style="width: 100%;" onblur="selectClienteBlur();">
+                    <option value="0">SELECIONAR</option>
+                </select>
+                <div id="mscli"></div>
             </div>
         </div>
 
@@ -157,21 +165,23 @@ if (!isset($_COOKIE['USER_ID'])) {
 </div>
 
 <div class="row">
-    <div class="col-sm-5">
+    <div class="col-sm-4">
         <div class="fieldset-card">
             <div class="fieldset-card-legend">Destino</div>
 
             <div class="fieldset-card-container">
                 <div class="row">
-                    <div class="col-sm-5">
+                    <div class="col-sm-12">
                         <label for="selectEstadoDestino">Estado <span style="color: red;">*</span>:</label>
                         <select id="selectEstadoDestino" class="form-control input-sm" style="width: 100%;" onchange="selectEstadoChange();" onblur="selectEstadoBlur();">
                             <option value="0">SELECIONAR</option>
                         </select>
                         <div id="msest"></div>
                     </div>
+                </div>
 
-                    <div class="col-sm-7">
+                <div class="row">
+                    <div class="col-sm-12">
                         <label for="selectCidadeDestino">Cidade <span style="color: red;">*</span>:</label>
                         <select id="selectCidadeDestino" class="form-control input-sm" style="width: 100%;" onblur="selectCidadeBlur();">
                             <option value="0">SELECIONAR</option>
@@ -185,13 +195,21 @@ if (!isset($_COOKIE['USER_ID'])) {
         </div>
     </div>
 
-    <div class="col-sm-7">
+    <div class="col-sm-8">
         <div class="fieldset-card">
             <div class="fieldset-card-legend">Pagamento Motorista</div>
 
             <div class="fieldset-card-container">
                 <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-7">
+                        <label for="selectMotorista">Motorista <span style="color: red;">*</span>:</label>
+                        <select id="selectMotorista" class="form-control input-sm" style="width: 100%;" onblur="selectMotoristaBlur();">
+                            <option value="0">SELECIONAR</option>
+                        </select>
+                        <div id="msmot"></div>
+                    </div>
+
+                    <div class="col-sm-5">
                         <label for="textValorMotorista">Valor <span style="color: red;">*</span>:</label>
                         <div class="input-group">
                             <div class="input-group-addon">R$</div>
@@ -199,8 +217,10 @@ if (!isset($_COOKIE['USER_ID'])) {
                         </div>
                         <div id="msvalormotorista"></div>
                     </div>
+                </div>
 
-                    <div class="col-sm-4">
+                <div class="row">
+                    <div class="col-sm-5">
                         <label for="textValorAdiantamento">Valor adiantamento:</label>
                         <div class="input-group">
                             <div class="input-group-addon">R$</div>
@@ -208,7 +228,7 @@ if (!isset($_COOKIE['USER_ID'])) {
                         </div>
                     </div>
 
-                    <div class="col-sm-4">
+                    <div class="col-sm-7">
                         <label for="selectFormaAdiantamento">Forma de pagamento <span style="color: red;">*</span>:</label>
                         <select id="selectFormaAdiantamento" class="form-control input-sm" onblur="selectFormaAdiantamentoBlur();">
                             <option value="0">SELECIONAR</option>

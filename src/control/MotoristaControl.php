@@ -14,9 +14,13 @@ class MotoristaControl
 {
     public function obter()
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
         $motoristas = Motorista::findAll();
+
         Banco::getInstance()->getConnection()->close();
+
         $jarray = [];
         /** @var $motorista Motorista */
         foreach ($motoristas as $motorista) {
@@ -28,9 +32,13 @@ class MotoristaControl
 
     public function obterPorChave(string $chave)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
         $motoristas = Motorista::findByKey($chave);
+
         Banco::getInstance()->getConnection()->close();
+
         $jarray = [];
         /** @var $motorista Motorista */
         foreach ($motoristas as $motorista) {
@@ -42,9 +50,13 @@ class MotoristaControl
 
     public function obterPorCadastro(string $cad)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
         $motoristas = Motorista::findByCad($cad);
+
         Banco::getInstance()->getConnection()->close();
+
         $jarray = [];
         /** @var $motorista Motorista */
         foreach ($motoristas as $motorista) {
@@ -56,9 +68,13 @@ class MotoristaControl
 
     public function obterPorChaveCadastro(string $chave, string $cadastro)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
         $motoristas = Motorista::findByKeyCad($chave, $cadastro);
+
         Banco::getInstance()->getConnection()->close();
+
         $jarray = [];
         /** @var $motorista Motorista */
         foreach ($motoristas as $motorista) {
@@ -70,8 +86,11 @@ class MotoristaControl
 
     public function ordenar(string $col)
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
         $motoristas = Motorista::findAll();
+
         Banco::getInstance()->getConnection()->close();
 
         if (count($motoristas) > 0) {
@@ -158,10 +177,15 @@ class MotoristaControl
 
     public function excluir(int $id)
     {
-        if (!Banco::getInstance()->open()) return json_encode("Erro ao conectar-se ao banco de dados.");
+        if (!Banco::getInstance()->open())
+            return json_encode("Erro ao conectar-se ao banco de dados.");
+
         $motorista = Motorista::findById($id);
-        if (!$motorista) return json_encode("Registro não encontrado.");
+        if (!$motorista)
+            return json_encode("Registro não encontrado.");
+
         Banco::getInstance()->getConnection()->begin_transaction();
+
         $rm = $motorista->delete();
         if ($rm == -10 || $rm == -1) {
             Banco::getInstance()->getConnection()->rollback();
@@ -173,6 +197,7 @@ class MotoristaControl
             Banco::getInstance()->getConnection()->close();
             return json_encode("Parâmetros inválidos.");
         }
+
         $rdb = $motorista->getDadosBancarios()->delete();
         if ($rm == -10 || $rm == -1) {
             Banco::getInstance()->getConnection()->rollback();
@@ -184,6 +209,7 @@ class MotoristaControl
             Banco::getInstance()->getConnection()->close();
             return json_encode("Parâmetros inválidos.");
         }
+
         $rp = PessoaFisica::delete($motorista->getPessoa()->getId());
         if ($rm == -10 || $rm == -1) {
             Banco::getInstance()->getConnection()->rollback();
@@ -195,6 +221,7 @@ class MotoristaControl
             Banco::getInstance()->getConnection()->close();
             return json_encode("Parâmetros inválidos.");
         }
+
         $rc = Contato::delete($motorista->getPessoa()->getContato()->getId());
         if ($rm == -10 || $rm == -1) {
             Banco::getInstance()->getConnection()->rollback();
@@ -206,6 +233,7 @@ class MotoristaControl
             Banco::getInstance()->getConnection()->close();
             return json_encode("Parâmetros inválidos.");
         }
+
         $re = Endereco::delete($motorista->getPessoa()->getContato()->getEndereco()->getId());
         if ($rm == -10 || $rm == -1) {
             Banco::getInstance()->getConnection()->rollback();
@@ -217,6 +245,7 @@ class MotoristaControl
             Banco::getInstance()->getConnection()->close();
             return json_encode("Parâmetros inválidos.");
         }
+
         Banco::getInstance()->getConnection()->commit();
         Banco::getInstance()->getConnection()->close();
 

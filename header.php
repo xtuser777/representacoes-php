@@ -39,6 +39,9 @@ require ROOT . "/src/model/StatusPedido.php";
 require ROOT . "/src/model/EtapaCarregamento.php";
 
 require ROOT . '/src/util/Banco.php';
+require ROOT . "/helpers/fpdf/fpdf.php";
+require ROOT . "/src/util/Autorizacao.php";
+require ROOT . "/src/util/RetatorioEventos.php";
 
 require ROOT . '/src/dao/EnderecoDAO.php';
 require ROOT . '/src/dao/ContatoDAO.php';

@@ -5,7 +5,9 @@ namespace scr\control;
 
 
 use scr\model\Caminhao;
+use scr\model\Cliente;
 use scr\model\FormaPagamento;
+use scr\model\Motorista;
 use scr\model\OrcamentoFrete;
 use scr\model\PedidoFrete;
 use scr\model\PedidoVenda;
@@ -85,6 +87,42 @@ class PedidoFreteDetalhesControl
         /** @var Representacao $representacao */
         foreach ($representacoes as $representacao) {
             $serial[] = $representacao->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterClientes()
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $clientes = Cliente::getAll();
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var Cliente $cli */
+        foreach ($clientes as $cli) {
+            $serial[] = $cli->jsonSerialize();
+        }
+
+        return json_encode($serial);
+    }
+
+    public function obterMotoristas()
+    {
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
+        $motoristas = Motorista::findAll();
+
+        Banco::getInstance()->getConnection()->close();
+
+        $serial = [];
+        /** @var Motorista $mot */
+        foreach ($motoristas as $mot) {
+            $serial[] = $mot->jsonSerialize();
         }
 
         return json_encode($serial);

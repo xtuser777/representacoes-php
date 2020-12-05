@@ -2,6 +2,7 @@ const selectOrcFrete = document.getElementById("selectOrcamentoFrete");
 const selectPedVenda = document.getElementById('selectPedidoVenda');
 const selectRepresentacao = document.getElementById("selectRepresentacao");
 const textDesc = document.getElementById("textDescricao");
+const selectCliente = document.getElementById('selectCliente');
 const selectCidade = document.getElementById("selectCidadeDestino");
 const selectEstado = document.getElementById("selectEstadoDestino");
 const tbodyItens = document.getElementById("tbodyItens");
@@ -10,6 +11,7 @@ const selectTipoCam = document.getElementById("selectTipoCaminhao");
 const selectProprietario = document.getElementById('selectProprietario');
 const selectCaminhao = document.getElementById('selectCaminhao');
 const textDistancia = document.getElementById("textDistancia");
+const selectMotorista = document.getElementById('selectMotorista');
 const textValorMotorista = document.getElementById('textValorMotorista');
 const textValorAdiantamento = document.getElementById('textValorAdiantamento');
 const selectFormaAdiantamento = document.getElementById('selectFormaAdiantamento');
@@ -27,12 +29,14 @@ let itens = [];
 let etapas = [];
 
 let erroDesc = true;
+let erroCliente = true;
 let erroEstado = true;
 let erroCidade = true;
 let erroTipo = true;
 let erroProprietario = true;
 let erroCaminhao = true;
 let erroDistancia = true;
+let erroMotorista = true;
 let erroValorMotorista = true;
 let erroFormaAdiantamento = true;
 let erroValor = true;
@@ -47,6 +51,18 @@ function textDescBlur() {
     } else {
         erroDesc = false;
         $("#msdesc").html("");
+    }
+}
+
+function selectClienteBlur() {
+    let cli = Number.parseInt(selectCliente.value);
+
+    if (cli === null || isNaN(cli) || cli === 0) {
+        erroCliente = true;
+        $("#mscli").html("<span class='label label-danger'>O cliente precisa ser selecionado.</span>");
+    } else {
+        erroCliente = false;
+        $("#mscli").html("");
     }
 }
 
@@ -117,6 +133,8 @@ async function selectOrcFreteChange() {
         selectPedVenda.disabled = true;
         selectRepresentacao.value = 0;
         selectRepresentacao.disabled = true;
+        selectCliente.value = orcamento.cliente.id;
+        selectCliente.disabled = true;
         itens = [];
         etapas = [];
         tipos = [];
@@ -220,16 +238,18 @@ async function selectOrcFreteChange() {
             $("#button_add_item").prop("disabled", true);
         }
         selectTipoCam.value = orcamento.tipoCaminhao.id;
-        selectTipoCaminhaoChange();
+        await selectTipoCaminhaoChange();
         textDistancia.value = orcamento.distancia;
         selectEstado.value = orcamento.destino.estado.id;
         selectEstadoChange();
         selectCidade.value = orcamento.destino.id;
-        textValorFrete.value = orcamento.valor;
+        textValorFrete.value = formatarValor(orcamento.valor);
         dateEntrega.value = orcamento.entrega;
     } else {
         selectPedVenda.disabled = false;
         selectRepresentacao.disabled = false;
+        selectCliente.value = 0;
+        selectCliente.disabled = false;
         itens = [];
         etapas = [];
         preencheTabelaItens(itens);
@@ -257,6 +277,8 @@ async function selectPedVendaChange() {
         selectOrcFrete.disabled = true;
         selectRepresentacao.value = 0;
         selectRepresentacao.disabled = true;
+        selectCliente.value = venda.cliente.id;
+        selectCliente.disabled = true;
         itens = [];
         etapas = [];
         tipos = [];
@@ -361,6 +383,8 @@ async function selectPedVendaChange() {
     } else {
         selectOrcFrete.disabled = false;
         selectRepresentacao.disabled = false;
+        selectCliente.value = 0;
+        selectCliente.disabled = false;
         itens = [];
         etapas = [];
         preencheTabelaItens(itens);
@@ -370,7 +394,7 @@ async function selectPedVendaChange() {
         tipos = [];
         limparSelectTipo();
         selectTipoCam.value = 0;
-        selectTipoCaminhaoChange();
+        await selectTipoCaminhaoChange();
         textDistancia.value = 0;
         selectEstado.value = 0;
         selectEstadoChange();
@@ -733,6 +757,18 @@ async function textDistanciaValid() {
     }
 }
 
+function selectMotoristaBlur() {
+    let mot = Number.parseInt(selectMotorista.value);
+
+    if (mot === null || isNaN(mot) || mot === 0) {
+        erroMotorista = true;
+        $('#msmot').html('<span class="label label-danger">O motorista do caminhão deve ser selecionado.</span>');
+    } else {
+        erroMotorista = false;
+        $('#msmot').html('');
+    }
+}
+
 function textValorMotoristaBlur() {
     let vm = Number.parseFloat(textValorMotorista.value.toString().replace(",", "."));
 
@@ -829,20 +865,22 @@ function buttonClrItensClick() {
     $(tbodyItens).html('');
     etapas = [];
     $(tbodyEtapas).html('');
-    textPesoItens.value = 0.0;
-    textValorItens.value = 0.0;
+    textPesoItens.value = "0,0";
+    textValorItens.value = "0,00";
     tipos = [];
     limparSelectTipo();
 }
 
 async function validar() {
     textDescBlur();
+    selectClienteBlur();
     selectEstadoBlur();
     selectCidadeBlur();
     selectTipoCaminhaoBlur();
     selectProprietarioBlur();
     selectCaminhaoBlur();
     await textDistanciaValid();
+    selectMotoristaBlur();
     textValorMotoristaBlur();
     selectFormaAdiantamentoBlur();
     textValorFreteBlur();
@@ -851,12 +889,14 @@ async function validar() {
 
     return (
         !erroDesc &&
+        !erroCliente &&
         !erroEstado &&
         !erroCidade &&
         !erroTipo &&
         !erroProprietario &&
         !erroCaminhao &&
         !erroDistancia &&
+        !erroMotorista &&
         !erroValorMotorista &&
         !erroFormaAdiantamento &&
         !erroValor &&
@@ -870,8 +910,10 @@ function buttonCancelarClick() {
     location.href = '../../frete';
 }
 
-function buttonLimparClick() {
+async function buttonLimparClick() {
     textDesc.value = "";
+    selectCliente.value = 0;
+    selectCliente.disabled = false;
     selectOrcFrete.disabled = false;
     selectOrcFrete.value = 0;
     selectPedVenda.disabled = false;
@@ -891,8 +933,9 @@ function buttonLimparClick() {
     tipos = [];
     limparSelectTipo();
     selectTipoCam.value = 0;
-    selectTipoCaminhaoChange()
+    await selectTipoCaminhaoChange();
     textDistancia.value = "";
+    selectMotorista.value = 0;
     textValorMotorista.value = "0,00";
     textValorAdiantamento.value = "";
     formaAdiantamentoEstado();
@@ -900,12 +943,14 @@ function buttonLimparClick() {
     dateEntrega.value = "";
 
     erroDesc = true;
+    erroCliente = true;
     erroEstado = true;
     erroCidade = true;
     erroTipo = true;
     erroProprietario = true;
     erroCaminhao = true;
     erroDistancia = true;
+    erroMotorista = true;
     erroValorMotorista = true;
     erroValor = true;
     erroFormaPagamento = true;
@@ -914,6 +959,7 @@ function buttonLimparClick() {
 
 async function buttonSalvarClick() {
     let desc = "";
+    let cli = 0;
     let orc = 0;
     let ven = 0;
     let rep = 0;
@@ -923,6 +969,7 @@ async function buttonSalvarClick() {
     let prop = 0;
     let cam = 0;
     let dist = 0;
+    let mot = 0;
     let vm = 0.0;
     let vam = 0.0;
     let fa = 0;
@@ -934,6 +981,7 @@ async function buttonSalvarClick() {
     if (await validar()) {
         if (itens.length > 0) {
             desc = textDesc.value;
+            cli = selectCliente.value;
             orc = selectOrcFrete.value;
             ven = selectPedVenda.value;
             rep = selectRepresentacao.value;
@@ -942,6 +990,7 @@ async function buttonSalvarClick() {
             prop = selectProprietario.value;
             cam = selectCaminhao.value;
             dist = textDistancia.value;
+            mot = selectMotorista.value;
             vm = textValorMotorista.value.toString().replace(',', '.');
             vam = textValorAdiantamento.value.toString().replace(',', '.');
             fa = selectFormaAdiantamento.value;
@@ -952,6 +1001,7 @@ async function buttonSalvarClick() {
 
             let frm = new FormData();
             frm.append("desc", desc);
+            frm.append("cli", cli.toString());
             frm.append('orc', orc.toString());
             frm.append("ven", ven.toString());
             frm.append("rep", rep.toString());
@@ -960,6 +1010,7 @@ async function buttonSalvarClick() {
             frm.append('prop', prop.toString());
             frm.append('cam', cam.toString());
             frm.append("dist", dist);
+            frm.append("mot", mot.toString());
             frm.append('vm', vm);
             frm.append('vam', vam);
             frm.append('fa', fa.toString());
@@ -982,7 +1033,7 @@ async function buttonSalvarClick() {
                     "success",
                     2000
                 );
-                buttonLimparClick();
+                await buttonLimparClick();
             } else {
                 mostraDialogo(
                     res.error.message + "<br />" +
@@ -1054,6 +1105,34 @@ $(document).ready((event) => {
         }
 
         selectRepresentacao.innerHTML = options;
+    }
+
+    let clientes = get('/representacoes/pedido/frete/novo/obter-clientes.php');
+    if (clientes !== null && clientes.length > 0) {
+        let options = `<option value="0">SELECIONE</option>`;
+
+        for (let i = 0; i < clientes.length; i++) {
+            options +=
+                `<option value="${clientes[i].id}">
+                    ${clientes[i].tipo === 1 ? clientes[i].pessoaFisica.nome : clientes[i].pessoaJuridica.nomeFantasia}
+                </option>`;
+        }
+
+        selectCliente.innerHTML = options;
+    }
+
+    let motoristas = get('/representacoes/pedido/frete/novo/obter-motoristas.php');
+    if (motoristas !== null && motoristas.length > 0) {
+        let options = `<option value="0">SELECIONE</option>`;
+
+        for (let i = 0; i < motoristas.length; i++) {
+            options +=
+                `<option value="${motoristas[i].id}">
+                    ${motoristas[i].pessoa.nome}
+                </option>`;
+        }
+
+        selectMotorista.innerHTML = options;
     }
 
     let estados = get('/representacoes/estado/obter.php');
