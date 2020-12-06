@@ -1,6 +1,6 @@
 <?php
 
-use scr\control\PedidoFreteNovoControl;
+use scr\control\PedidoFreteDetalhesControl;
 
 require '../../../header.php';
 
@@ -10,9 +10,10 @@ if (!isset($_COOKIE['USER_ID'])) {
     header('Content-type: application/json');
     echo json_encode('Método inválido.');
 } else {
-    $control = new PedidoFreteNovoControl();
+    $control = new PedidoFreteDetalhesControl();
     $prop = $_POST["prop"];
+    $tipo = $_POST["tipo"];
 
     header('Content-type: application/json');
-    echo $control->obterCaminhoesPorProp($prop);
+    echo $control->obterCaminhoesPorPropTC($prop, $tipo);
 }

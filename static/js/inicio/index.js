@@ -4,7 +4,7 @@ const selectTipoPedido = document.getElementById('selectTipoPedido');
 const tableEventos = document.getElementById('tableEventos');
 const tbodyEventos = document.getElementById('tbodyEventos');
 
-function preencheTabelaEventos() {
+function preencheTabelaEventos(eventos) {
     let linhas = ``;
 
     for (let i = 0; i < eventos.length; i++) {

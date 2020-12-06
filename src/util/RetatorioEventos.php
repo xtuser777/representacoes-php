@@ -99,20 +99,20 @@ class RetatorioEventos extends FPDF
 
     function CabecalhoTabela()
     {
-        $col1 = utf8_decode("CÓDIGO");
+        $col1 = utf8_decode("CÓD.");
         $col2 = utf8_decode("DESCRIÇÃO");
         $col3 = utf8_decode("DATA");
         $col4 = utf8_decode("HORA");
         $col5 = utf8_decode("PEDIDO");
         $col6 = utf8_decode("AUTOR");
 
-        $this->SetFont("Arial", "B", 10);
+        $this->SetFont("Arial", "B", 9);
         $this->SetXY(10, 36);
-        $this->Cell(18, 4, $col1, "B");
-        $this->Cell(100,4, $col2, "B");
-        $this->Cell(15, 4, $col3, "B");
+        $this->Cell(12, 4, $col1, "B");
+        $this->Cell(116,4, $col2, "B");
+        $this->Cell(19, 4, $col3, "B");
         $this->Cell(15, 4, $col4, "B");
-        $this->Cell(68, 4, $col5, "B");
-        $this->Cell(60, 4, $col6, "B");
+        $this->Cell(58, 4, $col5, "B");
+        $this->Cell(56, 4, $col6, "B");
     }
 }

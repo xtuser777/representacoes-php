@@ -164,29 +164,38 @@ class InicioControl
 
         $eventos = [];
 
+        $titutoFiltro = "";
+
         if ($filtro === '' && $data === '' && $tipo === 0) {
             $eventos = (new Evento())->findAll();
         } else {
             if ($filtro !== '' && $data !== '' && $tipo > 0) {
                 $eventos = (new Evento())->findByFilterDateType($filtro, $data, $tipo);
+                $titutoFiltro = " POR FILTRO, DATA E TIPO";
             } else {
                 if ($filtro !== '' && $data === '' && $tipo > 0) {
                     $eventos = (new Evento())->findByFilterType($filtro, $tipo);
+                    $titutoFiltro = " POR FILTRO E TIPO";
                 } else {
                     if ($filtro === '' && $data !== '' && $tipo > 0) {
                         $eventos = (new Evento())->findByDateType($data, $tipo);
+                        $titutoFiltro = " POR DATA E TIPO";
                     } else {
                         if ($filtro === '' && $data === '' && $tipo > 0) {
                             $eventos = (new Evento())->findByType($tipo);
+                            $titutoFiltro = " POR TIPO";
                         } else {
                             if ($filtro !== '' && $data !== '' && $tipo === 0) {
                                 $eventos = (new Evento())->findByFilterDate($filtro, $data);
+                                $titutoFiltro = " POR FILTRO E DATA";
                             } else {
                                 if ($filtro !== '' && $data === '' && $tipo === 0) {
                                     $eventos = (new Evento())->findByFilter($filtro);
+                                    $titutoFiltro = " POR FILTRO";
                                 } else {
                                     if ($filtro === '' && $data !== '' && $tipo === 0) {
                                         $eventos = (new Evento())->findByDate($data);
+                                        $titutoFiltro = " POR DATA";
                                     }
                                 }
                             }
@@ -207,12 +216,11 @@ class InicioControl
 
         $relatorio = new RetatorioEventos("L", "mm", "A4", $par);
         $relatorio->AddPage();
-        $relatorio->TituloRelatorio($filtro);
+        $relatorio->TituloRelatorio($titutoFiltro);
         $relatorio->CabecalhoTabela();
-        //$relatorio->CorpoTabela($eventos);
 
-        $y = 44;
-        $relatorio->SetFont("Arial", "", 10);
+        $y = 42;
+        $relatorio->SetFont("Arial", "", 9);
         /** @var Evento $evento */
         foreach ($eventos as $evento) {
             $cod = $evento->getId();
@@ -237,14 +245,14 @@ class InicioControl
             $col6 = utf8_decode("$atr");
 
             $relatorio->SetXY(10, $y);
-            $relatorio->Cell(18, 4, $col1);
-            $relatorio->Cell(100, 4, $col2);
-            $relatorio->Cell(15, 4, $col3);
+            $relatorio->Cell(12, 4, $col1);
+            $relatorio->Cell(116, 4, $col2);
+            $relatorio->Cell(19, 4, $col3);
             $relatorio->Cell(15, 4, $col4);
-            $relatorio->Cell(68, 4, $col5);
-            $relatorio->Cell(60, 4, $col6);
+            $relatorio->Cell(58, 4, $col5);
+            $relatorio->Cell(56, 4, $col6);
 
-            $y += 8;
+            $y += 6;
         }
 
         $data = date("dmY");

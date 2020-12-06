@@ -601,6 +601,7 @@ function selectProprietarioBlur() {
 
 async function selectProprietarioChange() {
     let prop = Number.parseInt(selectProprietario.value);
+    let tipo = Number.parseInt(selectTipoCam.value);
 
     if (prop === null || isNaN(prop) || prop === 0) {
         selectCaminhao.value = 0;
@@ -610,8 +611,11 @@ async function selectProprietarioChange() {
         selectCaminhao.disabled = false;
 
         let res = await postJSON(
-            '/representacoes/pedido/frete/novo/obter-caminhoes-por-prop.php',
-            { prop: prop }
+            '/representacoes/pedido/frete/novo/obter-caminhoes-por-prop-tc.php',
+            {
+                prop: prop,
+                tipo: tipo
+            }
         );
 
         if (res.status) {

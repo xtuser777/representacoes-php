@@ -203,12 +203,12 @@ class PedidoFreteNovoControl
         return json_encode($serial);
     }
 
-    public function obterCaminhoesPorProp(int $prop)
+    public function obterCaminhoesPorPropTC(int $prop, int $tipo)
     {
         if (!Banco::getInstance()->open())
             return json_encode([]);
 
-        $caminhoes = Caminhao::findByProprietary($prop);
+        $caminhoes = Caminhao::findByProprietaryType($prop, $tipo);
 
         Banco::getInstance()->getConnection()->close();
 

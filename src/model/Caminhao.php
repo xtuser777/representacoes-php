@@ -160,17 +160,16 @@ class Caminhao
         return $caminhoes;
     }
 
-    public static function findByProprietary(int $prop): array
+    public static function findByProprietaryType(int $prop, int $type): array
     {
-        if ($prop <= 0)
+        if ($prop <= 0 || $type <= 0)
             return array();
 
         $sql = "
-            select tc.tip_cam_id,tc.tip_cam_descricao,tc.tip_cam_eixos,tc.tip_cam_capacidade,
-                   cm.cam_id,cm.cam_placa,cm.cam_marca,cm.cam_modelo,cm.cam_cor,cm.cam_ano_fabricacao,cm.cam_ano_modelo,cm.prp_id
+            select *
             from caminhao cm 
             inner join tipo_caminhao tc on tc.tip_cam_id = cm.tip_cam_id
-            where cm.prp_id = ? 
+            where cm.prp_id = ? and cm.tip_cam_id = ? 
             order by cm.cam_id;
         ";
 
@@ -181,7 +180,7 @@ class Caminhao
             return array();
         }
 
-        $stmt->bind_param("i", $prop);
+        $stmt->bind_param("ii", $prop, $type);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return array();
