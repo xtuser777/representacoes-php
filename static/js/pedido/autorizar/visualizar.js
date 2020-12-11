@@ -86,10 +86,10 @@ async function autorizar() {
                 3000
             );
 
+            etapas.shift();
+
             const guia = window.open(`/representacoes/pedido/autorizar/visualizar/emitir.php?pedido=${pedido.id}&etapa=${etapa.id}`, '_blank');
             guia.focus();
-
-            etapas.shift();
 
             if (etapas.length === 0) {
                 alert('Todas as etapas deste pedido foram autorizadas. Voltando controle de autorizações.');

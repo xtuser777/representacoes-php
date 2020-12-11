@@ -1,5 +1,6 @@
 <?php namespace scr\dao;
 
+use mysqli_result;
 use scr\model\Estado;
 use scr\model\Cidade;
 use scr\model\Endereco;
@@ -150,6 +151,64 @@ class ClienteDAO
         $statement->execute();
 
         return $statement->affected_rows;
+    }
+
+    private static function rowToObject(array $row): Cliente
+    {
+        return new Cliente(
+            $row['cli_id'], $row['cli_cadastro'], $row['cli_tipo'],
+            $row['cli_tipo'] == 2 ? null : new PessoaFisica(
+                $row['pf_id'], $row['pf_nome'], $row['pf_rg'], $row['pf_cpf'], $row['pf_nascimento'],
+                new Contato(
+                    $row['ctt_id'], $row['ctt_telefone'], $row['ctt_celular'], $row['ctt_email'],
+                    new Endereco(
+                        $row['end_id'], $row['end_rua'], $row['end_numero'], $row['end_bairro'], $row['end_complemento'], $row['end_cep'],
+                        new Cidade(
+                            $row['cid_id'], $row['cid_nome'],
+                            new Estado(
+                                $row['est_id'], $row['est_nome'], $row['est_sigla']
+                            )
+                        )
+                    )
+                )
+            ),
+            $row['cli_tipo'] == 1 ? null : new PessoaJuridica(
+                $row['pj_id'], $row['pj_razao_social'], $row['pj_nome_fantasia'], $row['pj_cnpj'],
+                new Contato(
+                    $row['ctt_id'], $row['ctt_telefone'], $row['ctt_celular'], $row['ctt_email'],
+                    new Endereco(
+                        $row['end_id'], $row['end_rua'], $row['end_numero'], $row['end_bairro'], $row['end_complemento'], $row['end_cep'],
+                        new Cidade(
+                            $row['cid_id'], $row['cid_nome'],
+                            new Estado(
+                                $row['est_id'], $row['est_nome'], $row['est_sigla']
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    private static function resultToObject(mysqli_result $result): ?Cliente
+    {
+        if (!$result || $result->num_rows === 0)
+            return null;
+
+        return self::rowToObject($result->fetch_assoc());
+    }
+
+    private static function resultToList(mysqli_result $result): array
+    {
+        if (!$result || $result->num_rows === 0)
+            return [];
+
+        $clientes = [];
+        while ($row = $result->fetch_assoc()) {
+            $clientes[] = self::rowToObject($row);
+        }
+
+        return $clientes;
     }
 
     public static function getById(int $id): ?Cliente
@@ -466,11 +525,9 @@ class ClienteDAO
         return $clientes;
     }
 
-    public static function getAll(): array
+    public static function getByFilterPeriodType(string $filter, string $init, string $end, int $type, string $order): array
     {
-        if (!Banco::getInstance()->getConnection()) return array();
-
-        $sql = '
+        $sql = "
             select e.est_id, e.est_nome, e.est_sigla,
                    c.cid_id, c.cid_nome,
                    en.end_id, en.end_rua, en.end_numero, en.end_bairro, en.end_complemento, en.end_cep,
@@ -486,8 +543,263 @@ class ClienteDAO
             inner join contato ct on ct.ctt_id = pf.ctt_id or ct.ctt_id = pj.ctt_id
             inner join endereco en on ct.end_id = en.end_id
             inner join cidade c on en.cid_id = c.cid_id
-            inner join estado e on c.est_id = e.est_id;
-        ';
+            inner join estado e on c.est_id = e.est_id
+            where (pf.pf_nome like ? or pj.pj_nome_fantasia like ? or ct.ctt_email like ?) and (cl.cli_cadastro >= ? and cl.cli_cadastro <= ?) and cl.cli_tipo = ?
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("sssssi", [ $filtro, $filtro, $filtro, $init, $end, $type ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function getByFilterPeriod(string $filter, string $init, string $end, string $order): array
+    {
+        $sql = "
+            select e.est_id, e.est_nome, e.est_sigla,
+                   c.cid_id, c.cid_nome,
+                   en.end_id, en.end_rua, en.end_numero, en.end_bairro, en.end_complemento, en.end_cep,
+                   ct.ctt_id, ct.ctt_telefone, ct.ctt_celular, ct.ctt_email,
+                   pf.pf_id, pf.pf_nome, pf.pf_rg, pf.pf_cpf, pf.pf_nascimento,
+                   pj.pj_id, pj.pj_razao_social, pj.pj_nome_fantasia, pj.pj_cnpj,
+                   cl.cli_id,cl.cli_cadastro,cl.cli_tipo
+            from cliente cl
+            left join cliente_pessoa_fisica cpf on cl.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cl.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id
+            inner join contato ct on ct.ctt_id = pf.ctt_id or ct.ctt_id = pj.ctt_id
+            inner join endereco en on ct.end_id = en.end_id
+            inner join cidade c on en.cid_id = c.cid_id
+            inner join estado e on c.est_id = e.est_id
+            where (pf.pf_nome like ? or pj.pj_nome_fantasia like ? or ct.ctt_email like ?) and (cl.cli_cadastro >= ? and cl.cli_cadastro <= ?) 
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("sssss", [ $filtro, $filtro, $filtro, $init, $end ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function getByFilterType(string $filter, int $type, string $order): array
+    {
+        $sql = "
+            select e.est_id, e.est_nome, e.est_sigla,
+                   c.cid_id, c.cid_nome,
+                   en.end_id, en.end_rua, en.end_numero, en.end_bairro, en.end_complemento, en.end_cep,
+                   ct.ctt_id, ct.ctt_telefone, ct.ctt_celular, ct.ctt_email,
+                   pf.pf_id, pf.pf_nome, pf.pf_rg, pf.pf_cpf, pf.pf_nascimento,
+                   pj.pj_id, pj.pj_razao_social, pj.pj_nome_fantasia, pj.pj_cnpj,
+                   cl.cli_id,cl.cli_cadastro,cl.cli_tipo
+            from cliente cl
+            left join cliente_pessoa_fisica cpf on cl.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cl.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id
+            inner join contato ct on ct.ctt_id = pf.ctt_id or ct.ctt_id = pj.ctt_id
+            inner join endereco en on ct.end_id = en.end_id
+            inner join cidade c on en.cid_id = c.cid_id
+            inner join estado e on c.est_id = e.est_id
+            where (pf.pf_nome like ? or pj.pj_nome_fantasia like ? or ct.ctt_email like ?) and cl.cli_tipo = ?
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("sssi", [ $filtro, $filtro, $filtro, $type ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function getByFilter(string $filter, string $order): array
+    {
+        $sql = "
+            select e.est_id, e.est_nome, e.est_sigla,
+                   c.cid_id, c.cid_nome,
+                   en.end_id, en.end_rua, en.end_numero, en.end_bairro, en.end_complemento, en.end_cep,
+                   ct.ctt_id, ct.ctt_telefone, ct.ctt_celular, ct.ctt_email,
+                   pf.pf_id, pf.pf_nome, pf.pf_rg, pf.pf_cpf, pf.pf_nascimento,
+                   pj.pj_id, pj.pj_razao_social, pj.pj_nome_fantasia, pj.pj_cnpj,
+                   cl.cli_id,cl.cli_cadastro,cl.cli_tipo
+            from cliente cl
+            left join cliente_pessoa_fisica cpf on cl.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cl.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id
+            inner join contato ct on ct.ctt_id = pf.ctt_id or ct.ctt_id = pj.ctt_id
+            inner join endereco en on ct.end_id = en.end_id
+            inner join cidade c on en.cid_id = c.cid_id
+            inner join estado e on c.est_id = e.est_id
+            where (pf.pf_nome like ? or pj.pj_nome_fantasia like ? or ct.ctt_email like ?)
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("sss", [ $filtro, $filtro, $filtro ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function getByPeriodType(string $init, string $end, int $type, string $order): array
+    {
+        $sql = "
+            select e.est_id, e.est_nome, e.est_sigla,
+                   c.cid_id, c.cid_nome,
+                   en.end_id, en.end_rua, en.end_numero, en.end_bairro, en.end_complemento, en.end_cep,
+                   ct.ctt_id, ct.ctt_telefone, ct.ctt_celular, ct.ctt_email,
+                   pf.pf_id, pf.pf_nome, pf.pf_rg, pf.pf_cpf, pf.pf_nascimento,
+                   pj.pj_id, pj.pj_razao_social, pj.pj_nome_fantasia, pj.pj_cnpj,
+                   cl.cli_id,cl.cli_cadastro,cl.cli_tipo
+            from cliente cl
+            left join cliente_pessoa_fisica cpf on cl.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cl.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id
+            inner join contato ct on ct.ctt_id = pf.ctt_id or ct.ctt_id = pj.ctt_id
+            inner join endereco en on ct.end_id = en.end_id
+            inner join cidade c on en.cid_id = c.cid_id
+            inner join estado e on c.est_id = e.est_id
+            where (cl.cli_cadastro >= ? and cl.cli_cadastro <= ?) and cl.cli_tipo = ?
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("ssi", [ $init, $end, $type ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function getByPeriod(string $init, string $end, string $order): array
+    {
+        $sql = "
+            select e.est_id, e.est_nome, e.est_sigla,
+                   c.cid_id, c.cid_nome,
+                   en.end_id, en.end_rua, en.end_numero, en.end_bairro, en.end_complemento, en.end_cep,
+                   ct.ctt_id, ct.ctt_telefone, ct.ctt_celular, ct.ctt_email,
+                   pf.pf_id, pf.pf_nome, pf.pf_rg, pf.pf_cpf, pf.pf_nascimento,
+                   pj.pj_id, pj.pj_razao_social, pj.pj_nome_fantasia, pj.pj_cnpj,
+                   cl.cli_id,cl.cli_cadastro,cl.cli_tipo
+            from cliente cl
+            left join cliente_pessoa_fisica cpf on cl.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cl.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id
+            inner join contato ct on ct.ctt_id = pf.ctt_id or ct.ctt_id = pj.ctt_id
+            inner join endereco en on ct.end_id = en.end_id
+            inner join cidade c on en.cid_id = c.cid_id
+            inner join estado e on c.est_id = e.est_id
+            where cl.cli_cadastro >= ? and cl.cli_cadastro <= ?
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("ss", [ $init, $end ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function getByType(int $type, string $order): array
+    {
+        $sql = "
+            select e.est_id, e.est_nome, e.est_sigla,
+                   c.cid_id, c.cid_nome,
+                   en.end_id, en.end_rua, en.end_numero, en.end_bairro, en.end_complemento, en.end_cep,
+                   ct.ctt_id, ct.ctt_telefone, ct.ctt_celular, ct.ctt_email,
+                   pf.pf_id, pf.pf_nome, pf.pf_rg, pf.pf_cpf, pf.pf_nascimento,
+                   pj.pj_id, pj.pj_razao_social, pj.pj_nome_fantasia, pj.pj_cnpj,
+                   cl.cli_id,cl.cli_cadastro,cl.cli_tipo
+            from cliente cl
+            left join cliente_pessoa_fisica cpf on cl.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cl.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id
+            inner join contato ct on ct.ctt_id = pf.ctt_id or ct.ctt_id = pj.ctt_id
+            inner join endereco en on ct.end_id = en.end_id
+            inner join cidade c on en.cid_id = c.cid_id
+            inner join estado e on c.est_id = e.est_id
+            where cl.cli_tipo = ?
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("i", [ $type ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function getAll(string $ordem): array
+    {
+        $sql = "
+            select e.est_id, e.est_nome, e.est_sigla,
+                   c.cid_id, c.cid_nome,
+                   en.end_id, en.end_rua, en.end_numero, en.end_bairro, en.end_complemento, en.end_cep,
+                   ct.ctt_id, ct.ctt_telefone, ct.ctt_celular, ct.ctt_email,
+                   pf.pf_id, pf.pf_nome, pf.pf_rg, pf.pf_cpf, pf.pf_nascimento,
+                   pj.pj_id, pj.pj_razao_social, pj.pj_nome_fantasia, pj.pj_cnpj,
+                   cl.cli_id,cl.cli_cadastro,cl.cli_tipo
+            from cliente cl
+            left join cliente_pessoa_fisica cpf on cl.cli_id = cpf.cli_id
+            left join cliente_pessoa_juridica cpj on cl.cli_id = cpj.cli_id
+            left join pessoa_fisica pf on cpf.pf_id = pf.pf_id
+            left join pessoa_juridica pj on cpj.pj_id = pj.pj_id
+            inner join contato ct on ct.ctt_id = pf.ctt_id or ct.ctt_id = pj.ctt_id
+            inner join endereco en on ct.end_id = en.end_id
+            inner join cidade c on en.cid_id = c.cid_id
+            inner join estado e on c.est_id = e.est_id
+            order by $ordem;
+        ";
+
         $statement = Banco::getInstance()->getConnection()->prepare($sql);
         if (!$statement) {
             echo Banco::getInstance()->getConnection()->error;

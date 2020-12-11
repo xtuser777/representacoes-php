@@ -676,6 +676,76 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
+    public function findByVenc(string $venc, string $ordem): array
+    {
+        if ($venc === "")
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_vencimento = ? 
+            ORDER BY $ordem;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("s", $venc);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionVenc(string $description, string $venc, string $ordem): array
+    {
+        if (strlen($description) <= 0 || $venc === "")
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND con_pag_vencimento = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $desc = "%".$description."%";
+        $stmt->bind_param("ss", $desc, $venc);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByDescriptionComission(string $description, int $comission, string $ordem): array
     {
         if (strlen($description) <= 0 || $comission <= 0)
@@ -786,6 +856,41 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
+    public function findByDescriptionVencSituation(string $description, string $venc, int $situation, string $ordem): array
+    {
+        if (strlen($description) <= 0 || $venc === "" || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND con_pag_vencimento = ? AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $desc = "%".$description."%";
+        $stmt->bind_param("ssi", $desc, $venc, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByDescriptionComissionSituation(string $description, int $comission, int $situation, string $ordem): array
     {
         if (strlen($description) <= 0 || $comission <= 0 || $situation <= 0)
@@ -878,6 +983,41 @@ class ContaPagar
         }
 
         $stmt->bind_param("i", $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByVencSituation(string $venc, int $situation, string $ordem): array
+    {
+        if ($venc === "" || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar 
+            WHERE con_pag_vencimento = ? AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("si", $venc, $situation);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -1077,6 +1217,77 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
+    public function findByPeriod2(string $date1, string $date2, string $ordem): array
+    {
+        if (strlen($date1) <= 0 || strlen($date2) <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_data >= ?
+            AND con_pag_data <= ? 
+            ORDER BY $ordem;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("ss", $date1, $date2);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByPeriodVenc(string $date1, string $date2, string $venc, string $ordem): array
+    {
+        if ($date1 === null || strlen($date1) <= 0 || $date2 === null || strlen($date2) <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE (con_pag_data >= ? AND con_pag_data <= ?) AND con_pag_vencimento = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("sss", $date1, $date2, $venc);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByPeriodComission(string $date1, string $date2, int $comission, string $ordem): array
     {
         if (strlen($date1) <= 0 || strlen($date2) <= 0 || $comission <= 0)
@@ -1173,6 +1384,78 @@ class ContaPagar
         }
 
         $stmt->bind_param("ssi", $date1, $date2, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByPeriod2Situation(string $date1, string $date2, int $situation, string $ordem): array
+    {
+        if (strlen($date1) <= 0 || strlen($date2) <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_data >= ?
+            AND con_pag_data <= ? 
+            AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("ssi", $date1, $date2, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByPeriodVencSituation(string $date1, string $date2, string $venc, int $situation, string $ordem): array
+    {
+        if ($date1 === null || strlen($date1) <= 0 || $date2 === null || strlen($date2) <= 0 || $venc === "" || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE (con_pag_data >= ? AND con_pag_data <= ?) AND con_pag_situacao = ? AND con_pag_vencimento = ?  
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+
+        $stmt->bind_param("sssi", $date1, $date2, $venc, $situation);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];
@@ -1303,6 +1586,80 @@ class ContaPagar
         return $this->resultToList($result);
     }
 
+    public function findByFilterPeriod(string $filter, string $date1, string $date2, string $ordem): array
+    {
+        if (
+            $filter === "" || strlen($date1) <= 0 || strlen($date2) <= 0
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND (con_pag_data >= ? AND con_pag_data <= ?) 
+            ORDER BY $ordem;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $filtro = "%".$filter."%";
+        $stmt->bind_param("sss", $filtro, $date1, $date2);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionPeriodVenc(string $description, string $date1, string $date2, string $venc, string $ordem): array
+    {
+        if (
+            strlen($description) <= 0 || strlen($date1) <= 0 || strlen($date2) <= 0 || $venc === ""
+        )
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND (con_pag_data >= ? AND con_pag_data <= ?) AND con_pag_vencimento = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $desc = "%".$description."%";
+        $stmt->bind_param("ssss", $desc, $date1, $date2, $venc);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
     public function findByDescriptionPeriodComission(string $description, string $date1, string $date2, int $comission, string $ordem): array
     {
         if (strlen($description) <= 0 || strlen($date1) <= 0 || strlen($date2) <= 0 || $comission <= 0)
@@ -1402,6 +1759,79 @@ class ContaPagar
         }
         $desc = "%".$description."%";
         $stmt->bind_param("sssi", $desc, $date1, $date2, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByFilterPeriodSituation(string $filter, string $date1, string $date2, int $situation, string $ordem): array
+    {
+        if (strlen($filter) <= 0 || strlen($date1) <= 0 || strlen($date2) <= 0 || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ?
+            AND con_pag_data >= ?
+            AND con_pag_data <= ? 
+            AND con_pag_situacao = ? 
+            ORDER BY " . $ordem . ";
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $filtro = "%".$filter."%";
+        $stmt->bind_param("sssi", $filtro, $date1, $date2, $situation);
+        if (!$stmt->execute()) {
+            echo $stmt->error;
+            return [];
+        }
+
+        /** @var $result mysqli_result */
+        $result = $stmt->get_result();
+        if (!$result || $result->num_rows <= 0) {
+            echo $stmt->error;
+            return [];
+        }
+
+        return $this->resultToList($result);
+    }
+
+    public function findByDescriptionPeriodVencSituation(string $description, string $date1, string $date2, string $venc, int $situation, string $ordem): array
+    {
+        if (strlen($description) <= 0 || strlen($date1) <= 0 || strlen($date2) <= 0 || $venc === "" || $situation <= 0)
+            return [];
+
+        $sql = "
+            SELECT *
+            FROM conta_pagar
+            WHERE con_pag_descricao like ? AND (con_pag_data >= ? AND con_pag_data <= ?) AND con_pag_vencimento = ? AND con_pag_situacao = ? 
+            ORDER BY $ordem;
+        ";
+
+        /** @var $stmt mysqli_stmt */
+        $stmt = Banco::getInstance()->getConnection()->prepare($sql);
+        if (!$stmt) {
+            echo Banco::getInstance()->getConnection()->error;
+            return [];
+        }
+        $desc = "%".$description."%";
+        $stmt->bind_param("ssssi", $desc, $date1, $date2, $venc, $situation);
         if (!$stmt->execute()) {
             echo $stmt->error;
             return [];

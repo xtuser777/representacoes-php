@@ -7,7 +7,7 @@ namespace scr\control;
 use scr\model\Evento;
 use scr\model\Parametrizacao;
 use scr\util\Banco;
-use scr\util\RetatorioEventos;
+use scr\util\Retatorio;
 
 class InicioControl
 {
@@ -164,38 +164,44 @@ class InicioControl
 
         $eventos = [];
 
-        $titutoFiltro = "";
+        $tituto = "RELATÓRIO DE EVENTOS DO SISTEMA";
+        $filtros = "";
 
         if ($filtro === '' && $data === '' && $tipo === 0) {
             $eventos = (new Evento())->findAll();
+            $filtros = "SEM FILTRAGEM";
         } else {
             if ($filtro !== '' && $data !== '' && $tipo > 0) {
                 $eventos = (new Evento())->findByFilterDateType($filtro, $data, $tipo);
-                $titutoFiltro = " POR FILTRO, DATA E TIPO";
+                $tip = $tipo === 1 ? "VENDA" : "FRETE";
+                $filtros = "FILTRADO POR FILTRO ($filtro), DATA ($data) E TIPO ($tip)";
             } else {
                 if ($filtro !== '' && $data === '' && $tipo > 0) {
                     $eventos = (new Evento())->findByFilterType($filtro, $tipo);
-                    $titutoFiltro = " POR FILTRO E TIPO";
+                    $tip = $tipo === 1 ? "VENDA" : "FRETE";
+                    $filtros = "FILTRADO POR FILTRO ($filtro) E TIPO ($tip)";
                 } else {
                     if ($filtro === '' && $data !== '' && $tipo > 0) {
                         $eventos = (new Evento())->findByDateType($data, $tipo);
-                        $titutoFiltro = " POR DATA E TIPO";
+                        $tip = $tipo === 1 ? "VENDA" : "FRETE";
+                        $filtros = "FILTRADO POR DATA ($data) E TIPO ($tip)";
                     } else {
                         if ($filtro === '' && $data === '' && $tipo > 0) {
                             $eventos = (new Evento())->findByType($tipo);
-                            $titutoFiltro = " POR TIPO";
+                            $tip = $tipo === 1 ? "VENDA" : "FRETE";
+                            $filtros = "FILTRADO POR TIPO ($tip)";
                         } else {
                             if ($filtro !== '' && $data !== '' && $tipo === 0) {
                                 $eventos = (new Evento())->findByFilterDate($filtro, $data);
-                                $titutoFiltro = " POR FILTRO E DATA";
+                                $filtros = "FILTRADO POR FILTRO ($filtro) E DATA ($data)";
                             } else {
                                 if ($filtro !== '' && $data === '' && $tipo === 0) {
                                     $eventos = (new Evento())->findByFilter($filtro);
-                                    $titutoFiltro = " POR FILTRO";
+                                    $filtros = "FILTRADO POR FILTRO ($filtro)";
                                 } else {
                                     if ($filtro === '' && $data !== '' && $tipo === 0) {
                                         $eventos = (new Evento())->findByDate($data);
-                                        $titutoFiltro = " POR DATA";
+                                        $filtros = "FILTRADO POR DATA ($data)";
                                     }
                                 }
                             }
@@ -214,12 +220,27 @@ class InicioControl
         $par->pessoa->contato->endereco->cidade = (object) $par->pessoa->contato->endereco->cidade;
         $par->pessoa->contato->endereco->cidade->estado = (object) $par->pessoa->contato->endereco->cidade->estado;
 
-        $relatorio = new RetatorioEventos("L", "mm", "A4", $par);
+        $relatorio = new Retatorio("L", "mm", "A4", $par);
         $relatorio->AddPage();
-        $relatorio->TituloRelatorio($titutoFiltro);
-        $relatorio->CabecalhoTabela();
+        $relatorio->TituloRelatorio($tituto, $filtros);
 
-        $y = 42;
+        $col1 = utf8_decode("CÓD.");
+        $col2 = utf8_decode("DESCRIÇÃO");
+        $col3 = utf8_decode("DATA");
+        $col4 = utf8_decode("HORA");
+        $col5 = utf8_decode("PEDIDO");
+        $col6 = utf8_decode("AUTOR");
+
+        $relatorio->SetFont("Arial", "B", 9);
+        $relatorio->SetXY(10, 40);
+        $relatorio->Cell(12, 4, $col1, "B");
+        $relatorio->Cell(116,4, $col2, "B");
+        $relatorio->Cell(19, 4, $col3, "B");
+        $relatorio->Cell(15, 4, $col4, "B");
+        $relatorio->Cell(58, 4, $col5, "B");
+        $relatorio->Cell(56, 4, $col6, "B");
+
+        $y = 46;
         $relatorio->SetFont("Arial", "", 9);
         /** @var Evento $evento */
         foreach ($eventos as $evento) {

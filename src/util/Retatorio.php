@@ -5,9 +5,8 @@ namespace scr\util;
 
 
 use FPDF;
-use scr\model\Evento;
 
-class RetatorioEventos extends FPDF
+class Retatorio extends FPDF
 {
     private $parametrizacao;
 
@@ -89,30 +88,15 @@ class RetatorioEventos extends FPDF
         $this->Text((289 - $this->GetStringWidth($page)), ($this->GetPageHeight() - 12), $page);
     }
 
-    function TituloRelatorio(string $filtro)
+    function TituloRelatorio(string $titulo, string $filtros)
     {
-        $titulo = utf8_decode("RELATÓRIO DE EVENTOS DO SISTEMA$filtro");
+        $title = utf8_decode("$titulo");
+        $filters = utf8_decode("\"$filtros\"");
 
         $this->SetFont("Arial", "B", 12);
-        $this->Text(((297 - $this->GetStringWidth($titulo)) / 2), 32, $titulo);
-    }
+        $this->Text(((297 - $this->GetStringWidth($title)) / 2), 31, $title);
 
-    function CabecalhoTabela()
-    {
-        $col1 = utf8_decode("CÓD.");
-        $col2 = utf8_decode("DESCRIÇÃO");
-        $col3 = utf8_decode("DATA");
-        $col4 = utf8_decode("HORA");
-        $col5 = utf8_decode("PEDIDO");
-        $col6 = utf8_decode("AUTOR");
-
-        $this->SetFont("Arial", "B", 9);
-        $this->SetXY(10, 36);
-        $this->Cell(12, 4, $col1, "B");
-        $this->Cell(116,4, $col2, "B");
-        $this->Cell(19, 4, $col3, "B");
-        $this->Cell(15, 4, $col4, "B");
-        $this->Cell(58, 4, $col5, "B");
-        $this->Cell(56, 4, $col6, "B");
+        $this->SetFont("Arial", "B", 10);
+        $this->Text(((297 - $this->GetStringWidth($filters)) / 2), 36, $filters);
     }
 }

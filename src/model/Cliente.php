@@ -77,9 +77,65 @@ class Cliente
         return ($key !== null && strlen(trim($key)) > 0) && ($cad !== null && strlen(trim($cad)) > 0) ? ClienteDAO::getByKeyCad($key, $cad) : array();
     }
 
-    public static function getAll(): array
+    public static function getByFilterPeriodType(string $filter, string $init, string $end, int $type, string $order): array
     {
-        return ClienteDAO::getAll();
+        if (trim($filter) === "" || $init === "" || $end === "" || $type <= 0)
+            return [];
+
+        return ClienteDAO::getByFilterPeriodType(trim($filter), $init, $end, $type, $order);
+    }
+
+    public static function getByFilterPeriod(string $filter, string $init, string $end, string $order): array
+    {
+        if (trim($filter) === "" || $init === "" || $end === "")
+            return [];
+
+        return ClienteDAO::getByFilterPeriod(trim($filter), $init, $end, $order);
+    }
+
+    public static function getByFilterType(string $filter, int $type, string $order): array
+    {
+        if (trim($filter) === "" || $type <= 0)
+            return [];
+
+        return ClienteDAO::getByFilterType(trim($filter), $type, $order);
+    }
+
+    public static function getByFilter(string $filter, string $order): array
+    {
+        if (trim($filter) === "")
+            return [];
+
+        return ClienteDAO::getByFilter(trim($filter), $order);
+    }
+
+    public static function getByPeriodType(string $init, string $end, int $type, string $order): array
+    {
+        if ($init === "" || $end === "" || $type <= 0)
+            return [];
+
+        return ClienteDAO::getByPeriodType($init, $end, $type, $order);
+    }
+
+    public static function getByPeriod(string $init, string $end, string $order): array
+    {
+        if ($init === "" || $end === "")
+            return [];
+
+        return ClienteDAO::getByPeriod($init, $end, $order);
+    }
+
+    public static function getByType(int $type, string $order): array
+    {
+        if ($type <= 0)
+            return [];
+
+        return ClienteDAO::getByType($type, $order);
+    }
+
+    public static function getAll(string $ordem = "pf.pf_nome, pj.pj_nome_fantasia"): array
+    {
+        return ClienteDAO::getAll($ordem);
     }
 
     public function insert(): int

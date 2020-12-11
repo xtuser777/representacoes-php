@@ -10,20 +10,9 @@ function preencherTabela(dados) {
     let txt = "";
 
     $.each(dados, function () {
-        let cliente = '';
-        if (this.orcamento) {
-            cliente = this.orcamento.representacao
-                ? this.orcamento.representacao.pessoa.nomeFantasia
-                : this.orcamento.orcamentoVenda.nomeCliente;
-        } else {
-            if (this.venda) {
-                cliente = this.venda.cliente.tipo === 1
-                    ? this.venda.cliente.pessoaFisica.nome
-                    : this.venda.cliente.pessoaJuridica.nomeFantasia;
-            } else {
-                cliente = this.representacao.pessoa.nomeFantasia;
-            }
-        }
+        let cliente = this.cliente.tipo ===1
+            ? this.cliente.pessoaFisica.nome
+            : this.cliente.pessoaJuridica.nomeFantasia;
 
         txt +=
             '<tr>\

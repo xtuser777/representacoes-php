@@ -125,6 +125,48 @@ class OrcamentoVenda
         return $this->autor;
     }
 
+    private static function rowToObject(array $row): OrcamentoVenda
+    {
+        return new OrcamentoVenda(
+            $row["orc_ven_id"],
+            $row["orc_ven_descricao"],
+            $row["orc_ven_data"],
+            $row["orc_ven_nome_cliente"],
+            $row["orc_ven_documento_cliente"],
+            $row["orc_ven_telefone_cliente"],
+            $row["orc_ven_celular_cliente"],
+            $row["orc_ven_email_cliente"],
+            $row["orc_ven_peso"],
+            $row["orc_ven_valor"],
+            $row["orc_ven_validade"],
+            ($row["fun_id"]) ? Funcionario::getById($row["fun_id"]) : null,
+            ($row["cli_id"]) ? Cliente::getById($row["cli_id"]) : null,
+            (new Cidade())->getById($row["cid_id"]),
+            Usuario::getById($row["usu_id"])
+        );
+    }
+
+    private static function resultToObject(mysqli_result $result): ?OrcamentoVenda
+    {
+        if (!$result || $result->num_rows === 0)
+            return null;
+
+        return self::rowToObject($result->fetch_assoc());
+    }
+
+    private static function resultToList(mysqli_result $result): array
+    {
+        if (!$result || $result->num_rows === 0)
+            return [];
+
+        $orcamentos = [];
+        while ($row = $result->fetch_assoc()) {
+            $orcamentos[] = self::rowToObject($row);
+        }
+
+        return $orcamentos;
+    }
+
     public static function findById(int $id): ?OrcamentoVenda
     {
         if ($id <= 0)
@@ -322,15 +364,252 @@ class OrcamentoVenda
         return $orcamentos;
     }
 
-    public static function findAll(): array
+    public static function findByClient(int $client, string $order): array
+    {
+        if ($client <= 0)
+            return [];
+
+        $sql = "
+            select orc_ven_id,orc_ven_descricao,orc_ven_data,
+                   orc_ven_nome_cliente,orc_ven_documento_cliente,orc_ven_telefone_cliente,orc_ven_celular_cliente,orc_ven_email_cliente,
+                   orc_ven_peso,orc_ven_valor,orc_ven_validade,
+                   ov.fun_id,cli_id,cid_id,ov.usu_id
+            from orcamento_venda ov 
+            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
+            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            inner join usuario atr on ov.usu_id = atr.usu_id 
+            inner join funcionario af on atr.fun_id = af.fun_id 
+            inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
+            where cli_id = ?  
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("i", [ $client ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function findByFilter(string $filter, string $order): array
+    {
+        if (trim($filter) === "")
+            return [];
+
+        $sql = "
+            select orc_ven_id,orc_ven_descricao,orc_ven_data,
+                   orc_ven_nome_cliente,orc_ven_documento_cliente,orc_ven_telefone_cliente,orc_ven_celular_cliente,orc_ven_email_cliente,
+                   orc_ven_peso,orc_ven_valor,orc_ven_validade,
+                   ov.fun_id,cli_id,cid_id,ov.usu_id
+            from orcamento_venda ov 
+            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
+            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            inner join usuario atr on ov.usu_id = atr.usu_id 
+            inner join funcionario af on atr.fun_id = af.fun_id 
+            inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
+            where (orc_ven_descricao like ? or orc_ven_nome_cliente like ?) 
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("ss", [ $filtro, $filtro ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function findByFilterClient(string $filter, int $client, string $order): array
+    {
+        if (trim($filter) === "" || $client <= 0)
+            return [];
+
+        $sql = "
+            select orc_ven_id,orc_ven_descricao,orc_ven_data,
+                   orc_ven_nome_cliente,orc_ven_documento_cliente,orc_ven_telefone_cliente,orc_ven_celular_cliente,orc_ven_email_cliente,
+                   orc_ven_peso,orc_ven_valor,orc_ven_validade,
+                   ov.fun_id,cli_id,cid_id,ov.usu_id
+            from orcamento_venda ov 
+            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
+            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            inner join usuario atr on ov.usu_id = atr.usu_id 
+            inner join funcionario af on atr.fun_id = af.fun_id 
+            inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
+            where (orc_ven_descricao like ? or orc_ven_nome_cliente like ?) and cli_id = ?  
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("ssi", [ $filtro, $filtro, $client ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function findByPeriod(string $init, string $end, string $order): array
+    {
+        if ($init === "" || $end === "")
+            return [];
+
+        $sql = "
+            select orc_ven_id,orc_ven_descricao,orc_ven_data,
+                   orc_ven_nome_cliente,orc_ven_documento_cliente,orc_ven_telefone_cliente,orc_ven_celular_cliente,orc_ven_email_cliente,
+                   orc_ven_peso,orc_ven_valor,orc_ven_validade,
+                   ov.fun_id,cli_id,cid_id,ov.usu_id
+            from orcamento_venda ov 
+            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
+            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            inner join usuario atr on ov.usu_id = atr.usu_id 
+            inner join funcionario af on atr.fun_id = af.fun_id 
+            inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
+            where (orc_ven_data >= ? and orc_ven_data <= ?)
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("ss", [ $init, $end ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function findByPeriodClient(string $init, string $end, int $client, string $order): array
+    {
+        if ($init === "" || $end === ""|| $client <= 0)
+            return [];
+
+        $sql = "
+            select orc_ven_id,orc_ven_descricao,orc_ven_data,
+                   orc_ven_nome_cliente,orc_ven_documento_cliente,orc_ven_telefone_cliente,orc_ven_celular_cliente,orc_ven_email_cliente,
+                   orc_ven_peso,orc_ven_valor,orc_ven_validade,
+                   ov.fun_id,cli_id,cid_id,ov.usu_id
+            from orcamento_venda ov 
+            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
+            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            inner join usuario atr on ov.usu_id = atr.usu_id 
+            inner join funcionario af on atr.fun_id = af.fun_id 
+            inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
+            where (orc_ven_data >= ? and orc_ven_data <= ?) and cli_id = ?  
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("ssi", [ $init, $end, $client ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function findByFilterPeriod(string $filter, string $init, string $end, string $order): array
+    {
+        if (trim($filter) === "" || $init === "" || $end === "")
+            return [];
+
+        $sql = "
+            select orc_ven_id,orc_ven_descricao,orc_ven_data,
+                   orc_ven_nome_cliente,orc_ven_documento_cliente,orc_ven_telefone_cliente,orc_ven_celular_cliente,orc_ven_email_cliente,
+                   orc_ven_peso,orc_ven_valor,orc_ven_validade,
+                   ov.fun_id,cli_id,cid_id,ov.usu_id
+            from orcamento_venda ov 
+            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
+            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            inner join usuario atr on ov.usu_id = atr.usu_id 
+            inner join funcionario af on atr.fun_id = af.fun_id 
+            inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
+            where (orc_ven_descricao like ? or orc_ven_nome_cliente like ?) and (orc_ven_data >= ? and orc_ven_data <= ?) 
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("ssss", [ $filtro, $filtro, $init, $end ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function findByFilterPeriodClient(string $filter, string $init, string $end, int $client, string $order): array
+    {
+        if (trim($filter) === "" || $init === "" || $end === ""|| $client <= 0)
+            return [];
+
+        $sql = "
+            select orc_ven_id,orc_ven_descricao,orc_ven_data,
+                   orc_ven_nome_cliente,orc_ven_documento_cliente,orc_ven_telefone_cliente,orc_ven_celular_cliente,orc_ven_email_cliente,
+                   orc_ven_peso,orc_ven_valor,orc_ven_validade,
+                   ov.fun_id,cli_id,cid_id,ov.usu_id
+            from orcamento_venda ov 
+            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
+            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            inner join usuario atr on ov.usu_id = atr.usu_id 
+            inner join funcionario af on atr.fun_id = af.fun_id 
+            inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
+            where (orc_ven_descricao like ? or orc_ven_nome_cliente like ?) and (orc_ven_data >= ? and orc_ven_data <= ?) and cli_id = ?  
+            order by $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("ssssi", [ $filtro, $filtro, $init, $end, $client ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return self::resultToList(Banco::getInstance()->getResult());
+    }
+
+    public static function findAll(string $order = "orc_ven_descricao"): array
     {
         $sql = "
             select orc_ven_id,orc_ven_descricao,orc_ven_data,
                    orc_ven_nome_cliente,orc_ven_documento_cliente,orc_ven_telefone_cliente,orc_ven_celular_cliente,orc_ven_email_cliente,
                    orc_ven_peso,orc_ven_valor,orc_ven_validade,
-                   fun_id,cli_id,cid_id,usu_id
-            from orcamento_venda
-            order by orc_ven_id;
+                   ov.fun_id,cli_id,cid_id,ov.usu_id
+            from orcamento_venda ov 
+            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
+            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            inner join usuario atr on ov.usu_id = atr.usu_id 
+            inner join funcionario af on atr.fun_id = af.fun_id 
+            inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
+            order by $order;
         ";
 
         /** @var $result mysqli_result */
@@ -340,18 +619,7 @@ class OrcamentoVenda
             return array();
         }
 
-        $orcamentos = [];
-        while ($row = $result->fetch_assoc()) {
-            $orcamentos[] = new OrcamentoVenda(
-                $row["orc_ven_id"],$row["orc_ven_descricao"],$row["orc_ven_data"],$row["orc_ven_nome_cliente"],$row["orc_ven_documento_cliente"],$row["orc_ven_telefone_cliente"],$row["orc_ven_celular_cliente"],$row["orc_ven_email_cliente"],$row["orc_ven_peso"],$row["orc_ven_valor"],$row["orc_ven_validade"],
-                ($row["fun_id"]) ? Funcionario::getById($row["fun_id"]) : null,
-                ($row["cli_id"]) ? Cliente::getById($row["cli_id"]) : null,
-                (new Cidade())->getById($row["cid_id"]),
-                Usuario::getById($row["usu_id"])
-            );
-        }
-
-        return $orcamentos;
+        return self::resultToList($result);
     }
 
     public function save(): int

@@ -780,6 +780,41 @@ class PedidoFrete
     }
 
     /**
+     * @param int $client
+     * @param string $order
+     * @return array
+     */
+    public function findByClient(int $client, string $order): array
+    {
+        if ($client <= 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM pedido_frete pfr
+            INNER JOIN usuario autor ON autor.usu_id = pfr.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pfr.for_pag_fre 
+            INNER JOIN pedido_frete_status pfs ON pfr.ped_fre_id = pfs.ped_fre_id 
+            INNER JOIN status st on pfs.sts_id = st.sts_id
+            WHERE pfr.cli_id = ? 
+            ORDER BY $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("i", [ $client ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
      * @param int $status
      * @param string $order
      * @return array
@@ -815,6 +850,42 @@ class PedidoFrete
     }
 
     /**
+     * @param int $status
+     * @param int $client
+     * @param string $order
+     * @return array
+     */
+    public function findByStatusClient(int $status, int $client, string $order): array
+    {
+        if ($status <= 0 || $client <= 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM pedido_frete pfr
+            INNER JOIN usuario autor ON autor.usu_id = pfr.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pfr.for_pag_fre 
+            INNER JOIN pedido_frete_status pfs ON pfr.ped_fre_id = pfs.ped_fre_id 
+            INNER JOIN status st on pfs.sts_id = st.sts_id
+            WHERE st.sts_id = ? AND pfs.ped_fre_sts_atual IS TRUE AND pfr.cli_id = ? 
+            ORDER BY $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("ii", [ $status, $client ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
      * @param string $filter
      * @param string $order
      * @return array
@@ -841,6 +912,42 @@ class PedidoFrete
         $filtro = "%$filter%";
 
         if (!Banco::getInstance()->addParameters("s", [ $filtro ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $filter
+     * @param int $client
+     * @param string $order
+     * @return array
+     */
+    public function findByFilterClient(string $filter, int $client, string $order): array
+    {
+        if (strlen(trim($filter)) === 0 || $client <= 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM pedido_frete pfr
+            INNER JOIN usuario autor ON autor.usu_id = pfr.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pfr.for_pag_fre 
+            WHERE ped_fre_descricao LIKE ? AND pfr.cli_id = ? 
+            ORDER BY $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("si", [ $filtro, $client ]))
             return [];
 
         if (!Banco::getInstance()->executeStatement())
@@ -888,6 +995,45 @@ class PedidoFrete
     }
 
     /**
+     * @param string $filter
+     * @param int $status
+     * @param int $client
+     * @param string $order
+     * @return array
+     */
+    public function findByFilterStatusClient(string $filter, int $status, int $client, string $order): array
+    {
+        if (strlen(trim($filter)) === 0 || $status <= 0 || $client <= 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM pedido_frete pfr
+            INNER JOIN usuario autor ON autor.usu_id = pfr.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pfr.for_pag_fre 
+            INNER JOIN pedido_frete_status pfs ON pfr.ped_fre_id = pfs.ped_fre_id 
+            INNER JOIN status st on pfs.sts_id = st.sts_id
+            WHERE pfr.ped_fre_descricao LIKE ? AND st.sts_id = ? AND pfs.ped_fre_sts_atual IS TRUE AND pfr.cli_id = ? 
+            ORDER BY $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("sii", [ $filtro, $status, $client ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
      * @param string $inicio
      * @param string $fim
      * @param string $order
@@ -913,6 +1059,41 @@ class PedidoFrete
             return [];
 
         if (!Banco::getInstance()->addParameters("ss", [ $inicio, $fim ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $inicio
+     * @param string $fim
+     * @param int $client
+     * @param string $order
+     * @return array
+     */
+    public function findByPeriodClient(string $inicio, string $fim, int $client, string $order): array
+    {
+        if (strlen($inicio) === 0 || strlen($fim) === 0 || $client <= 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM pedido_frete pfr
+            INNER JOIN usuario autor ON autor.usu_id = pfr.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pfr.for_pag_fre 
+            WHERE (pfr.ped_fre_data >= ? AND pfr.ped_fre_data <= ?) AND pfr.cli_id = ? 
+            ORDER BY $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("ssi", [ $inicio, $fim, $client ]))
             return [];
 
         if (!Banco::getInstance()->executeStatement())
@@ -950,6 +1131,44 @@ class PedidoFrete
             return [];
 
         if (!Banco::getInstance()->addParameters("ssi", [ $inicio, $fim, $status ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $inicio
+     * @param string $fim
+     * @param int $status
+     * @param int $client
+     * @param string $order
+     * @return array
+     */
+    public function findByPeriodStatusClient(string $inicio, string $fim, int $status, int $client, string $order): array
+    {
+        if (strlen($inicio) === 0 || strlen($fim) === 0 || $status <= 0 || $client <= 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM pedido_frete pfr
+            INNER JOIN usuario autor ON autor.usu_id = pfr.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pfr.for_pag_fre 
+            INNER JOIN pedido_frete_status pfs ON pfr.ped_fre_id = pfs.ped_fre_id 
+            INNER JOIN status st on pfs.sts_id = st.sts_id 
+            WHERE (pfr.ped_fre_data >= ? AND pfr.ped_fre_data <= ?) AND st.sts_id = ? AND pfs.ped_fre_sts_atual IS TRUE AND pfr.cli_id = ? 
+            ORDER BY $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters("ssiI", [ $inicio, $fim, $status, $client ]))
             return [];
 
         if (!Banco::getInstance()->executeStatement())
@@ -999,6 +1218,43 @@ class PedidoFrete
      * @param string $filter
      * @param string $inicio
      * @param string $fim
+     * @param string $order
+     * @return array
+     */
+    public function findByFilterPeriodClient(string $filter, string $inicio, string $fim, int $client, string $order): array
+    {
+        if (strlen(trim($filter)) === 0 || strlen($inicio) === 0 || strlen($fim) === 0 || $client <= 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM pedido_frete pfr
+            INNER JOIN usuario autor ON autor.usu_id = pfr.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pfr.for_pag_fre 
+            WHERE pfr.ped_fre_descricao LIKE ? AND (pfr.ped_fre_data >= ? AND pfr.ped_fre_data <= ?) AND pfr.cli_id = ? 
+            ORDER BY $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("sssi", [ $filtro, $inicio, $fim, $client ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $filter
+     * @param string $inicio
+     * @param string $fim
      * @param int $status
      * @param string $order
      * @return array
@@ -1027,6 +1283,47 @@ class PedidoFrete
         $filtro = "%$filter%";
 
         if (!Banco::getInstance()->addParameters("sssi", [ $filtro, $inicio, $fim, $status ]))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        return $this->resultToList(Banco::getInstance()->getResult());
+    }
+
+    /**
+     * @param string $filter
+     * @param string $inicio
+     * @param string $fim
+     * @param int $status
+     * @param int $client
+     * @param string $order
+     * @return array
+     */
+    public function findByFilterPeriodStatusClient(string $filter, string $inicio, string $fim, int $status, int $client, string $order): array
+    {
+        if (strlen(trim($filter)) === 0 || strlen($inicio) === 0 || strlen($fim) === 0 || $status <= 0 || $client <= 0)
+            return [];
+
+        $sql = "
+            SELECT * 
+            FROM pedido_frete pfr
+            INNER JOIN usuario autor ON autor.usu_id = pfr.usu_id
+            INNER JOIN funcionario autor_fun ON autor_fun.fun_id = autor.fun_id
+            INNER JOIN pessoa_fisica autor_pf ON autor_pf.pf_id = autor_fun.pf_id
+            INNER JOIN forma_pagamento fp ON fp.for_pag_id = pfr.for_pag_fre 
+            INNER JOIN pedido_frete_status pfs ON pfr.ped_fre_id = pfs.ped_fre_id 
+            INNER JOIN status st on pfs.sts_id = st.sts_id 
+            WHERE pfr.ped_fre_descricao LIKE ? AND (pfr.ped_fre_data >= ? AND pfr.ped_fre_data <= ?) AND st.sts_id = ? AND pfs.ped_fre_sts_atual IS TRUE AND pfr.cli_id = ? 
+            ORDER BY $order;
+        ";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        $filtro = "%$filter%";
+
+        if (!Banco::getInstance()->addParameters("sssii", [ $filtro, $inicio, $fim, $status, $client ]))
             return [];
 
         if (!Banco::getInstance()->executeStatement())

@@ -131,15 +131,14 @@ if (!isset($_COOKIE["USER_ID"])) {
                                     </a>
                                     <!-- Popup botao relatorio -->
                                     <ul class="dropdown-menu">
-                                        <li><a href="#">Clientes</a></li>
-                                        <li><a href="#">Pedido de Venda</a></li>
-                                        <li><a href="#">Pedido de Frete</a></li>
-                                        <li><a href="#">Orçamento de Venda</a></li>
-                                        <li><a href="#">Orçamento de Frete</a></li>
+                                        <li><a href="/representacoes/relatorio/cliente/">Clientes</a></li>
+                                        <li><a href="/representacoes/relatorio/pedido/venda">Pedido de Venda</a></li>
+                                        <li><a href="/representacoes/relatorio/pedido/frete">Pedido de Frete</a></li>
+                                        <li><a href="/representacoes/relatorio/orcamento/venda">Orçamento de Venda</a></li>
+                                        <li><a href="/representacoes/relatorio/orcamento/frete">Orçamento de Frete</a></li>
                                         <li><a href="#">Contas a Pagar</a></li>
                                         <li><a href="#">Contas a Receber</a></li>
                                         <li><a href="#">Comissões</a></li>
-                                        <li><a href="#">Motoristas/Caminhões</a></li>
                                         <li><a href="#">Produtos</a></li>
                                     </ul>
                                     <!-- Fim popup botao relatorio -->

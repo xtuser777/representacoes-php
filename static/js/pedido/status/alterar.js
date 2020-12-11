@@ -29,15 +29,8 @@ function dateStatusBlur() {
         erroData = true;
         $('#msdata').html('<span class="label label-danger">A data do novo status precisa ser preenchida.</span>');
     } else {
-        let date = new Date(data + ' 05:00:00');
-
-        if (date > Date.now()) {
-            erroData = true;
-            $('#msdata').html('<span class="label label-danger">A data do status deve ser menor ou igual a data atual.</span>');
-        } else {
-            erroData = false;
-            $('#msdata').html('');
-        }
+        erroData = false;
+        $('#msdata').html('');
     }
 }
 

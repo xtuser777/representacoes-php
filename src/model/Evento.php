@@ -412,7 +412,7 @@ class Evento
 
         $filtro = "%$filter%";
 
-        if (!Banco::getInstance()->addParameters("ss", [ $filtro ]))
+        if (!Banco::getInstance()->addParameters("s", [ $filtro ]))
             return [];
 
         if (!Banco::getInstance()->executeStatement())
@@ -440,7 +440,7 @@ class Evento
         if (!Banco::getInstance()->prepareStatement($sql))
             return [];
 
-        if (!Banco::getInstance()->addParameters("ss", [ $date ]))
+        if (!Banco::getInstance()->addParameters("s", [ $date ]))
             return [];
 
         if (!Banco::getInstance()->executeStatement())
