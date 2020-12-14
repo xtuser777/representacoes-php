@@ -1,8 +1,8 @@
 <?php
 
-use scr\control\RelatorioContasReceberControl;
+use scr\control\RelatorioProdutoControl;
 
-require "../../../header.php";
+require "../../header.php";
 
 if (!isset($_COOKIE["USER_ID"])) {
     header('Location: /representacoes/login');
@@ -13,13 +13,9 @@ if (!isset($_COOKIE["USER_ID"])) {
     header("Location: /representacoes/login/denied");
 } else {
     $filtro = $_GET["filtro"];
-    $inicio = $_GET["inicio"];
-    $fim = $_GET["fim"];
-    $venc = $_GET["venc"];
-    $comissao = $_GET["comissao"];
+    $unidade = $_GET["unidade"];
     $representacao = $_GET["representacao"];
-    $situacao = $_GET["situacao"];
     $ordem = $_GET["ordem"];
 
-    echo (new RelatorioContasReceberControl())->gerarRelatorioContas($filtro, $inicio, $fim, $venc, $comissao, $representacao, $situacao, $ordem);
+    echo (new RelatorioProdutoControl())->gerarRelatorioProdutos($filtro, $unidade, $representacao, $ordem);
 }

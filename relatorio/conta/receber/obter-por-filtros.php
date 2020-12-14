@@ -1,6 +1,6 @@
 <?php
 
-use scr\control\RelatorioContasPagarControl;
+use scr\control\RelatorioContasReceberControl;
 
 require "../../../header.php";
 
@@ -16,9 +16,10 @@ if (!isset($_COOKIE["USER_ID"])) {
     $data1 = $_POST["inicio"];
     $data2 = $_POST["fim"];
     $venc = $_POST["venc"];
-    $situacao = $_POST["situacao"];
+    $comissao = $_POST["comissao"];
+    $representacao = $_POST["representacao"];
     $ordem = $_POST["ordem"];
 
     header("Content-type: application/json");
-    echo (new RelatorioContasPagarControl())->obterPorFiltroPeriodoVencimentoSituacao($filtro, $data1, $data2, $venc, $situacao, $ordem);
+    echo (new RelatorioContasReceberControl())->obterPorFiltros($filtro, $data1, $data2, $venc, $comissao, $representacao, $situacao, $ordem);
 }

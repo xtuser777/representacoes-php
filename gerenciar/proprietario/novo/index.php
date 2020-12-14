@@ -136,10 +136,9 @@ if (!isset($_COOKIE["USER_ID"])) {
                                         <li><a href="/representacoes/relatorio/pedido/frete">Pedido de Frete</a></li>
                                         <li><a href="/representacoes/relatorio/orcamento/venda">Orçamento de Venda</a></li>
                                         <li><a href="/representacoes/relatorio/orcamento/frete">Orçamento de Frete</a></li>
-                                        <li><a href="#">Contas a Pagar</a></li>
-                                        <li><a href="#">Contas a Receber</a></li>
-                                        <li><a href="#">Comissões</a></li>
-                                        <li><a href="#">Produtos</a></li>
+                                        <li><a href="/representacoes/relatorio/conta/pagar">Contas a Pagar</a></li>
+                                        <li><a href="/representacoes/relatorio/conta/receber">Contas a Receber</a></li>
+                                        <li><a href="/representacoes/relatorio/produto">Produtos</a></li>
                                     </ul>
                                     <!-- Fim popup botao relatorio -->
                                 </li>

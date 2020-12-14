@@ -623,7 +623,7 @@ class OrcamentoFrete
         return $this->resultToList(Banco::getInstance()->getResult());
     }
 
-    public function findAll(string $order = "of.orc_fre_descricao"): array
+    public function findAll(string $order = "o.orc_fre_descricao"): array
     {
         $sql = "
             select o.orc_fre_id, o.orc_fre_descricao, o.orc_fre_data, o.orc_fre_distancia, o.orc_fre_peso, 

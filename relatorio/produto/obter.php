@@ -1,8 +1,8 @@
 <?php
 
-use scr\control\RelatorioContasPagarControl;
+use scr\control\RelatorioProdutoControl;
 
-require "../../../header.php";
+require "../../header.php";
 
 if (!isset($_COOKIE["USER_ID"])) {
     header("Location: /representacoes/login");
@@ -12,10 +12,8 @@ if (!isset($_COOKIE["USER_ID"])) {
 } elseif ($_COOKIE["USER_LEVEL"] !== "1") {
     header("Location: /representacoes/login/denied");
 } else {
-    $filtro = $_POST["filtro"];
-    $situacao = $_POST["situacao"];
     $ordem = $_POST["ordem"];
 
     header("Content-type: application/json");
-    echo (new RelatorioContasPagarControl())->obterPorFiltroSituacao($filtro, $situacao, $ordem);
+    echo (new RelatorioProdutoControl())->obter($ordem);
 }

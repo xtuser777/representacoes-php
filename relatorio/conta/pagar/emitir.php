@@ -16,8 +16,10 @@ if (!isset($_COOKIE["USER_ID"])) {
     $inicio = $_GET["inicio"];
     $fim = $_GET["fim"];
     $venc = $_GET["venc"];
+    $comissao = $_GET["comissao"];
+    $vendedor = $_GET["vendedor"];
     $situacao = $_GET["situacao"];
     $ordem = $_GET["ordem"];
 
-    echo (new RelatorioContasPagarControl())->gerarRelatorioContas($filtro, $inicio, $fim, $venc, $situacao, $ordem);
+    echo (new RelatorioContasPagarControl())->gerarRelatorioContas($filtro, $inicio, $fim, $venc, $comissao, $vendedor, $situacao, $ordem);
 }

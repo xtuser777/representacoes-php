@@ -2,6 +2,8 @@ const textFiltro = document.getElementById("textFiltro");
 const dateFiltroInicio = document.getElementById("dateFiltroInicio");
 const dateFiltroFim = document.getElementById("dateFiltroFim");
 const dateVencimento = document.getElementById('dateVencimento');
+const selectComissao = document.getElementById("selectComissao");
+const selectVendedor = document.getElementById("selectVendedor");
 const selectOrdem = document.getElementById("selectOrdem");
 const selectSituacao = document.getElementById("selectSituacao");
 const tableContas = document.getElementById("tableContas");
@@ -40,6 +42,18 @@ function preencherTabela(dados) {
     $(tbodyContas).html(txt);
 }
 
+function selecionarComissao() {
+    let comissao = Number.parseInt(selectComissao.value);
+
+    if (comissao === 1) {
+        selectVendedor.disabled = false;
+        selectVendedor.value = "0";
+    } else {
+        selectVendedor.value = "0";
+        selectVendedor.disabled = true;
+    }
+}
+
 async function obter(ordem = "1") {
     let params = new FormData();
     params.append('ordem', ordem);
@@ -62,13 +76,31 @@ async function obter(ordem = "1") {
 }
 
 $(document).ready(async function (event) {
+    let vendedores = get('/representacoes/relatorio/conta/pagar/obter-vendedores.php');
+    if (vendedores !== null && vendedores.length > 0) {
+        for (let i = 0; i < vendedores.length; i++) {
+            let option = document.createElement('option');
+            option.value = vendedores[i].id;
+            option.text = vendedores[i].pessoa.nome;
+            selectVendedor.appendChild(option);
+        }
+    }
+
+    selecionarComissao();
+
     await obter();
 });
 
-async function obterPorSituacao(situacao, ordem) {
+async function obterPorFiltros(filtro, inicio, fim, venc, comissao, vendedor, situacao, ordem) {
     let res = await postJSON(
-        '/representacoes/relatorio/conta/pagar/obter-por-situacao.php',
+        '/representacoes/relatorio/conta/pagar/obter-por-filtros.php',
         {
+            filtro: filtro,
+            inicio: inicio,
+            fim: fim,
+            venc: venc,
+            comissao: comissao,
+            vendedor: vendedor,
             situacao: situacao,
             ordem: ordem
         }
@@ -83,413 +115,6 @@ async function obterPorSituacao(situacao, ordem) {
             "danger",
             3000
         );
-    }
-}
-
-async function obterPorVencimento(venc, ordem) {
-    let res = await postJSON(
-        '/representacoes/relatorio/conta/pagar/obter-por-vencimento.php',
-        {
-            venc: venc,
-            ordem: ordem
-        }
-    );
-
-    if (res.status) {
-        preencherTabela(res.response);
-    } else {
-        mostraDialogo(
-            res.error.message + "<br />" +
-            "Status: "+res.error.code+" "+res.error.status,
-            "danger",
-            3000
-        );
-    }
-}
-
-async function obterPorVencimentoSituacao(venc, situacao, ordem) {
-    let res = await postJSON(
-        '/representacoes/relatorio/conta/pagar/obter-por-vencimento-situacao.php',
-        {
-            venc: venc,
-            situacao: situacao,
-            ordem: ordem
-        }
-    );
-
-    if (res.status) {
-        preencherTabela(res.response);
-    } else {
-        mostraDialogo(
-            res.error.message + "<br />" +
-            "Status: "+res.error.code+" "+res.error.status,
-            "danger",
-            3000
-        );
-    }
-}
-
-async function obterPorFiltro(filtro, ordem) {
-    let res = await postJSON(
-        '/representacoes/relatorio/conta/pagar/obter-por-filtro.php',
-        {
-            filtro: filtro,
-            ordem: ordem
-        }
-    );
-
-    if (res.status) {
-        preencherTabela(res.response);
-    } else {
-        mostraDialogo(
-            res.error.message + "<br />" +
-            "Status: "+res.error.code+" "+res.error.status,
-            "danger",
-            3000
-        );
-    }
-}
-
-async function obterPorFiltroSituacao(filtro, situacao, ordem) {
-    let res = await postJSON(
-        '/representacoes/relatorio/conta/pagar/obter-por-filtro-situacao.php',
-        {
-            filtro: filtro,
-            situacao: situacao,
-            ordem: ordem
-        }
-    );
-
-    if (res.status) {
-        preencherTabela(res.response);
-    } else {
-        mostraDialogo(
-            res.error.message + "<br />" +
-            "Status: "+res.error.code+" "+res.error.status,
-            "danger",
-            3000
-        );
-    }
-}
-
-async function obterPorFiltroVencimento(filtro, venc, ordem) {
-    let res = await postJSON(
-        '/representacoes/relatorio/conta/pagar/obter-por-filtro-vencimento.php',
-        {
-            filtro: filtro,
-            venc: venc,
-            ordem: ordem
-        }
-    );
-
-    if (res.status) {
-        preencherTabela(res.response);
-    } else {
-        mostraDialogo(
-            res.error.message + "<br />" +
-            "Status: "+res.error.code+" "+res.error.status,
-            "danger",
-            3000
-        );
-    }
-}
-
-async function obterPorFiltroVencimentoSituacao(filtro, venc, situacao, ordem) {
-    let res = await postJSON(
-        '/representacoes/relatorio/conta/pagar/obter-por-filtro-vencimento-situacao.php',
-        {
-            filtro: filtro,
-            venc: venc,
-            situacao: situacao,
-            ordem: ordem
-        }
-    );
-
-    if (res.status) {
-        preencherTabela(res.response);
-    } else {
-        mostraDialogo(
-            res.error.message + "<br />" +
-            "Status: "+res.error.code+" "+res.error.status,
-            "danger",
-            3000
-        );
-    }
-}
-
-async function obterPorPeriodo(inicio, fim, ordem) {
-    let dataInicio = new Date(inicio + ' 05:00:59');
-    let dataFim = new Date(fim + ' 05:00:59');
-
-    if (dataInicio > dataFim) {
-        mostraDialogo(
-            'A data de início deve ser igual ou menor que a data fim.',
-            'danger',
-            3000
-        );
-    } else {
-        let res = await postJSON(
-            '/representacoes/relatorio/conta/pagar/obter-por-periodo.php',
-            {
-                inicio: inicio,
-                fim: fim,
-                ordem: ordem
-            }
-        );
-
-        if (res.status) {
-            preencherTabela(res.response);
-        } else {
-            mostraDialogo(
-                res.error.message + "<br />" +
-                "Status: "+res.error.code+" "+res.error.status,
-                "danger",
-                3000
-            );
-        }
-    }
-}
-
-async function obterPorPeriodoSituacao(inicio, fim, situacao, ordem) {
-    let dataInicio = new Date(inicio + ' 05:00:59');
-    let dataFim = new Date(fim + ' 05:00:59');
-
-    if (dataInicio > dataFim) {
-        mostraDialogo(
-            'A data de início deve ser igual ou menor que a data fim.',
-            'danger',
-            3000
-        );
-    } else {
-        let res = await postJSON(
-            '/representacoes/relatorio/conta/pagar/obter-por-periodo-situacao.php',
-            {
-                inicio: inicio,
-                fim: fim,
-                situacao: situacao,
-                ordem: ordem
-            }
-        );
-
-        if (res.status) {
-            preencherTabela(res.response);
-        } else {
-            mostraDialogo(
-                res.error.message + "<br />" +
-                "Status: "+res.error.code+" "+res.error.status,
-                "danger",
-                3000
-            );
-        }
-    }
-}
-
-async function obterPorPeriodoVencimento(inicio, fim, venc, ordem) {
-    let dataInicio = new Date(inicio + ' 05:00:59');
-    let dataFim = new Date(fim + ' 05:00:59');
-
-    if (dataInicio > dataFim) {
-        mostraDialogo(
-            'A data de início deve ser igual ou menor que a data fim.',
-            'danger',
-            3000
-        );
-    } else {
-        let res = await postJSON(
-            '/representacoes/relatorio/conta/pagar/obter-por-periodo-vencimento.php',
-            {
-                inicio: inicio,
-                fim: fim,
-                venc: venc,
-                ordem: ordem
-            }
-        );
-
-        if (res.status) {
-            preencherTabela(res.response);
-        } else {
-            mostraDialogo(
-                res.error.message + "<br />" +
-                "Status: "+res.error.code+" "+res.error.status,
-                "danger",
-                3000
-            );
-        }
-    }
-}
-
-async function obterPorPeriodoVencimentoSituacao(inicio, fim, venc, situacao, ordem) {
-    let dataInicio = new Date(inicio + ' 05:00:59');
-    let dataFim = new Date(fim + ' 05:00:59');
-
-    if (dataInicio > dataFim) {
-        mostraDialogo(
-            'A data de início deve ser igual ou menor que a data fim.',
-            'danger',
-            3000
-        );
-    } else {
-        let res = await postJSON(
-            '/representacoes/relatorio/conta/pagar/obter-por-periodo-vencimento-situacao.php',
-            {
-                inicio: inicio,
-                fim: fim,
-                venc: venc,
-                situacao: situacao,
-                ordem: ordem
-            }
-        );
-
-        if (res.status) {
-            preencherTabela(res.response);
-        } else {
-            mostraDialogo(
-                res.error.message + "<br />" +
-                "Status: "+res.error.code+" "+res.error.status,
-                "danger",
-                3000
-            );
-        }
-    }
-}
-
-async function obterPorFiltroPeriodo(filtro, inicio, fim, ordem) {
-    let dataInicio = new Date(inicio + ' 05:00:59');
-    let dataFim = new Date(fim + ' 05:00:59');
-
-    if (dataInicio > dataFim) {
-        mostraDialogo(
-            'A data de início deve ser igual ou menor que a data fim.',
-            'danger',
-            3000
-        );
-    } else {
-        let res = await postJSON(
-            '/representacoes/relatorio/conta/pagar/obter-por-filtro-periodo.php',
-            {
-                filtro: filtro,
-                inicio: inicio,
-                fim: fim,
-                ordem: ordem
-            }
-        );
-
-        if (res.status) {
-            preencherTabela(res.response);
-        } else {
-            mostraDialogo(
-                res.error.message + "<br />" +
-                "Status: "+res.error.code+" "+res.error.status,
-                "danger",
-                3000
-            );
-        }
-    }
-}
-
-async function obterPorFiltroPeriodoSituacao(filtro, inicio, fim, situacao, ordem) {
-    let dataInicio = new Date(inicio + ' 05:00:59');
-    let dataFim = new Date(fim + ' 05:00:59');
-
-    if (dataInicio > dataFim) {
-        mostraDialogo(
-            'A data de início deve ser igual ou menor que a data fim.',
-            'danger',
-            3000
-        );
-    } else {
-        let res = await postJSON(
-            '/representacoes/relatorio/conta/pagar/obter-por-filtro-periodo-situacao.php',
-            {
-                filtro: filtro,
-                inicio: inicio,
-                fim: fim,
-                situacao: situacao,
-                ordem: ordem
-            }
-        );
-
-        if (res.status) {
-            preencherTabela(res.response);
-        } else {
-            mostraDialogo(
-                res.error.message + "<br />" +
-                "Status: "+res.error.code+" "+res.error.status,
-                "danger",
-                3000
-            );
-        }
-    }
-}
-
-async function obterPorFiltroPeriodoVencimento(filtro, inicio, fim, venc, ordem) {
-    let dataInicio = new Date(inicio + ' 05:00:59');
-    let dataFim = new Date(fim + ' 05:00:59');
-
-    if (dataInicio > dataFim) {
-        mostraDialogo(
-            'A data de início deve ser igual ou menor que a data fim.',
-            'danger',
-            3000
-        );
-    } else {
-        let res = await postJSON(
-            '/representacoes/relatorio/conta/pagar/obter-por-filtro-periodo-vencimento.php',
-            {
-                filtro: filtro,
-                inicio: inicio,
-                fim: fim,
-                venc: venc,
-                ordem: ordem
-            }
-        );
-
-        if (res.status) {
-            preencherTabela(res.response);
-        } else {
-            mostraDialogo(
-                res.error.message + "<br />" +
-                "Status: "+res.error.code+" "+res.error.status,
-                "danger",
-                3000
-            );
-        }
-    }
-}
-
-async function obterPorFiltroPeriodoVencimentoSituacao(filtro, inicio, fim, venc, situacao, ordem) {
-    let dataInicio = new Date(inicio + ' 05:00:59');
-    let dataFim = new Date(fim + ' 05:00:59');
-
-    if (dataInicio > dataFim) {
-        mostraDialogo(
-            'A data de início deve ser igual ou menor que a data fim.',
-            'danger',
-            3000
-        );
-    } else {
-        let res = await postJSON(
-            '/representacoes/relatorio/conta/pagar/obter-por-filtro-periodo-vencimento-situacao.php',
-            {
-                filtro: filtro,
-                inicio: inicio,
-                fim: fim,
-                venc: venc,
-                situacao: situacao,
-                ordem: ordem
-            }
-        );
-
-        if (res.status) {
-            preencherTabela(res.response);
-        } else {
-            mostraDialogo(
-                res.error.message + "<br />" +
-                "Status: "+res.error.code+" "+res.error.status,
-                "danger",
-                3000
-            );
-        }
     }
 }
 
@@ -498,77 +123,23 @@ async function filtrar() {
     let inicio = dateFiltroInicio.value;
     let fim = dateFiltroFim.value;
     let venc = dateVencimento.value;
+    let comissao = Number.parseInt(selectComissao.value);
+    let vendedor = Number.parseInt(selectVendedor.value);
     let situacao = Number.parseInt(selectSituacao.value);
     let ordem = selectOrdem.value;
 
-    if (filtro === '' && inicio === '' && fim === '' && venc === '' && situacao === 0) {
+    if (filtro === '' && inicio === '' && fim === '' && venc === '' && comissao === 0 && vendedor === 0 && situacao === 0) {
         await obter(ordem);
     } else {
-        if (filtro !== '' && inicio !== '' && fim !== '' && venc !== '' && situacao !== 0) {
-            await obterPorFiltroPeriodoVencimentoSituacao(filtro, inicio, fim, venc, situacao, ordem);
+        if (filtro !== '' || inicio !== '' || fim !== '' || venc !== '' || comissao > 0 || vendedor > 0 || situacao !== 0) {
+            await obterPorFiltros(filtro, inicio, fim, venc, comissao, vendedor, situacao, ordem);
         } else {
-            if (filtro !== '' && inicio !== '' && fim !== '' && venc !== '' && situacao === 0) {
-                await obterPorFiltroPeriodoVencimento(filtro, inicio, fim, venc, ordem);
-            } else {
-                if (filtro !== '' && inicio !== '' && fim !== '' && venc === '' && situacao !== 0) {
-                    await obterPorFiltroPeriodoSituacao(filtro, inicio, fim, situacao, ordem);
-                } else {
-                    if (filtro !== '' && inicio !== '' && fim !== '' && venc === '' && situacao === 0) {
-                        await obterPorFiltroPeriodo(filtro, inicio, fim, ordem);
-                    } else {
-                        if (filtro !== '' && inicio === '' && fim === '' && venc !== '' && situacao !== 0) {
-                            await obterPorFiltroVencimentoSituacao(filtro, venc, situacao, ordem);
-                        } else {
-                            if (filtro !== '' && inicio === '' && fim === '' && venc !== '' && situacao === 0) {
-                                await obterPorFiltroVencimento(filtro, venc, ordem);
-                            } else {
-                                if (filtro !== '' && inicio === '' && fim === '' && venc === '' && situacao !== 0) {
-                                    await obterPorFiltroSituacao(filtro, situacao, ordem);
-                                } else {
-                                    if (filtro !== '' && inicio === '' && fim === '' && venc === '' && situacao === 0) {
-                                        await obterPorFiltro(filtro, ordem);
-                                    } else {
-                                        if (filtro === '' && inicio !== '' && fim !== '' && venc !== '' && situacao !== 0) {
-                                            await obterPorPeriodoVencimentoSituacao(inicio, fim, venc, situacao, ordem);
-                                        } else {
-                                            if (filtro === '' && inicio !== '' && fim !== '' && venc !== '' && situacao === 0) {
-                                                await obterPorPeriodoVencimento(inicio, fim, venc, ordem);
-                                            } else {
-                                                if (filtro === '' && inicio !== '' && fim !== '' && venc === '' && situacao !== 0) {
-                                                    await obterPorPeriodoSituacao(inicio, fim, situacao, ordem);
-                                                } else {
-                                                    if (filtro === '' && inicio !== '' && fim !== '' && venc === '' && situacao === 0) {
-                                                        await obterPorPeriodo(inicio, fim, ordem);
-                                                    } else {
-                                                        if (filtro === '' && inicio === '' && fim === '' && venc !== '' && situacao !== 0) {
-                                                            await obterPorVencimentoSituacao(venc, situacao, ordem);
-                                                        } else {
-                                                            if (filtro === '' && inicio === '' && fim === '' && venc !== '' && situacao === 0) {
-                                                                await obterPorVencimento(venc, ordem);
-                                                            } else {
-                                                                if (filtro === '' && inicio === '' && fim === '' && venc === '' && situacao !== 0) {
-                                                                    await obterPorSituacao(situacao, ordem);
-                                                                } else {
-                                                                    if ((inicio !== '' && fim === '') || (inicio === '' && fim !== '')) {
-                                                                        mostraDialogo(
-                                                                            'As duas datas de lançamento devem estar preenchidas.',
-                                                                            'warning',
-                                                                            3000
-                                                                        );
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            if ((inicio !== '' && fim === '') || (inicio === '' && fim !== '')) {
+                mostraDialogo(
+                    'As duas datas de lançamento devem estar preenchidas.',
+                    'warning',
+                    3000
+                );
             }
         }
     }
@@ -579,8 +150,10 @@ function emitir() {
     let inicio = dateFiltroInicio.value;
     let fim = dateFiltroFim.value;
     let venc = dateVencimento.value;
+    let comissao = Number.parseInt(selectComissao.value);
+    let vendedor = Number.parseInt(selectVendedor.value);
     let situacao = Number.parseInt(selectSituacao.value);
 
-    const guia = window.open(`/representacoes/relatorio/conta/pagar/emitir.php?filtro=${filtro}&inicio=${inicio}&fim=${fim}&venc=${venc}&situacao=${situacao}&ordem=1`, '_blank');
+    const guia = window.open(`/representacoes/relatorio/conta/pagar/emitir.php?filtro=${filtro}&inicio=${inicio}&fim=${fim}&venc=${venc}&comissao=${comissao}&vendedor=${vendedor}&situacao=${situacao}&ordem=1`, '_blank');
     guia.focus();
 }

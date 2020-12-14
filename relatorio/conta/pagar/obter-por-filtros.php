@@ -13,10 +13,14 @@ if (!isset($_COOKIE["USER_ID"])) {
     header("Location: /representacoes/login/denied");
 } else {
     $filtro = $_POST["filtro"];
+    $inicio = $_POST["inicio"];
+    $fim = $_POST["fim"];
     $venc = $_POST["venc"];
+    $comissao = $_POST["comissao"];
+    $vendedor = $_POST["vendedor"];
     $situacao = $_POST["situacao"];
     $ordem = $_POST["ordem"];
 
     header("Content-type: application/json");
-    echo (new RelatorioContasPagarControl())->obterPorFiltroVencimentoSituacao($filtro, $venc, $situacao, $ordem);
+    echo (new RelatorioContasPagarControl())->obterPorFiltros($filtro, $inicio, $fim, $venc, $comissao, $vendedor, $situacao, $ordem);
 }

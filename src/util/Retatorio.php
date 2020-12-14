@@ -96,7 +96,7 @@ class Retatorio extends FPDF
         $this->SetFont("Arial", "B", 12);
         $this->Text(((297 - $this->GetStringWidth($title)) / 2), 31, $title);
 
-        $this->SetFont("Arial", "B", 10);
+        $this->SetFont("Arial", "B", 8);
         $this->Text(((297 - $this->GetStringWidth($filters)) / 2), 36, $filters);
     }
 }

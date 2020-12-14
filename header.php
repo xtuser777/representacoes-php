@@ -131,3 +131,4 @@ require ROOT . "/src/control/RelatorioOrcamentoVendaControl.php";
 require ROOT . "/src/control/RelatorioOrcamentoFreteControl.php";
 require ROOT . "/src/control/RelatorioContasPagarControl.php";
 require ROOT . "/src/control/RelatorioContasReceberControl.php";
+require ROOT . "/src/control/RelatorioProdutoControl.php";

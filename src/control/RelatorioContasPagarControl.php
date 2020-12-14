@@ -5,6 +5,7 @@ namespace scr\control;
 
 
 use scr\model\ContaPagar;
+use scr\model\Funcionario;
 use scr\model\Parametrizacao;
 use scr\util\Banco;
 use scr\util\Retatorio;
@@ -29,30 +30,12 @@ class RelatorioContasPagarControl
         return json_encode($serial);
     }
 
-    public function obterPorVencimento(string $venc, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByVenc($venc, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorFiltro(string $filtro, int $ordem)
+    public function obterPorFiltros(string $filtro, string $inicio, string $fim, string $venc, int $comissao, int $vendedor, int $situacao, int $ordem)
     {
         if (!Banco::getInstance()->open()) 
             return json_encode([]);
         
-        $contas = (new ContaPagar())->findByDescription($filtro, $this->traduzirOrdem($ordem));
+        $contas = (new ContaPagar())->findByFiltersReport($filtro, $inicio, $fim, $venc, $comissao, $vendedor, $situacao, $this->traduzirOrdem($ordem));
         
         Banco::getInstance()->getConnection()->close();
         
@@ -65,235 +48,19 @@ class RelatorioContasPagarControl
         return json_encode($serial);
     }
 
-    public function obterPorFiltroVencimento(string $filtro, string $venc, int $ordem)
+    public function obterVendedores()
     {
         if (!Banco::getInstance()->open())
             return json_encode([]);
 
-        $contas = (new ContaPagar())->findByDescriptionVenc($filtro, $venc, $this->traduzirOrdem($ordem));
+        $vendedores = Funcionario::getVendedores();
 
         Banco::getInstance()->getConnection()->close();
 
         $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorFiltroSituacao(string $filtro, int $situation, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByDescriptionSituation($filtro, $situation, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorFiltroVencimentoSituacao(string $filtro, string $venc, int $situation, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByDescriptionVencSituation($filtro, $venc, $situation, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorSituacao(int $situation, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findBySituation($situation, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorVencimentoSituacao(string $venc, int $situation, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByVencSituation($venc, $situation, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorPeriodo(string $data1, string $data2, int $ordem)
-    {
-        if (!Banco::getInstance()->open()) 
-            return json_encode([]);
-        
-        $contas = (new ContaPagar())->findByPeriod2($data1, $data2, $this->traduzirOrdem($ordem));
-        
-        Banco::getInstance()->getConnection()->close();
-        
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorPeriodoVencimento(string $data1, string $data2, string $venc, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByPeriodVenc($data1, $data2, $venc, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorPeriodoSituacao(string $data1, string $data2, int $situacao, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByPeriod2Situation($data1, $data2, $situacao, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorPeriodoVencimentoSituacao(string $data1, string $data2, string $venc, int $situacao, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByPeriodVencSituation($data1, $data2, $venc, $situacao, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorFiltroPeriodo(string $filtro, string $data1, string $data2, int $ordem)
-    {
-        if (!Banco::getInstance()->open()) 
-            return json_encode([]);
-        
-        $contas = (new ContaPagar())->findByFilterPeriod($filtro, $data1, $data2, $this->traduzirOrdem($ordem));
-        
-        Banco::getInstance()->getConnection()->close();
-        
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorFiltroPeriodoVencimento(string $filtro, string $data1, string $data2, string $venc, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByDescriptionPeriodVenc($filtro, $data1, $data2, $venc, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorFiltroPeriodoSituacao(string $filtro, string $data1, string $data2, int $situacao, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByFilterPeriodSituation($filtro, $data1, $data2, $situacao, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
-        }
-
-        return json_encode($serial);
-    }
-
-    public function obterPorFiltroPeriodoVencimentoSituacao(string $filtro, string $data1, string $data2, string $venc, int $situacao, int $ordem)
-    {
-        if (!Banco::getInstance()->open())
-            return json_encode([]);
-
-        $contas = (new ContaPagar())->findByDescriptionPeriodVencSituation($filtro, $data1, $data2, $venc, $situacao, $this->traduzirOrdem($ordem));
-
-        Banco::getInstance()->getConnection()->close();
-
-        $serial = [];
-        /** @var $conta ContaPagar */
-        foreach ($contas as $conta) {
-            $serial[] = $conta->jsonSerialize();
+        /** @var $vendedor Funcionario */
+        foreach ($vendedores as $vendedor) {
+            $serial[] = $vendedor->jsonSerialize();
         }
 
         return json_encode($serial);
@@ -334,7 +101,7 @@ class RelatorioContasPagarControl
         return $ordemTraduzida;
     }
 
-    public function gerarRelatorioContas(string $filtro, string $inicio, string $fim, string $venc, int $situacao, int $ordem): string
+    public function gerarRelatorioContas(string $filtro, string $inicio, string $fim, string $venc, int $comissao, int $vendedor, int $situacao, int $ordem): string
     {
         if (!Banco::getInstance()->open())
             return "Erro ao conectar no banco de dados.";
@@ -346,102 +113,55 @@ class RelatorioContasPagarControl
         $tituto = "RELATÓRIO DE CONTAS A PAGAR";
         $filtros = "";
 
-        if ($filtro === '' && $inicio === '' && $fim === '' && $venc === '' && $situacao === 0) {
+        if ($filtro === '' && $inicio === '' && $fim === '' && $venc === '' && $comissao === 0 && $vendedor === 0 && $situacao === 0) {
             $contas = (new ContaPagar())->findAll($this->traduzirOrdem($ordem));
             $filtros = "SEM FILTRAGEM";
         } else {
-            if ($filtro !== '' && $inicio !== '' && $fim !== '' && $venc !== '' && $situacao !== 0) {
-                $contas = (new ContaPagar())->findByDescriptionPeriodVencSituation($filtro, $inicio, $fim, $venc, $situacao, $this->traduzirOrdem($ordem));
-                $sit = "";
-                switch ($situacao) { case 1: $sit = "PENDENTE"; break; case 2: $sit = "PAGO PARC."; break; case 3: $sit = "PAGO"; break; }
-                $filtros = "FILTRADO POR FILTRO ($filtro), PERÍODO ($inicio) - ($fim), VENCIMENTO ($venc), SITUAÇÃO ($sit)";
+            if ($filtro !== '' || $inicio !== '' || $fim !== '' || $venc !== '' || $comissao > 0 || $vendedor > 0 || $situacao !== 0) {
+                $contas = (new ContaPagar())->findByFiltersReport($filtro, $inicio, $fim, $venc, $comissao, $vendedor, $situacao, $this->traduzirOrdem($ordem));
+                $filtros = "FILTRADO POR";
+
+                if ($filtro !== "") {
+                    $filtros .= " FILTRO ($filtro)";
+                }
+
+                if ($inicio !== "" && $fim !== "") {
+                    if (strlen($filtros) > 12)
+                        $filtros .= ",";
+                    $filtros .= " PERÍODO ($inicio) - ($fim)";
+                }
+
+                if ($venc !== "") {
+                    if (strlen($filtros) > 12)
+                        $filtros .= ",";
+                    $filtros .= " VENCIMENTO ($venc)";
+                }
+
+                if ($comissao > 0) {
+                    if (strlen($filtros) > 12)
+                        $filtros .= ",";
+                    $com = "";
+                    switch ($comissao) {case 1: $com = "SIM"; break; case 2: $com = "NÂO"; break;}
+                    $filtros .= " COMISSÃO ($com)";
+                }
+
+                if ($vendedor > 0) {
+                    if (strlen($filtros) > 12)
+                        $filtros .= ",";
+                    $ven = $contas[0]->getVendedor()->getPessoa()->getNome();
+                    $filtros .= " VENDEDOR ($ven)";
+                }
+
+                if ($situacao > 0) {
+                    if (strlen($filtros) > 12)
+                        $filtros .= ",";
+                    $sit = "";
+                    switch ($situacao) { case 1: $sit = "PENDENTE"; break; case 2: $sit = "PAGO PARC."; break; case 3: $sit = "PAGO"; break; }
+                    $filtros .= " SITUAÇÃO ($sit)";
+                }
             } else {
-                if ($filtro !== '' && $inicio !== '' && $fim !== '' && $venc !== '' && $situacao === 0) {
-                    $contas = (new ContaPagar())->findByDescriptionPeriodVenc($filtro, $inicio, $fim, $venc, $this->traduzirOrdem($ordem));
-                    $filtros = "FILTRADO POR FILTRO ($filtro), PERÍODO ($inicio) - ($fim), VENCIMENTO ($venc)";
-                } else {
-                    if ($filtro !== '' && $inicio !== '' && $fim !== '' && $venc === '' && $situacao !== 0) {
-                        $contas = (new ContaPagar())->findByDescriptionPeriodSituation($filtro, $inicio, $fim, $situacao, $this->traduzirOrdem($ordem));
-                        $sit = "";
-                        switch ($situacao) { case 1: $sit = "PENDENTE"; break; case 2: $sit = "PAGO PARC."; break; case 3: $sit = "PAGO"; break; }
-                        $filtros = "FILTRADO POR FILTRO ($filtro), PERÍODO ($inicio) - ($fim), SITUAÇÃO ($sit)";
-                    } else {
-                        if ($filtro !== '' && $inicio !== '' && $fim !== '' && $venc === '' && $situacao === 0) {
-                            $contas = (new ContaPagar())->findByDescriptionPeriod($filtro, $inicio, $fim, $this->traduzirOrdem($ordem));
-                            $filtros = "FILTRADO POR FILTRO ($filtro), PERÍODO ($inicio) - ($fim)";
-                        } else {
-                            if ($filtro !== '' && $inicio === '' && $fim === '' && $venc !== '' && $situacao !== 0) {
-                                $contas = (new ContaPagar())->findByDescriptionVencSituation($filtro, $venc, $situacao, $this->traduzirOrdem($ordem));
-                                $sit = "";
-                                switch ($situacao) { case 1: $sit = "PENDENTE"; break; case 2: $sit = "PAGO PARC."; break; case 3: $sit = "PAGO"; break; }
-                                $filtros = "FILTRADO POR VENCIMENTO ($venc), SITUAÇÃO ($sit)";
-                            } else {
-                                if ($filtro !== '' && $inicio === '' && $fim === '' && $venc !== '' && $situacao === 0) {
-                                    $contas = (new ContaPagar())->findByDescriptionVenc($filtro, $venc, $this->traduzirOrdem($ordem));
-                                    $filtros = "FILTRADO POR FILTRO ($filtro), VENCIMENTO ($venc)";
-                                } else {
-                                    if ($filtro !== '' && $inicio === '' && $fim === '' && $venc === '' && $situacao !== 0) {
-                                        $contas = (new ContaPagar())->findByDescriptionSituation($filtro, $situacao, $this->traduzirOrdem($ordem));
-                                        $sit = "";
-                                        switch ($situacao) { case 1: $sit = "PENDENTE"; break; case 2: $sit = "PAGO PARC."; break; case 3: $sit = "PAGO"; break; }
-                                        $filtros = "FILTRADO POR FILTRO ($filtro), SITUAÇÃO ($sit)";
-                                    } else {
-                                        if ($filtro !== '' && $inicio === '' && $fim === '' && $venc === '' && $situacao === 0) {
-                                            $contas = (new ContaPagar())->findByDescription($filtro, $this->traduzirOrdem($ordem));
-                                            $filtros = "FILTRADO POR FILTRO ($filtro)";
-                                        } else {
-                                            if ($filtro === '' && $inicio !== '' && $fim !== '' && $venc !== '' && $situacao !== 0) {
-                                                $contas = (new ContaPagar())->findByDescriptionPeriodVencSituation($filtro, $inicio, $fim, $venc, $situacao, $this->traduzirOrdem($ordem));
-                                                $sit = "";
-                                                switch ($situacao) { case 1: $sit = "PENDENTE"; break; case 2: $sit = "PAGO PARC."; break; case 3: $sit = "PAGO"; break; }
-                                                $filtros = "FILTRADO POR PERÍODO ($inicio) - ($fim), VENCIMENTO ($venc), SITUAÇÃO ($sit)";
-                                            } else {
-                                                if ($filtro === '' && $inicio !== '' && $fim !== '' && $venc !== '' && $situacao === 0) {
-                                                    $contas = (new ContaPagar())->findByPeriodVenc($inicio, $fim, $venc, $this->traduzirOrdem($ordem));
-                                                    $filtros = "FILTRADO POR PERÍODO ($inicio) - ($fim), VENCIMENTO ($venc)";
-                                                } else {
-                                                    if ($filtro === '' && $inicio !== '' && $fim !== '' && $venc === '' && $situacao !== 0) {
-                                                        $contas = (new ContaPagar())->findByPeriodSituation($inicio, $fim, $situacao, $this->traduzirOrdem($ordem));
-                                                        $sit = "";
-                                                        switch ($situacao) { case 1: $sit = "PENDENTE"; break; case 2: $sit = "PAGO PARC."; break; case 3: $sit = "PAGO"; break; }
-                                                        $filtros = "FILTRADO POR PERÍODO ($inicio) - ($fim), SITUAÇÃO ($sit)";
-                                                    } else {
-                                                        if ($filtro === '' && $inicio !== '' && $fim !== '' && $venc === '' && $situacao === 0) {
-                                                            $contas = (new ContaPagar())->findByPeriod($inicio, $fim, $this->traduzirOrdem($ordem));
-                                                            $filtros = "FILTRADO POR PERÍODO ($inicio) - ($fim)";
-                                                        } else {
-                                                            if ($filtro === '' && $inicio === '' && $fim === '' && $venc !== '' && $situacao !== 0) {
-                                                                $contas = (new ContaPagar())->findByVencSituation($venc, $situacao, $this->traduzirOrdem($ordem));
-                                                                $sit = "";
-                                                                switch ($situacao) { case 1: $sit = "PENDENTE"; break; case 2: $sit = "PAGO PARC."; break; case 3: $sit = "PAGO"; break; }
-                                                                $filtros = "FILTRADO POR VENCIMENTO ($venc), SITUAÇÃO ($sit)";
-                                                            } else {
-                                                                if ($filtro === '' && $inicio === '' && $fim === '' && $venc !== '' && $situacao === 0) {
-                                                                    $contas = (new ContaPagar())->findByVenc($venc, $this->traduzirOrdem($ordem));
-                                                                    $filtros = "FILTRADO POR VENCIMENTO ($venc)";
-                                                                } else {
-                                                                    if ($filtro === '' && $inicio === '' && $fim === '' && $venc === '' && $situacao !== 0) {
-                                                                        $contas = (new ContaPagar())->findBySituation($situacao, $this->traduzirOrdem($ordem));
-                                                                        $sit = "";
-                                                                        switch ($situacao) { case 1: $sit = "PENDENTE"; break; case 2: $sit = "PAGO PARC."; break; case 3: $sit = "PAGO"; break; }
-                                                                        $filtros = "FILTRADO POR SITUAÇÃO ($sit)";
-                                                                    } else {
-                                                                        if (($inicio !== '' && $fim === '') || ($inicio === '' && $fim !== '')) {
-                                                                            exit("As datas de inicio e fim devem estar preenchidas.");
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                if (($inicio !== '' && $fim === '') || ($inicio === '' && $fim !== '')) {
+                    exit("As datas de inicio e fim devem estar preenchidas.");
                 }
             }
         }

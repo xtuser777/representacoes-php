@@ -13,9 +13,13 @@ class OrcamentoFreteControl
 {
     public function obter()
     {
-        if (!Banco::getInstance()->open()) return json_encode([]);
+        if (!Banco::getInstance()->open())
+            return json_encode([]);
+
         $orcamentos = (new OrcamentoFrete())->findAll();
+
         Banco::getInstance()->getConnection()->close();
+
         $serial = [];
         /** @var $orcamento OrcamentoFrete */
         foreach ($orcamentos as $orcamento) {

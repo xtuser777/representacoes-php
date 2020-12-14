@@ -273,6 +273,98 @@ class Produto
         return $produtos;
     }
 
+    public static function findByFilters(string $filter, string $unit, int $representation, string $order): array
+    {
+        if (trim($filter) === "" && $unit === "" && $representation === 0)
+            return array();
+
+        $sql = "
+            select e.est_id, e.est_nome, e.est_sigla,
+                   c.cid_id, c.cid_nome,
+                   en.end_id, en.end_rua, en.end_numero, en.end_bairro, en.end_complemento, en.end_cep,
+                   ct.ctt_id, ct.ctt_telefone, ct.ctt_celular, ct.ctt_email,
+                   pj.pj_id, pj.pj_razao_social, pj.pj_nome_fantasia, pj.pj_cnpj,
+                   r.rep_id, r.rep_cadastro, r.rep_unidade,
+                   p.pro_id, p.pro_descricao, p.pro_medida, p.pro_peso, p.pro_preco, p.pro_preco_out
+            from produto p
+            inner join representacao r on p.rep_id = r.rep_id
+            inner join pessoa_juridica pj on r.pj_id = pj.pj_id
+            inner join contato ct on pj.ctt_id = ct.ctt_id
+            inner join endereco en on ct.end_id = en.end_id
+            inner join cidade c on en.cid_id = c.cid_id
+            inner join estado e on c.est_id = e.est_id
+        ";
+        $types = "";
+        $params = [];
+
+        $sql .= " where";
+
+        if ($filter !== "") {
+            $sql .= " p.pro_descricao like ?";
+            $filtro = "%$filter%";
+            $types .= "s";
+            $params[] = $filtro;
+        }
+
+        if ($unit !== "") {
+            if (!!strpos($sql, "?"))
+                $sql .= " and";
+            $medida = "%$unit%";
+            $sql .= " p.pro_medida like ?";
+            $types .= "s";
+            $params[] = $medida;
+        }
+
+        if ($representation > 0) {
+            if (!!strpos($sql, "?"))
+                $sql .= " and";
+            $sql .= " p.rep_id = ?";
+            $types .= "i";
+            $params[] = $representation;
+        }
+
+        $sql .= " order by $order";
+
+        if (!Banco::getInstance()->prepareStatement($sql))
+            return [];
+
+        if (!Banco::getInstance()->addParameters($types, $params))
+            return [];
+
+        if (!Banco::getInstance()->executeStatement())
+            return [];
+
+        $result = Banco::getInstance()->getResult();
+
+        $produtos = [];
+        while ($row = $result->fetch_assoc()) {
+            $produtos[] = new Produto (
+                $row["pro_id"], $row["pro_descricao"], $row["pro_medida"], $row["pro_peso"], $row["pro_preco"], $row["pro_preco_out"],
+                new Representacao(
+                    $row['rep_id'], $row['rep_cadastro'], $row['rep_unidade'],
+                    new PessoaJuridica(
+                        $row['pj_id'], $row['pj_razao_social'], $row['pj_nome_fantasia'], $row['pj_cnpj'],
+                        new Contato(
+                            $row['ctt_id'], $row['ctt_telefone'], $row['ctt_celular'], $row['ctt_email'],
+                            new Endereco(
+                                $row['end_id'], $row['end_rua'], $row['end_numero'], $row['end_bairro'], $row['end_complemento'], $row['end_cep'],
+                                new Cidade(
+                                    $row['cid_id'], $row['cid_nome'],
+                                    new Estado(
+                                        $row['est_id'], $row['est_nome'], $row['est_sigla']
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+                self::selectTypes($row["pro_id"])
+            );
+        }
+
+        return $produtos;
+    }
+
     public static function findByRepresentation(int $representacao): array
     {
         if ($representacao <= 0) return array();
@@ -339,7 +431,7 @@ class Produto
         return $produtos;
     }
 
-    public static function findAll(): array
+    public static function findAll(string $order = "p.pro_id"): array
     {
         $sql = "
             select e.est_id, e.est_nome, e.est_sigla,
@@ -356,7 +448,7 @@ class Produto
             inner join endereco en on ct.end_id = en.end_id
             inner join cidade c on en.cid_id = c.cid_id
             inner join estado e on c.est_id = e.est_id
-            order by p.pro_id;
+            order by $order;
         ";
         /** @var $stmt mysqli_stmt */
         $stmt = Banco::getInstance()->getConnection()->prepare($sql);

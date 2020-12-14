@@ -15,7 +15,7 @@
 
     <div class="fieldset-card-container">
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <label for="textFiltro">Filtro:</label>
                 <input type="text" id="textFiltro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por descrição..." />
             </div>
@@ -34,10 +34,8 @@
                 <label for="dateVencimento">Data Vencimento:</label>
                 <input type="date" id="dateVencimento" class="form-control input-sm" style="width: 100%;" />
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-2">
                 <label for="selectSituacao">Situação:</label>
                 <select id="selectSituacao" class="form-control input-sm">
                     <option value="0">SELECIONE</option>
@@ -46,8 +44,26 @@
                     <option value="3">PAGO</option>
                 </select>
             </div>
+        </div>
 
-            <div class="col-sm-4">
+        <div class="row">
+            <div class="col-sm-2">
+                <label for="selectComissao">Comissão:</label>
+                <select id="selectComissao" class="form-control input-sm" onchange="selecionarComissao();">
+                    <option value="0">SELECIONE</option>
+                    <option value="1">SIM</option>
+                    <option value="2">NÃO</option>
+                </select>
+            </div>
+
+            <div class="col-sm-3">
+                <label for="selectVendedor">Vendedor:</label>
+                <select id="selectVendedor" class="form-control input-sm">
+                    <option value="0">SELECIONE</option>
+                </select>
+            </div>
+
+            <div class="col-sm-3">
                 <label for="selectOrdem">Ordenar por:</label>
                 <select id="selectOrdem" class="form-control input-sm">
                     <option value="1">CONTA/PARCELA (CRESCENTE)</option>
