@@ -372,10 +372,13 @@ $(document).ready(async (event) => {
             selectRepresentacao.value = pedido.representacao.id;
         }
     }
+    selectOrcFrete.disabled = selectRepresentacao.disabled = selectPedVenda.disabled = true;
 
     textDesc.value = pedido.descricao;
+    textDesc.readOnly = true;
 
     selectCliente.value = pedido.cliente.id;
+    selectCliente.disabled = true;
 
     for (let i = 0; i < pedido.itens.length; i++) {
         await adicionarItem(pedido.itens[i]);
@@ -387,26 +390,36 @@ $(document).ready(async (event) => {
 
     selectTipoCam.value = pedido.tipoCaminhao.id;
     await selectTipoCaminhaoChange();
+    selectTipoCam.disabled = true;
 
     selectProprietario.value = pedido.proprietario.id;
     await selectProprietarioChange();
+    selectProprietario.disabled = true;
 
     selectCaminhao.value = pedido.caminhao.id;
+    selectCaminhao.disabled = true;
 
     textDistancia.value = pedido.distancia;
+    textDistancia.readOnly = true;
 
     selectEstado.value = pedido.destino.estado.id;
     selectEstadoChange();
+    selectEstado.disabled = true;
 
     selectCidade.value = pedido.destino.id;
+    selectCidade.disabled = true;
 
     selectMotorista.value = pedido.motorista.id;
+    selectMotorista.disabled = true;
 
     textValorMotorista.value = formatarValor(pedido.valorMotorista);
+    textValorMotorista.readOnly = true;
 
     textValorAdiantamento.value = formatarValor(pedido.entradaMotorista);
+    textValorAdiantamento.readonly = true;
 
     selectFormaAdiantamento.value = pedido.formaPagamentoMotorista ? pedido.formaPagamentoMotorista.id : 0;
+    selectFormaAdiantamento.disabled = true;
 
     textPesoItens.value = formatarPeso(pedido.peso);
 

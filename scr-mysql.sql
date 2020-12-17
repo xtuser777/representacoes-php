@@ -224,11 +224,13 @@ CREATE TABLE orcamento_frete
     orc_fre_validade DATE NOT NULL,
     orc_ven_id INTEGER,
     rep_id INTEGER,
+    cli_id INTEGER NOT NULL,
     tip_cam_id INTEGER NOT NULL,
     cid_id INTEGER NOT NULL,
     usu_id INTEGER NOT NULL,
     FOREIGN KEY (orc_ven_id) REFERENCES orcamento_venda(orc_ven_id),
     FOREIGN KEY (rep_id) REFERENCES representacao(rep_id),
+    FOREIGN KEY (cli_id) REFERENCES cliente(cli_id),
     FOREIGN KEY (tip_cam_id) REFERENCES tipo_caminhao(tip_cam_id),
     FOREIGN KEY (cid_id) REFERENCES cidade(cid_id),
     FOREIGN KEY (usu_id) REFERENCES usuario(usu_id)

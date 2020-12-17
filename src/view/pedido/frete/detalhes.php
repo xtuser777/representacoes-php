@@ -37,12 +37,12 @@
         <div class="row">
             <div class="col-sm-7">
                 <label for="textDescricao">Descrição:</label>
-                <input id="textDescricao" class="form-control input-sm" style="width: 100%;" value="" />
+                <input id="textDescricao" class="form-control input-sm" style="width: 100%;" value="" readonly />
             </div>
 
             <div class="col-sm-5">
                 <label for="selectCliente">Cliente:</label>
-                <select id="selectCliente" class="form-control input-sm" style="width: 100%;">
+                <select id="selectCliente" class="form-control input-sm" style="width: 100%;" disabled>
                     <option value="0">SELECIONAR</option>
                 </select>
             </div>
@@ -144,22 +144,20 @@
 
             <div class="fieldset-card-container">
                 <div class="row">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <label for="selectEstadoDestino">Estado:</label>
-                            <select id="selectEstadoDestino" class="form-control input-sm" style="width: 100%;" onchange="selectEstadoChange();">
-                                <option value="0">SELECIONAR</option>
-                            </select>
-                        </div>
+                    <div class="col-sm-12">
+                        <label for="selectEstadoDestino">Estado:</label>
+                        <select id="selectEstadoDestino" class="form-control input-sm" style="width: 100%;" onchange="selectEstadoChange();" disabled>
+                            <option value="0">SELECIONAR</option>
+                        </select>
                     </div>
+                </div>
 
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <label for="selectCidadeDestino">Cidade:</label>
-                            <select id="selectCidadeDestino" class="form-control input-sm" style="width: 100%;">
-                                <option value="0">SELECIONAR</option>
-                            </select>
-                        </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="selectCidadeDestino">Cidade:</label>
+                        <select id="selectCidadeDestino" class="form-control input-sm" style="width: 100%;" disabled>
+                            <option value="0">SELECIONAR</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -174,7 +172,7 @@
                 <div class="row">
                     <div class="col-sm-7">
                         <label for="selectMotorista">Motorista:</label>
-                        <select id="selectMotorista" class="form-control input-sm" style="width: 100%;">
+                        <select id="selectMotorista" class="form-control input-sm" style="width: 100%;" disabled>
                             <option value="0">SELECIONAR</option>
                         </select>
                     </div>
@@ -183,7 +181,7 @@
                         <label for="textValorMotorista">Valor:</label>
                         <div class="input-group">
                             <div class="input-group-addon">R$</div>
-                            <input type="text" id="textValorMotorista" class="form-control input-sm" style="width: 100%;" />
+                            <input type="text" id="textValorMotorista" class="form-control input-sm" style="width: 100%;" readonly />
                         </div>
                     </div>
                 </div>
@@ -193,13 +191,13 @@
                         <label for="textValorAdiantamento">Valor adiantamento:</label>
                         <div class="input-group">
                             <div class="input-group-addon">R$</div>
-                            <input type="text" id="textValorAdiantamento" class="form-control input-sm" style="width: 100%;" oninput="formaAdiantamentoEstado();" onchange="formaAdiantamentoEstado();" />
+                            <input type="text" id="textValorAdiantamento" class="form-control input-sm" style="width: 100%;" readonly />
                         </div>
                     </div>
 
                     <div class="col-sm-7">
                         <label for="selectFormaAdiantamento">Forma de pagamento:</label>
-                        <select id="selectFormaAdiantamento" class="form-control input-sm">
+                        <select id="selectFormaAdiantamento" class="form-control input-sm" disabled>
                             <option value="0">SELECIONAR</option>
                         </select>
                     </div>

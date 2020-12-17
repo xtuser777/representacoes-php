@@ -139,7 +139,7 @@
                 <ul class="nav navbar-nav navbar-right">
                     <!-- Botao sobre -->
                     <li>
-                        <a style="color: #fff;" href="/inicio/sobre">Sobre</a>
+                        <a style="color: #fff;" href="/representacoes/help/ManualdoUsuárioSCR.html" target="_blank">Ajuda</a>
                     </li>
                     <!-- Fim botao sobre -->
                     <!-- Botao de usuario -->

@@ -176,7 +176,14 @@ class PedidoAutorizarVisualizarControl
                 : $frete->getCliente()->getPessoaJuridica()->getContato()->getEndereco()->getCidade()->getEstado()->getNome(),
             $etapa->getRepresentacao()->getPessoa()->getNomeFantasia()
         );
-        $autorizacao->TabelaItens($frete->getItens());
+
+        $itensEtapa = [];
+        foreach ($frete->getItens() as $item) {
+            if ($item->getProduto()->getRepresentacao()->getId() === $etapa->getRepresentacao()->getId())
+                $itensEtapa[] = $item;
+        }
+        
+        $autorizacao->TabelaItens($itensEtapa);
         $autorizacao->Observacoes();
         $autorizacao->Mensagem();
         $autorizacao->Assinatura();

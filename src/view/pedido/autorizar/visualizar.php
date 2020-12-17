@@ -15,7 +15,7 @@
 
     <div class="fieldset-card-container">
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-5">
                 <label for="textDescricao">Descrição:</label>
                 <input id="textDescricao" class="form-control input-sm" style="width: 100%;" value="" readonly />
             </div>
@@ -25,18 +25,15 @@
                 <input id="textDestino" class="form-control input-sm" style="width: 100%;" value="" readonly />
             </div>
 
-            <div class="col-sm-2">
-                <label for="textDistancia">Distância:</label>
-                <div class="input-group">
-                    <input type="number" id="textDistancia" class="form-control input-sm" style="width: 100%;" readonly />
-                    <div class="input-group-addon">KM</div>
-                </div>
+            <div class="col-sm-3">
+                <label for="textMotorista">Motorista:</label>
+                <input id="textMotorista" class="form-control input-sm" style="width: 100%;" value="" readonly />
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-3">
-                <label for="textProprietario">Proprietário:</label>
+                <label for="textProprietario">Proprietário Caminhão:</label>
                 <input id="textProprietario" class="form-control input-sm" style="width: 100%;" value="" readonly />
             </div>
 
@@ -45,12 +42,20 @@
                 <input id="textCaminhao" class="form-control input-sm" style="width: 100%;" value="" readonly />
             </div>
 
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <label for="textTipoCaminhao">Tipo Caminhão:</label>
                 <input id="textTipoCaminhao" class="form-control input-sm" style="width: 100%;" value="" readonly />
             </div>
 
-            <div class="col-sm-3">
+            <div class="col-sm-2">
+                <label for="textDistancia">Distância:</label>
+                <div class="input-group">
+                    <input type="number" id="textDistancia" class="form-control input-sm" style="width: 100%;" readonly />
+                    <div class="input-group-addon">KM</div>
+                </div>
+            </div>
+
+            <div class="col-sm-2">
                 <label for="dateEntrega">Data Entrega:</label>
                 <input type="date" id="dateEntrega" class="form-control input-sm" style="width: 100%;" readonly />
             </div>

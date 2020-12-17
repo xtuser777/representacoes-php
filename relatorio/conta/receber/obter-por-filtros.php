@@ -18,6 +18,7 @@ if (!isset($_COOKIE["USER_ID"])) {
     $venc = $_POST["venc"];
     $comissao = $_POST["comissao"];
     $representacao = $_POST["representacao"];
+    $situacao = $_POST["situacao"];
     $ordem = $_POST["ordem"];
 
     header("Content-type: application/json");

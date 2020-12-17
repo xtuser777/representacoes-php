@@ -1,6 +1,7 @@
 const textDescricao = document.getElementById('textDescricao');
 const textDestino = document.getElementById('textDestino');
 const textDistancia = document.getElementById('textDistancia');
+const textMotorista = document.getElementById('textMotorista');
 const textProprietario = document.getElementById('textProprietario');
 const textCaminhao = document.getElementById('textCaminhao');
 const textTipoCaminhao = document.getElementById('textTipoCaminhao');
@@ -80,23 +81,41 @@ async function autorizar() {
         );
 
         if (res.status) {
-            mostraDialogo(
-                'Etapa de carregamento autorizada com sucesso.',
-                'success',
-                3000
-            );
-
             etapas.shift();
+            preencheTabelaEtapas(etapas);
 
-            const guia = window.open(`/representacoes/pedido/autorizar/visualizar/emitir.php?pedido=${pedido.id}&etapa=${etapa.id}`, '_blank');
-            guia.focus();
-
-            if (etapas.length === 0) {
-                alert('Todas as etapas deste pedido foram autorizadas. Voltando controle de autorizações.');
-                voltar();
-            } else {
-                selecionarEtapa();
-            }
+            bootbox.confirm({
+                message: "Etapa de carregamento autorizada com sucesso. " +
+                    "<br />Deseja imprimir o documento de autorização?",
+                buttons: {
+                    confirm: {
+                        label: 'Sim',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Não',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        const guia = window.open(`/representacoes/pedido/autorizar/visualizar/emitir.php?pedido=${pedido.id}&etapa=${etapa.id}`, '_blank');
+                        if (etapas.length === 0) {
+                            alert('Todas as etapas deste pedido foram autorizadas. Voltando controle de autorizações.');
+                            voltar();
+                        } else {
+                            selecionarEtapa();
+                        }
+                    } else {
+                        if (etapas.length === 0) {
+                            alert('Todas as etapas deste pedido foram autorizadas. Voltando controle de autorizações.');
+                            voltar();
+                        } else {
+                            selecionarEtapa();
+                        }
+                    }
+                }
+            });
         } else {
             mostraDialogo(
                 `Código: ${res.error.code}. <br />
@@ -122,6 +141,7 @@ $(document).ready(function (event) {
         } else {
             textDescricao.value = pedido.descricao;
             textDestino.value = `${pedido.destino.nome} / ${pedido.destino.estado.nome}`;
+            textMotorista.value = pedido.motorista.pessoa.nome;
             textDistancia.value = pedido.distancia;
             textProprietario.value = pedido.proprietario.tipo === 1 ? pedido.proprietario.pessoaFisica.nome : pedido.proprietario.pessoaJuridica.nomeFantasia;
             textCaminhao.value = `${pedido.caminhao.marca} / ${pedido.caminhao.modelo}`;
