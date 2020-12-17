@@ -64,10 +64,10 @@
             <thead>
             <tr>
                 <th class="hidden">ID</th>
-                <th style="width: 40%;">DESCRIÇÃO</th>
+                <th style="width: 30%;">DESCRIÇÃO</th>
                 <th style="width: 16%;">MEDIDA</th>
                 <th style="width: 10%;">PREÇO</th>
-                <th style="width: 10%;">REPRESENTAÇÂO</th>
+                <th style="width: 20%;">REPRESENTAÇÂO</th>
                 <th style="width: 2%;">&nbsp;</th>
                 <th style="width: 2%;">&nbsp;</th>
                 <th style="width: 2%;">&nbsp;</th>
