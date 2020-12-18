@@ -27,38 +27,16 @@ var erroEstado = true;
 var erroCidade = true;
 var erroValidade = true;
 
-function get(url_i) {
-    let res;
-
-    $.ajax({
-        type: 'GET',
-        url: url_i,
-        async: false,
-        contentType: 'application/json',
-        dataType: 'json',
-        success:
-            function (result) {
-                res = result;
-            },
-        error:
-            function (xhr, status, thrown) {
-                console.error(thrown);
-                alert(thrown);
-            }
-    });
-
-    return res;
-}
-
 function selectClienteChange() {
     let cliente = selectCliente.value;
     cliente = Number.parseInt(cliente);
+    let cli = clientes.findIndex((element) => { return (element.id === cliente); })
     if (cliente !== 0) {
-        textNomeCli.value = (clientes[cliente-1].tipo === 1) ? clientes[cliente-1].pessoaFisica.nome : clientes[cliente-1].pessoaJuridica.nomeFantasia;
-        textDocCli.value = (clientes[cliente-1].tipo === 1) ? clientes[cliente-1].pessoaFisica.cpf : clientes[cliente-1].pessoaJuridica.cnpj;
-        textTelCli.value = (clientes[cliente-1].tipo === 1) ? clientes[cliente-1].pessoaFisica.contato.telefone : clientes[cliente-1].pessoaJuridica.contato.telefone;
-        textCelCli.value = (clientes[cliente-1].tipo === 1) ? clientes[cliente-1].pessoaFisica.contato.celular : clientes[cliente-1].pessoaJuridica.contato.celular;
-        textEmailCli.value = (clientes[cliente-1].tipo === 1) ? clientes[cliente-1].pessoaFisica.contato.email : clientes[cliente-1].pessoaJuridica.contato.email;
+        textNomeCli.value = (clientes[cli].tipo === 1) ? clientes[cli].pessoaFisica.nome : clientes[cli].pessoaJuridica.nomeFantasia;
+        textDocCli.value = (clientes[cli].tipo === 1) ? clientes[cli].pessoaFisica.cpf : clientes[cli].pessoaJuridica.cnpj;
+        textTelCli.value = (clientes[cli].tipo === 1) ? clientes[cli].pessoaFisica.contato.telefone : clientes[cli].pessoaJuridica.contato.telefone;
+        textCelCli.value = (clientes[cli].tipo === 1) ? clientes[cli].pessoaFisica.contato.celular : clientes[cli].pessoaJuridica.contato.celular;
+        textEmailCli.value = (clientes[cli].tipo === 1) ? clientes[cli].pessoaFisica.contato.email : clientes[cli].pessoaJuridica.contato.email;
     } else {
         textNomeCli.value = "";
         textDocCli.value = "";

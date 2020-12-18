@@ -375,8 +375,8 @@ class OrcamentoVenda
                    orc_ven_peso,orc_ven_valor,orc_ven_validade,
                    ov.fun_id,cli_id,cid_id,ov.usu_id
             from orcamento_venda ov 
-            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
-            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            left join funcionario vdd on ov.fun_id = vdd.fun_id 
+            left join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
             inner join usuario atr on ov.usu_id = atr.usu_id 
             inner join funcionario af on atr.fun_id = af.fun_id 
             inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
@@ -407,8 +407,8 @@ class OrcamentoVenda
                    orc_ven_peso,orc_ven_valor,orc_ven_validade,
                    ov.fun_id,cli_id,cid_id,ov.usu_id
             from orcamento_venda ov 
-            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
-            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            left join funcionario vdd on ov.fun_id = vdd.fun_id 
+            left join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
             inner join usuario atr on ov.usu_id = atr.usu_id 
             inner join funcionario af on atr.fun_id = af.fun_id 
             inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
@@ -441,8 +441,8 @@ class OrcamentoVenda
                    orc_ven_peso,orc_ven_valor,orc_ven_validade,
                    ov.fun_id,cli_id,cid_id,ov.usu_id
             from orcamento_venda ov 
-            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
-            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            left join funcionario vdd on ov.fun_id = vdd.fun_id 
+            left join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
             inner join usuario atr on ov.usu_id = atr.usu_id 
             inner join funcionario af on atr.fun_id = af.fun_id 
             inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
@@ -475,8 +475,8 @@ class OrcamentoVenda
                    orc_ven_peso,orc_ven_valor,orc_ven_validade,
                    ov.fun_id,cli_id,cid_id,ov.usu_id
             from orcamento_venda ov 
-            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
-            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            left join funcionario vdd on ov.fun_id = vdd.fun_id 
+            left join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
             inner join usuario atr on ov.usu_id = atr.usu_id 
             inner join funcionario af on atr.fun_id = af.fun_id 
             inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
@@ -507,8 +507,8 @@ class OrcamentoVenda
                    orc_ven_peso,orc_ven_valor,orc_ven_validade,
                    ov.fun_id,cli_id,cid_id,ov.usu_id
             from orcamento_venda ov 
-            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
-            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            left join funcionario vdd on ov.fun_id = vdd.fun_id 
+            left join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
             inner join usuario atr on ov.usu_id = atr.usu_id 
             inner join funcionario af on atr.fun_id = af.fun_id 
             inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
@@ -539,8 +539,8 @@ class OrcamentoVenda
                    orc_ven_peso,orc_ven_valor,orc_ven_validade,
                    ov.fun_id,cli_id,cid_id,ov.usu_id
             from orcamento_venda ov 
-            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
-            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            left join funcionario vdd on ov.fun_id = vdd.fun_id 
+            left join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
             inner join usuario atr on ov.usu_id = atr.usu_id 
             inner join funcionario af on atr.fun_id = af.fun_id 
             inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
@@ -573,8 +573,8 @@ class OrcamentoVenda
                    orc_ven_peso,orc_ven_valor,orc_ven_validade,
                    ov.fun_id,cli_id,cid_id,ov.usu_id
             from orcamento_venda ov 
-            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
-            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            left join funcionario vdd on ov.fun_id = vdd.fun_id 
+            left join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
             inner join usuario atr on ov.usu_id = atr.usu_id 
             inner join funcionario af on atr.fun_id = af.fun_id 
             inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
@@ -604,8 +604,8 @@ class OrcamentoVenda
                    orc_ven_peso,orc_ven_valor,orc_ven_validade,
                    ov.fun_id,cli_id,cid_id,ov.usu_id
             from orcamento_venda ov 
-            inner join funcionario vdd on ov.fun_id = vdd.fun_id 
-            inner join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
+            left join funcionario vdd on ov.fun_id = vdd.fun_id 
+            left join pessoa_fisica vpf on vdd.pf_id = vpf.pf_id
             inner join usuario atr on ov.usu_id = atr.usu_id 
             inner join funcionario af on atr.fun_id = af.fun_id 
             inner join pessoa_fisica apf on af.pf_id = apf.pf_id 
