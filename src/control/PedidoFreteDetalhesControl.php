@@ -42,10 +42,7 @@ class PedidoFreteDetalhesControl
         $serial = [];
         /** @var OrcamentoFrete $orcamento */
         foreach ($orcamentos as $orcamento) {
-            $vinculo = (new PedidoFrete())->findByOrder($orcamento->getId());
-
-            if (!$vinculo)
-                $serial[] = $orcamento->jsonSerialize();
+            $serial[] = $orcamento->jsonSerialize();
         }
 
         Banco::getInstance()->getConnection()->close();
@@ -63,10 +60,7 @@ class PedidoFreteDetalhesControl
         $serial = [];
         /** @var PedidoVenda $venda */
         foreach ($vendas as $venda) {
-            $vinculo = (new PedidoFrete())->findByPrice($venda->getId());
-
-            if (!$vinculo)
-                $serial[] = $venda->jsonSerialize();
+            $serial[] = $venda->jsonSerialize();
         }
 
         Banco::getInstance()->getConnection()->close();
